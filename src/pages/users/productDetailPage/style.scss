@@ -1,0 +1,70 @@
+@use "sass:map";
+@import "style/pages/_theme";
+
+.product__detail__pic {
+  display: flex;
+  column-gap: 10px;
+
+  img {
+    flex: 0 0 65%;
+    object-fit: cover;
+  }
+
+  .main {
+    flex: 0 0 35%;
+    display: grid;
+    align-items: stretch;
+
+    img {
+      width: 60%;
+      object-fit: cover;
+
+      &:no(:first-child) {
+        padding-top: 5px;
+      }
+    }
+  }
+}
+.product__detail__text {
+  h2 {
+    color: #252525;
+    font-weight: 700;
+  }
+  .seen-icon {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    line-height: 30px;
+    column-gap: 5px;
+  }
+  p {
+    margin: 10px;
+    line-height: 25px;
+  }
+  ul {
+    margin: 20px 0px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+
+    li {
+      list-style: none;
+      display: flex;
+      column-gap: 20px;
+      line-height: 35px;
+
+      b {
+        width: 150px;
+      }
+      span {
+        display: flex;
+        column-gap: 10px;
+        align-items: center;
+
+        svg {
+          font-size: 20px;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
