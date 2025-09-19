@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from "react";
 import "./style.scss";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   AiOutlineFacebook,
   AiOutlineInstagram,
@@ -19,7 +19,8 @@ import { MdEmail } from "react-icons/md";
 import { BiUser } from "react-icons/bi";
 import { formatter } from "utils/fomater";
 import { ROUTERS } from "utils/router";
-export const categories = [
+import { useGetCategoriesUS } from "api/homePage";
+export const categoriesHardcode = [
   "Thịt Tươi",
   "Rau Củ",
   "Nước Trái Cây",
@@ -27,6 +28,7 @@ export const categories = [
   "Hải Sản",
 ];
 const Header = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [isShowHumberger, setShowHumberger] = useState(false);
   const [isHome, setIsHome] = useState(location.pathname.length <= 1);
@@ -74,6 +76,9 @@ const Header = () => {
     setIsHome(isHome);
     setShowCategories(isHome);
   }, [location]);
+
+  const { data: categories } = useGetCategoriesUS();
+  console.log(categories);
   return (
     <>
       <div
@@ -220,7 +225,9 @@ const Header = () => {
                   <Link to={"https://www.google.com"}>
                     <AiOutlineUser />
                   </Link>
-                  <span>Đăng Nhập</span>
+                  <span onClick={() => navigate(ROUTERS.ADMIN.LOGIN)}>
+                    Đăng Nhập
+                  </span>
                 </li>
               </ul>
             </div>
@@ -261,7 +268,7 @@ const Header = () => {
               </div>
               <ul>
                 <li>
-                  <Link to="#">
+                  <Link to={ROUTERS.USER.SHOPPING_CART}>
                     <AiOutlineShoppingCart /> <span>5</span>
                   </Link>
                 </li>
@@ -284,9 +291,9 @@ const Header = () => {
               <p>DANH SÁCH SẢN PHẨM</p>
             </div>
             <ul className={isShowCategories ? "" : "hidden"}>
-              {categories.map((category, key) => (
-                <li key={key}>
-                  <Link to={ROUTERS.USER.PRODUCTS}>{category}</Link>
+              {categories?.map((category) => (
+                <li key={category.id}>
+                  <Link to={ROUTERS.USER.PRODUCTS}>{category.name}</Link>
                 </li>
               ))}
             </ul>
