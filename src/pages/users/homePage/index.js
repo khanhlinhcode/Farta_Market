@@ -9,21 +9,14 @@ import cat3Img from "assets/users/images/categories/cat-3.png";
 import cat4Img from "assets/users/images/categories/cat-4.png";
 import cat5Img from "assets/users/images/categories/cat-5.png";
 
-//img featured
-import feature1Img from "assets/users/images/featured/feature-1.png";
-import feature2Img from "assets/users/images/featured/feature-2.png";
-import feature3Img from "assets/users/images/featured/feature-3.png";
-import feature4Img from "assets/users/images/featured/feature-4.png";
-import feature5Img from "assets/users/images/featured/feature-5.png";
-import feature6Img from "assets/users/images/featured/feature-6.png";
-import feature7Img from "assets/users/images/featured/feature-7.png";
-import feature8Img from "assets/users/images/featured/feature-8.png";
 //imgbanner
 import bannerImg from "assets/users/images/banner/banner.png";
 import banner2Img from "assets/users/images/banner/banner2.png";
-import "./style.scss";
-import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import ProductCard from "component/ProductCard";
+import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
+import { featProducts } from "utils/common";
+import "./style.scss";
+import { useGetCategoriesUS, useGetProductsUS } from "api/homePage";
 
 const HomPage = () => {
   const responsive = {
@@ -64,130 +57,52 @@ const HomPage = () => {
     },
     {
       bgImg: cat5Img,
-      name: "THịt Bò",
+      name: "Thịt Bò",
     },
   ];
-  const featProducts = {
-    all: {
-      title: "Toàn Bộ",
-      product: [
-        {
-          img: feature1Img,
-          name: "Thịt Bò",
-          price: 20000,
-        },
-        {
-          img: feature2Img,
-          name: "Chuối",
-          price: 17800,
-        },
-        {
-          img: feature3Img,
-          name: "Ổi",
-          price: "25000",
-        },
-        {
-          img: feature4Img,
-          name: "Dưa Hấu",
-          price: "44020",
-        },
-        {
-          img: feature5Img,
-          name: "Nho Tím",
-          price: "120000",
-        },
-        {
-          img: feature6Img,
-          name: "Hamburger",
-          price: "86000",
-        },
-        {
-          img: feature7Img,
-          name: "Xoài Keo",
-          price: "69000",
-        },
-        {
-          img: feature8Img,
-          name: "Táo Úc",
-          price: "53000",
-        },
-      ],
-    },
-    freshMeat: {
-      title: "Thịt Tươi",
-      product: [
-        {
-          img: feature1Img,
-          name: "Thịt Bò",
-          price: 20000,
-        },
-      ],
-    },
 
-    fruits: {
-      title: "Trái Cây",
-      product: [
-        {
-          img: feature2Img,
-          name: "Chuối",
-          price: 17800,
-        },
-        {
-          img: feature3Img,
-          name: "Ổi",
-          price: "25000",
-        },
-        {
-          img: feature4Img,
-          name: "Dưa Hấu",
-          price: "44020",
-        },
-        {
-          img: feature5Img,
-          name: "Nho Tím",
-          price: "120000",
-        },
-        {
-          img: feature7Img,
-          name: "Xoài Keo",
-          price: "69000",
-        },
-        {
-          img: feature8Img,
-          name: "Táo Úc",
-          price: "53000",
-        },
-      ],
-    },
-    fastFood: {
-      title: "Thức Ăn Nhanh",
-      product: [
-        {
-          img: feature6Img,
-          name: "Hamburger",
-          price: "86000",
-        },
-      ],
-    },
-  };
+  const { data: categories } = useGetCategoriesUS();
+  const { data: products } = useGetProductsUS();
+  console.log(products);
 
   const renderFeaturedProducts = (data) => {
     const tabList = [];
     const tabPanels = [];
 
-    Object.keys(data).forEach((key, index) => {
-      tabList.push(<Tab key={index}>{data[key].title}</Tab>);
+    tabList.push(
+      categories?.map((categery) => (
+        <Tab key={categery.id}>{categery.name}</Tab>
+      ))
+    );
 
-      const tabPanel = [];
-      data[key].product.forEach((item, j) =>
-        tabPanel.push(
-          <div className="col-lg-3 col-md-4 col-sm-6 col-xs-12" key={j}>
-            <ProductCard name={item.name} img={item.img} price={item.price} />
-          </div>
-        )
+    //   Object.keys(data).forEach((key, index) => {
+    //     tabList.push(<Tab key={index}>{data[key].title}</Tab>);
+    //     const tabPanel = [];
+    //     data[key].product.forEach((item, j) =>
+    //       tabPanel.push(
+    //         <div className="col-lg-3 col-md-4 col-sm-6 col-xs-12" key={j}>
+    //           <ProductCard name={item.name} img={item.img} price={item.price} />
+    //         </div>
+    //       )
+    //     );
+    //     tabPanels.push(tabPanel);
+    //   });
+
+    categories?.forEach((category) => {
+      tabPanels.push(
+        products
+          ?.filter((product) => product.category_id === category.id)
+          .map((product) => (
+            <div
+              className="col-lg-3 col-md-4 col-sm-6 col-xs-12"
+              key={products.id}
+            >
+              <ProductCard product={product} />
+            </div>
+          ))
       );
-      tabPanels.push(tabPanel);
     });
+
     return (
       <Tabs>
         <TabList>{tabList}</TabList>

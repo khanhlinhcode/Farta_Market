@@ -1,0 +1,50 @@
+@use "sass:map";
+@import "style/pages/all";
+.login {
+  input {
+    width: calc(100% - 10px);
+  }
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+
+  &__container {
+    background: #fff;
+    padding: 32px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  &__title {
+    font-weight: 600;
+    color: map.get($theme-colors, "nomal-text");
+    margin-bottom: 24px;
+  }
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  &__form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__label {
+    font-size: 14px;
+    font-weight: 500;
+    color: map.get($theme-colors, "nomal-text");
+  }
+  &__button {
+    height: 46px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: map.get($theme-colors, "main");
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+  }
+}

@@ -2,7 +2,7 @@ import { memo } from "react";
 import Breadcrumb from "../theme/breadcrumb";
 import "./style.scss";
 import { Link } from "react-router-dom";
-import { categories } from "../theme/header";
+import { categoriesHardcode } from "../theme/header";
 import { ROUTERS } from "utils/router";
 import feature1Img from "assets/users/images/featured/feature-1.png";
 import feature2Img from "assets/users/images/featured/feature-2.png";
@@ -12,7 +12,7 @@ import feature5Img from "assets/users/images/featured/feature-5.png";
 import feature6Img from "assets/users/images/featured/feature-6.png";
 import feature7Img from "assets/users/images/featured/feature-7.png";
 import feature8Img from "assets/users/images/featured/feature-8.png";
-import ProductCard from "component";
+import { ProductCard } from "component";
 const ProductsPage = () => {
   const sorts = [
     "Giá thấp đến cao",
@@ -24,41 +24,49 @@ const ProductsPage = () => {
   ];
   const products = [
     {
+      id: 1,
       img: feature1Img,
       name: "Thịt Bò",
       price: "20000",
     },
     {
+      id: 2,
       img: feature2Img,
       name: "Chuối",
       price: "17500",
     },
     {
+      id: 3,
       img: feature3Img,
       name: "Ổi",
       price: "25000",
     },
     {
+      id: 4,
       img: feature4Img,
       name: "Dưa Hấu",
       price: "44500",
     },
     {
+      id: 5,
       img: feature5Img,
       name: "Nho Tím",
       price: "120000",
     },
     {
+      id: 6,
       img: feature6Img,
       name: "Humburger",
       price: "90000",
     },
     {
+      id: 7,
       img: feature7Img,
       name: "Táo Úc",
       price: "123000",
     },
     {
+      id: 8,
       img: feature8Img,
       name: "Nho Tím",
       price: "125000",
@@ -66,7 +74,7 @@ const ProductsPage = () => {
   ];
   return (
     <>
-      <Breadcrumb name="Danh Sach San Pham" />
+      <Breadcrumb name="Danh Sách Sản Phẩm" />
       <div className="container">
         <div className="row">
           <div className="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -104,7 +112,7 @@ const ProductsPage = () => {
               <div className="sidebar__item">
                 <h2>Thể Loại Khác</h2>
                 <ul>
-                  {categories.map((name, key) => (
+                  {categoriesHardcode.map((name, key) => (
                     <li key={key}>
                       <Link to={ROUTERS.USER.PRODUCTS}>{name}</Link>
                     </li>
@@ -117,11 +125,7 @@ const ProductsPage = () => {
             <div className="row">
               {products.map((item, key) => (
                 <div className="col-lg-4 col-md-4 col-sm-6 col-xs-12" key={key}>
-                  <ProductCard
-                    name={item.name}
-                    img={item.img}
-                    price={item.price}
-                  />
+                  <ProductCard product={item} />
                 </div>
               ))}
             </div>
