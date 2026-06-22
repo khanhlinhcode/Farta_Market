@@ -1,17 +1,29 @@
 import useShoppingCart from "hooks/useShoppingCart";
 import React, { memo, useState } from "react";
 import "./style.scss";
-import { SESSION_KEYS } from "utils/constant";
-import { ReactSession } from "react-client-session";
-const Quantity = ({ hasAddToCart = true, product }) => {
+const Quantity = ({
+  hasAddToCart = true,
+  product,
+  initQuantity,
+  maxQuantity,
+  onChange,
+}) => {
   const { addToCart } = useShoppingCart();
-  const [quantity, setQuantity] = useState(1); // Sửa chỗ này
+  const max = Math.max(1, Number(maxQuantity || product?.inventory || 1));
+  const [quantity, setQuantity] = useState(Math.min(initQuantity || 1, max));
 
   const incrementQuantity = (isPlus) => {
-    if (!isPlus && quantity === 0) {
+    if (!isPlus && quantity <= 1) {
       return;
     }
-    setQuantity(isPlus ? quantity + 1 : quantity - 1);
+
+    if (isPlus && quantity >= max) {
+      return;
+    }
+
+    const nextQuantity = isPlus ? quantity + 1 : quantity - 1;
+    setQuantity(nextQuantity);
+    onChange?.(nextQuantity);
   };
 
   return (
@@ -29,13 +41,12 @@ const Quantity = ({ hasAddToCart = true, product }) => {
         <button
           type="button"
           className="button-submit"
+          disabled={!product || Number(product.inventory || 0) <= 0}
           onClick={() => {
             addToCart(product, quantity); // gửi đúng quantity người dùng chọn
-            const curCart = ReactSession.get(SESSION_KEYS.CART);
-            console.log(curCart);
           }}
         >
-          Thêm Giỏ Hàng
+          {Number(product?.inventory || 0) > 0 ? "Thêm Giỏ Hàng" : "Hết Hàng"}
         </button>
       )}
     </div>

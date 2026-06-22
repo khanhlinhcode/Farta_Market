@@ -24,6 +24,7 @@
     input {
       border: unset;
       border-radius: 0;
+      text-align: center;
 
       &::-webkit-outer-spin-button,
       &::-webkit-inner-spin-button {
@@ -31,5 +32,10 @@
         margin: 0;
       }
     }
+  }
+
+  .button-submit:disabled {
+    background: #b2b2b2;
+    cursor: not-allowed;
   }
 }

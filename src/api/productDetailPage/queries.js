@@ -3,9 +3,10 @@ import { optionUseQuery } from "utils/common";
 import { getProductDetaiAPI } from "./request";
 export const useProductDetailUS = (id, option) => {
   return useQuery({
-    queryKey: ["GetProductDetaiAPI"],
+    queryKey: ["GetProductDetaiAPI", id],
     queryFn: () => getProductDetaiAPI(id),
-    optionUseQuery,
+    enabled: Boolean(id),
+    ...optionUseQuery,
     ...option,
   });
 };

@@ -164,3 +164,20 @@ textarea {
     max-width: 100%;
   }
 }
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+  text-align: left;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  font-weight: 500;
+  text-transform: capitalize;
+  letter-spacing: 1px;
+  font-family: "Be Vietnam Pro";
+  font-style: normal;
+  font-weight: 500;
+  line-height: 15px;
+}

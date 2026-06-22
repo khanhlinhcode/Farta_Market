@@ -7,12 +7,28 @@
 
   .categories_slider {
     .categories_slider_item {
+      display: block;
       height: 300px;
       position: relative;
       background-repeat: no-repeat;
       background-size: cover;
       background-position: top center;
       border-radius: 5px;
+      color: inherit;
+      cursor: pointer;
+      overflow: hidden;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      &:focus-visible {
+        outline: 3px solid map.get($theme-colors, "main");
+        outline-offset: 3px;
+      }
 
       p {
         position: absolute;
@@ -86,7 +102,26 @@
   gap: 20px;
   margin-bottom: 30px;
 
+  .banner__pic {
+    display: block;
+    flex: 1;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    &:focus-visible {
+      outline: 3px solid map.get($theme-colors, "main");
+      outline-offset: 3px;
+    }
+  }
+
   img {
+    cursor: pointer;
+    display: block;
     width: 100%;
   }
 }
