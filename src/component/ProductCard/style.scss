@@ -14,6 +14,7 @@
     position: relative;
     overflow: hidden;
     background-position: center;
+    background-size: cover;
 
     .featured__item__pic__hover {
       position: absolute;
@@ -47,6 +48,33 @@
           transition: all, 0.3s;
           border-radius: 40%;
         }
+
+        button {
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+
+          &:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+          }
+        }
+      }
+    }
+
+    .featured__item__stock {
+      background: rgba(0, 136, 116, 0.92);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      left: 10px;
+      padding: 6px 8px;
+      position: absolute;
+      top: 10px;
+
+      &.featured__item__stock--out {
+        background: rgba(214, 69, 69, 0.92);
       }
     }
   }
@@ -68,6 +96,14 @@
       font-size: 18px;
       font-weight: 700;
       margin-top: 10px;
+    }
+
+    .featured__item__notice {
+      color: map.get($theme-colors, "main");
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 8px;
+      min-height: 18px;
     }
   }
 }

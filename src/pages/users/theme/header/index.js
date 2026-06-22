@@ -1,13 +1,20 @@
-import { memo, useEffect, useState } from "react";
 import "./style.scss";
+import { ROUTERS } from "utils/router";
+import { BiUser } from "react-icons/bi";
+import { MdEmail } from "react-icons/md";
+import { formatter } from "utils/fomater";
+import { setCart } from "../../../../redux/commonSlide";
+import { SESSION_KEYS } from "utils/constant";
+import { useGetCategoriesUS } from "api/homePage";
+import { useDispatch, useSelector } from "react-redux";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { getSessionItem } from "utils/session";
 import {
   AiOutlineFacebook,
   AiOutlineInstagram,
   AiOutlineLinkedin,
   AiFillTwitterSquare,
-  AiOutlineGlobal,
-  AiOutlineUser,
   AiOutlineMail,
   AiOutlineShoppingCart,
   AiOutlineMenu,
@@ -15,70 +22,128 @@ import {
   AiOutlineDownCircle,
   AiOutlineUpCircle,
 } from "react-icons/ai";
-import { MdEmail } from "react-icons/md";
-import { BiUser } from "react-icons/bi";
-import { formatter } from "utils/fomater";
-import { ROUTERS } from "utils/router";
-import { useGetCategoriesUS } from "api/homePage";
-export const categoriesHardcode = [
-  "Thịt Tươi",
-  "Rau Củ",
-  "Nước Trái Cây",
-  "Trái Cây",
-  "Hải Sản",
-];
+
 const Header = () => {
+  const contactPhone = "0393886668";
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [isShowHumberger, setShowHumberger] = useState(false);
+  const [activeMobileMenu, setActiveMobileMenu] = useState(null);
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [isHome, setIsHome] = useState(location.pathname.length <= 1);
   const [isShowCategories, setShowCategories] = useState(isHome);
-  const [menus, setMenus] = useState([
-    {
-      name: "Trang chủ",
-      path: ROUTERS.USER.HOME,
-    },
-    {
-      name: "Cửa Hàng",
-      path: ROUTERS.USER.PRODUCTS,
-    },
-    {
-      name: "Sản Phẩm",
-      path: "",
-      isShowSubmenu: false,
-      child: [
-        {
-          name: "Thịt",
-          path: "",
-        },
-        {
-          name: "Rau Củ",
-          path: "",
-        },
-        {
-          name: "Thức Ăn Nhanh",
-          path: "",
-        },
-      ],
-    },
-    {
-      name: "Bài Viết",
-      path: "",
-    },
-    {
-      name: "Liên Hệ",
-      path: "",
-    },
-  ]);
+  const { cart: cartRedux } = useSelector((state) => state.commonSlide);
 
   useEffect(() => {
     const isHome = location.pathname.length <= 1;
     setIsHome(isHome);
     setShowCategories(isHome);
+    setSearchKeyword(new URLSearchParams(location.search).get("q") || "");
   }, [location]);
 
+  useEffect(() => {
+    const cart = getSessionItem(SESSION_KEYS.CART);
+    if (cart) {
+      dispatch(setCart(cart));
+    }
+  }, [dispatch]);
+
   const { data: categories } = useGetCategoriesUS();
-  console.log(categories);
+  const menus = useMemo(() => {
+    const categoryItems =
+      categories?.map((category) => ({
+        name: category.name,
+        path: `${ROUTERS.USER.PRODUCTS}?category=${category.id}`,
+      })) || [];
+
+    return [
+      {
+        name: "Trang chủ",
+        path: ROUTERS.USER.HOME,
+      },
+      {
+        name: "Cửa hàng",
+        path: ROUTERS.USER.PRODUCTS,
+        child: categoryItems,
+      },
+      {
+        name: "Giá tốt",
+        path: `${ROUTERS.USER.PRODUCTS}?max=50000&sort=price-asc`,
+      },
+      {
+        name: "Còn hàng",
+        path: `${ROUTERS.USER.PRODUCTS}?stock=in-stock`,
+      },
+      {
+        name: "Liên hệ",
+        href: `tel:${contactPhone}`,
+      },
+    ];
+  }, [categories, contactPhone]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const keyword = searchKeyword.trim();
+
+    navigate(
+      keyword
+        ? `${ROUTERS.USER.PRODUCTS}?q=${encodeURIComponent(keyword)}`
+        : ROUTERS.USER.PRODUCTS
+    );
+  };
+
+  const isMenuActive = (menu) => {
+    if (menu.href) {
+      return false;
+    }
+
+    if (menu.path === ROUTERS.USER.HOME) {
+      return location.pathname === "/";
+    }
+
+    if (!location.pathname.startsWith(ROUTERS.USER.PRODUCTS)) {
+      return false;
+    }
+
+    const currentParams = new URLSearchParams(location.search);
+    const menuQuery = menu.path.includes("?")
+      ? new URLSearchParams(menu.path.split("?")[1])
+      : null;
+    const isDealFilter =
+      currentParams.get("max") === "50000" &&
+      currentParams.get("sort") === "price-asc";
+    const isStockFilter = currentParams.get("stock") === "in-stock";
+
+    if (menuQuery) {
+      return [...menuQuery.entries()].every(
+        ([key, value]) => currentParams.get(key) === value
+      );
+    }
+
+    return (
+      menu.name === "Cửa hàng" &&
+      !isDealFilter &&
+      !isStockFilter
+    );
+  };
+
+  const renderMenuLink = (menu, children, onClick) => {
+    if (menu.href) {
+      return (
+        <a href={menu.href} onClick={onClick}>
+          {children}
+        </a>
+      );
+    }
+
+    return (
+      <Link to={menu.path} onClick={onClick}>
+        {children}
+      </Link>
+    );
+  };
+
   return (
     <>
       <div
@@ -91,23 +156,25 @@ const Header = () => {
         className={`hunberger__menu__wrapper${isShowHumberger ? " show" : ""}`}
       >
         <div className="header__logo">
-          <h1>Farta Market</h1>
+          <Link to={ROUTERS.USER.HOME} onClick={() => setShowHumberger(false)}>
+            <h1>Farta Market</h1>
+          </Link>
         </div>
         <div className="hunberger__menu__cart">
           <ul>
             <li>
-              <Link to="">
-                <AiOutlineShoppingCart /> <span>1</span>
+              <Link to={ROUTERS.USER.SHOPPING_CART}>
+                <AiOutlineShoppingCart /> <span>{cartRedux.totalQuantity}</span>
               </Link>
             </li>
           </ul>
           <div className="header__cart__price">
-            Giỏ Hàng <span>{formatter(1001230)}</span>
+            Giỏ Hàng <span>{formatter(cartRedux.totalPrice)}</span>
           </div>
         </div>
         <div className="hunberger__menu__widget">
           <div className="header__top__right__auth">
-            <Link to="">
+            <Link to={ROUTERS.ADMIN.LOGIN} onClick={() => setShowHumberger(false)}>
               <BiUser /> Đăng Nhập
             </Link>
           </div>
@@ -115,34 +182,44 @@ const Header = () => {
         <div className="hunberger__menu__nav">
           <ul>
             {menus.map((menu, menuKey) => (
-              <li key={menuKey} to={menu.path}>
-                <Link
-                  to={menu.path}
-                  onClick={() => {
-                    const newMenus = [...menus];
-                    newMenus[menuKey].isShowSubmenu =
-                      !newMenus[menuKey].isShowSubmenu;
+              <li key={`${menu.name}-${menu.href || menu.path}`}>
+                {renderMenuLink(
+                  menu,
+                  <>
+                    {menu.name}
+                    {menu.child &&
+                      (activeMobileMenu === menu.path ? (
+                        <AiOutlineDownCircle />
+                      ) : (
+                        <AiOutlineUpCircle />
+                      ))}
+                  </>,
+                  (e) => {
+                    if (menu.child?.length) {
+                      e.preventDefault();
+                      setActiveMobileMenu(
+                        activeMobileMenu === menu.path ? null : menu.path
+                      );
+                      return;
+                    }
 
-                    setMenus(newMenus);
-                  }}
-                >
-                  {menu.name}
-                  {menu.child &&
-                    (menu.isShowSubmenu ? (
-                      <AiOutlineDownCircle />
-                    ) : (
-                      <AiOutlineUpCircle />
-                    ))}
-                </Link>
+                    setShowHumberger(false);
+                  }
+                )}
                 {menu.child && (
                   <ul
                     className={`header__menu__dropdown ${
-                      menu.isShowSubmenu ? "show__submenu" : ""
+                      activeMobileMenu === menu.path ? "show__submenu" : ""
                     }`}
                   >
                     {menu.child.map((childItem, childKey) => (
                       <li key={`${menuKey}-${childKey}`}>
-                        <Link to={childItem.path}>{childItem.name}</Link>
+                        <Link
+                          to={childItem.path}
+                          onClick={() => setShowHumberger(false)}
+                        >
+                          {childItem.name}
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -164,12 +241,6 @@ const Header = () => {
           </Link>
           <Link to={"https://www.twitter.com"}>
             <AiFillTwitterSquare />
-          </Link>
-          <Link to={"https://www.google.com"}>
-            <AiOutlineGlobal />
-          </Link>
-          <Link to={"https://www.google.com"}>
-            <AiOutlineUser />
           </Link>
         </div>
         <div className="hunberger__menu__contact">
@@ -217,14 +288,7 @@ const Header = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to={"https://www.google.com"}>
-                    <AiOutlineGlobal />
-                  </Link>
-                </li>
-                <li>
-                  <Link to={"https://www.google.com"}>
-                    <AiOutlineUser />
-                  </Link>
+                  <BiUser />
                   <span onClick={() => navigate(ROUTERS.ADMIN.LOGIN)}>
                     Đăng Nhập
                   </span>
@@ -238,16 +302,21 @@ const Header = () => {
         <div className="row">
           <div className="col-lg-3">
             <div className="header__logo">
-              <h1>Farta Market</h1>
+              <Link to={ROUTERS.USER.HOME}>
+                <h1>Farta Market</h1>
+              </Link>
             </div>
           </div>
           <div className="col-lg-6">
             <nav className="header__menu">
               <ul>
                 {menus?.map((menu, menuKey) => (
-                  <li key={menuKey} className={menuKey === 0 ? "active" : ""}>
-                    <Link to="menu?.path">{menu?.name}</Link>
-                    {menu.child && (
+                  <li
+                    key={`${menu.name}-${menu.href || menu.path}`}
+                    className={isMenuActive(menu) ? "active" : ""}
+                  >
+                    {renderMenuLink(menu, menu.name)}
+                    {menu.child?.length > 0 && (
                       <ul className="header__menu__dropdown">
                         {menu.child.map((childItem, childKey) => (
                           <li key={`${menuKey}-${childKey}`}>
@@ -264,12 +333,13 @@ const Header = () => {
           <div className="col-lg-3">
             <div className="header__cart">
               <div className="header__cart__price">
-                <span>{formatter(1001230)}</span>
+                <span>{formatter(cartRedux.totalPrice)}</span>
               </div>
               <ul>
                 <li>
                   <Link to={ROUTERS.USER.SHOPPING_CART}>
-                    <AiOutlineShoppingCart /> <span>5</span>
+                    <AiOutlineShoppingCart />{" "}
+                    <span>{cartRedux.totalQuantity}</span>
                   </Link>
                 </li>
               </ul>
@@ -293,7 +363,9 @@ const Header = () => {
             <ul className={isShowCategories ? "" : "hidden"}>
               {categories?.map((category) => (
                 <li key={category.id}>
-                  <Link to={ROUTERS.USER.PRODUCTS}>{category.name}</Link>
+                  <Link to={`${ROUTERS.USER.PRODUCTS}?category=${category.id}`}>
+                    {category.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -301,8 +373,13 @@ const Header = () => {
           <div className="col-lg-9 col-md-12 col-sm-12 col-xs-12  hero__search_container">
             <div className="hero__search">
               <div className="hero__search__form">
-                <form>
-                  <input type="text" placeholder="Bạn đang tìm kiếm gì ?" />
+                <form onSubmit={handleSearchSubmit}>
+                  <input
+                    type="text"
+                    value={searchKeyword}
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                    placeholder="Bạn đang tìm kiếm gì ?"
+                  />
                   <button type="submit">Tìm Kiếm</button>
                 </form>
               </div>
@@ -325,7 +402,7 @@ const Header = () => {
                     Sạch 100%
                   </h2>
                   <p>Miễn phí giao hàng tận nơi</p>
-                  <Link to="" className="primary-btn">
+                  <Link to={ROUTERS.USER.PRODUCTS} className="primary-btn">
                     Mua Ngay
                   </Link>
                 </div>

@@ -1,32 +1,27 @@
 @use "sass:map";
 @import "style/pages/_theme";
 @import "style/pages/all";
-
 .product__detail__pic {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(92px, 24%, 150px);
-  column-gap: 14px;
-  align-items: start;
-  padding-right: 18px;
-  box-sizing: border-box;
+  display: flex;
+  column-gap: 10px;
 
-  > img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    background: #f3f6fa;
-    display: block;
-    object-fit: contain;
+  img {
+    flex: 0 0 65%;
+    object-fit: cover;
   }
 
   .main {
-    min-width: 0;
+    flex: 0 0 35%;
+    display: grid;
+    align-items: stretch;
 
     img {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      background: #f3f6fa;
-      display: block;
-      object-fit: contain;
+      width: 60%;
+      object-fit: cover;
+
+      &:no(:first-child) {
+        padding-top: 5px;
+      }
     }
   }
 }
@@ -113,10 +108,4 @@
       }
     }
   }
-}
-.product__detail__state {
-  width: 100%;
-  padding: 24px 0;
-  text-align: center;
-  color: #6f6f6f;
 }

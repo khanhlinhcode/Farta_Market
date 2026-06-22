@@ -1,0 +1,224 @@
+@use "sass:map";
+@import "style/pages/all";
+
+.admin-page {
+  background: #f7faf9;
+  min-height: calc(100vh - 72px);
+  padding: 32px 0 48px;
+  color: map.get($theme-colors, "nomal-text");
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  &__title {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  &__subtitle {
+    color: #667085;
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  &__panel {
+    background: white;
+    border: 1px solid #e6ecea;
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  &__panel-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  &__toolbar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  &__table-wrap {
+    overflow-x: auto;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #edf2f7;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      color: #475467;
+      font-weight: 700;
+      background: #f9fbfb;
+    }
+  }
+
+  &__form {
+    display: grid;
+    gap: 12px;
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #344054;
+    }
+
+    input,
+    select,
+    textarea {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid #d0d5dd;
+      border-radius: 6px;
+      padding: 9px 10px;
+      color: #101828;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 108px;
+      resize: vertical;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__button {
+    min-height: 38px;
+    padding: 0 14px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: map.get($theme-colors, "main");
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+
+    &--ghost {
+      background: #fff;
+      color: map.get($theme-colors, "main");
+      border-color: #b7ddd7;
+    }
+
+    &--danger {
+      background: #fff;
+      color: #b42318;
+      border-color: #fecdca;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &__message {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: #ecfdf3;
+    color: #027a48;
+    font-size: 13px;
+
+    &--error {
+      background: #fef3f2;
+      color: #b42318;
+    }
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #eef6f4;
+    color: map.get($theme-colors, "main");
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  &__image {
+    width: 58px;
+    height: 58px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #edf2f7;
+  }
+
+  &__details {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    background: #f9fbfb;
+  }
+
+  &__details-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  &__empty {
+    padding: 24px;
+    color: #667085;
+    text-align: center;
+  }
+}
+
+@include Responsive($TABLET_DEVICE) {
+  .admin-page__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@include Responsive($WIDE_MOBILE) {
+  .admin-page__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@include Responsive($SMALL_DEVICE) {
+  .admin-page {
+    padding: 20px 0 32px;
+
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+
+    &__header {
+      display: block;
+    }
+  }
+}

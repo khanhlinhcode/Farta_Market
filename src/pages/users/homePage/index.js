@@ -17,6 +17,8 @@ import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import { featProducts } from "utils/common";
 import "./style.scss";
 import { useGetCategoriesUS, useGetProductsUS } from "api/homePage";
+import { Link } from "react-router-dom";
+import { ROUTERS } from "utils/router";
 
 const HomPage = () => {
   const responsive = {
@@ -42,28 +44,53 @@ const HomPage = () => {
     {
       bgImg: cat1Img,
       name: "Cam Tươi",
+      keyword: "Cam Tươi",
     },
     {
       bgImg: cat2Img,
       name: "Hoa Quả Khô",
+      keyword: "Hoa Quả Khô",
     },
     {
       bgImg: cat3Img,
       name: "Rau Củ Tươi",
+      keyword: "Rau Củ Tươi",
     },
     {
       bgImg: cat4Img,
       name: "Sữa Hộp",
+      keyword: "Sữa Hộp",
     },
     {
       bgImg: cat5Img,
       name: "Thịt Bò",
+      keyword: "Thịt Bò",
+    },
+  ];
+  const bannerItems = [
+    {
+      img: bannerImg,
+      label: "Xem sản phẩm còn hàng",
+      path: `${ROUTERS.USER.PRODUCTS}?stock=in-stock`,
+    },
+    {
+      img: banner2Img,
+      label: "Xem sản phẩm giá tốt",
+      path: `${ROUTERS.USER.PRODUCTS}?max=50000&sort=price-asc`,
     },
   ];
 
   const { data: categories } = useGetCategoriesUS();
   const { data: products } = useGetProductsUS();
-  console.log(products);
+  const getSliderPath = (item) => {
+    const params = new URLSearchParams();
+
+    if (item.keyword) {
+      params.set("q", item.keyword);
+    }
+
+    return `${ROUTERS.USER.PRODUCTS}?${params.toString()}`;
+  };
 
   const renderFeaturedProducts = (data) => {
     const tabList = [];
@@ -95,7 +122,7 @@ const HomPage = () => {
           .map((product) => (
             <div
               className="col-lg-3 col-md-4 col-sm-6 col-xs-12"
-              key={products.id}
+              key={product.id}
             >
               <ProductCard product={product} />
             </div>
@@ -121,13 +148,14 @@ const HomPage = () => {
       <div className="container container__categories_slider">
         <Carousel responsive={responsive} className="categories_slider">
           {sliderItems.map((item, key) => (
-            <div
+            <Link
+              to={getSliderPath(item)}
               className="categories_slider_item"
               style={{ backgroundImage: `url(${item.bgImg})` }}
               key={key}
             >
               <p>{item.name}</p>
-            </div>
+            </Link>
           ))}
         </Carousel>
       </div>
@@ -145,12 +173,11 @@ const HomPage = () => {
       {/* banner Begin */}
       <div className="container">
         <div className="banner">
-          <div className="banner__pic">
-            <img src={bannerImg} alt="banner" />
-          </div>
-          <div className="banner__pic">
-            <img src={banner2Img} alt="banner" />
-          </div>
+          {bannerItems.map((item) => (
+            <Link className="banner__pic" to={item.path} key={item.path}>
+              <img src={item.img} alt={item.label} />
+            </Link>
+          ))}
         </div>
       </div>
       {/* banner End */}

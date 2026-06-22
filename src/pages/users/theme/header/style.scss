@@ -6,6 +6,7 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
 
 .header__top {
   background: #f5f5f5;
+  font-size: 16px;
 }
 .header__top_left {
   ul {
@@ -16,11 +17,11 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
     column-gap: 10px;
 
     li {
-      font-size: 14px;
+      font-size: 16px;
       color: map.get($theme-colors, "nomal-text");
       display: flex;
       align-items: center;
-      column-gap: 2px;
+      column-gap: 5px;
     }
 
     li:first-child {
@@ -51,17 +52,37 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
     list-style: none;
 
     a {
-      font-size: 14px;
+      font-size: 16px;
       display: inline-block;
       color: map.get($theme-colors, "nomal-text");
+      line-height: 1;
+      transition: color 0.2s;
+
+      &:hover {
+        color: map.get($theme-colors, "main");
+      }
     }
 
     li:last-child {
+      align-items: center;
+      display: flex;
+      column-gap: 4px;
       cursor: pointer;
       margin-left: 10px;
+      color: map.get($theme-colors, "nomal-text");
+
+      svg {
+        font-size: 15px;
+      }
+
       span {
-        font-size: 14px;
-        margin-left: 2px;
+        font-size: 16px;
+        font-weight: 600;
+        margin-left: 0;
+      }
+
+      &:hover {
+        color: map.get($theme-colors, "main");
       }
     }
   }
@@ -69,6 +90,19 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
 
 .header__logo {
   padding: 15px 0;
+
+  a {
+    color: map.get($theme-colors, "bold-text");
+    text-decoration: none;
+  }
+
+  h1 {
+    cursor: pointer;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: 0;
+  }
 }
 
 .header__menu {
@@ -76,21 +110,29 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
 
   ul {
     display: flex;
-    justify-content: space-between;
+    column-gap: 34px;
+    justify-content: center;
+    align-items: center;
 
     li {
       list-style: none;
       position: relative;
+      white-space: nowrap;
+
       a {
         text-decoration: none;
-        font-size: 15px;
+        font-size: 16px;
         color: map.get($theme-colors, "bold-text");
         text-transform: uppercase;
-        font-weight: bold;
-        letter-spacing: 2px;
+        font-weight: 800;
+        letter-spacing: 0;
         transition: all 0.3s;
-        padding: 5px 0;
+        padding: 8px 0;
         display: block;
+      }
+
+      &:hover > a {
+        color: map.get($theme-colors, "main");
       }
     }
 
@@ -99,7 +141,7 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
       visibility: visible;
     }
 
-    .active a {
+    .active > a {
       color: map.get($theme-colors, "main");
     }
 
@@ -109,17 +151,19 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
       position: absolute;
       width: 180px;
       z-index: 9;
-      padding: 5px 0;
+      padding: 8px 0;
       transition: all 0.3s;
       opacity: 0;
       visibility: hidden;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 
       li {
         a {
           text-transform: capitalize;
           color: #ffffff;
-          font-weight: 400;
-          padding: 5px 15px;
+          font-size: 15px;
+          font-weight: 500;
+          padding: 9px 16px;
         }
         :hover {
           color: map.get($theme-colors, "main");
@@ -175,7 +219,9 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
     align-items: center;
     cursor: pointer;
     color: white;
+    font-size: 16px;
     font-weight: 700;
+    letter-spacing: 0;
 
     svg,
     span {
@@ -256,6 +302,7 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
       background: map.get($theme-colors, "main");
       border: none;
       height: 100%;
+      cursor: pointer;
     }
   }
   .hero__search__phone {
@@ -310,7 +357,7 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
         font-size: 14px;
         text-transform: uppercase;
         font-weight: 700;
-        letter-spacing: 4px;
+        letter-spacing: 0;
         color: map.get($theme-colors, "main");
       }
       h2 {
@@ -338,7 +385,7 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
         text-transform: uppercase;
         font-weight: 700;
         background: map.get($theme-colors, "main");
-        letter-spacing: 2px;
+        letter-spacing: 0;
         text-decoration: none;
       }
     }
@@ -351,6 +398,12 @@ $bannerImg: "/assets/users/images/hero/Banner.png";
 }
 
 @include Responsive($MEDIUM_DEVICE) {
+  .header__menu {
+    ul {
+      column-gap: 24px;
+    }
+  }
+
   .hero__search__form {
     width: 530px !important;
   }

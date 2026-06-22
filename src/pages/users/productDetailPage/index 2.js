@@ -42,9 +42,13 @@ const ProductDetailPage = () => {
         <div className="container">
           <div className="row">
             <div className="col-lg-6 col-xl-12 col-md-12 col-sm-12 col-xs-12 product__detail__pic">
-              <img src={resolveProductImage(product.img)} alt={product.name} />
-              <div className="main">
+              <div className="product__detail__image-frame">
                 <img src={resolveProductImage(product.img)} alt={product.name} />
+              </div>
+              <div className="product__detail__thumbs">
+                <button type="button" className="product__detail__thumb active">
+                  <img src={resolveProductImage(product.img)} alt={product.name} />
+                </button>
               </div>
             </div>
             <div className="col-lg-6 col-xl-12 col-md-12 col-sm-12 col-xs-12 product__detail__text">
