@@ -6,10 +6,13 @@ import { formatter } from "utils/fomater";
 import { setCart } from "../../../../redux/commonSlide";
 import { SESSION_KEYS } from "utils/constant";
 import { useGetCategoriesUS } from "api/homePage";
+import { LanguageSwitcher } from "component";
 import { useDispatch, useSelector } from "react-redux";
 import React, { memo, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getSessionItem } from "utils/session";
+import bannerImg from "assets/users/images/hero/Banner.png";
 import {
   AiOutlineFacebook,
   AiOutlineInstagram,
@@ -24,6 +27,7 @@ import {
 } from "react-icons/ai";
 
 const Header = () => {
+  const { t } = useTranslation();
   const contactPhone = "0393886668";
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -53,34 +57,40 @@ const Header = () => {
   const menus = useMemo(() => {
     const categoryItems =
       categories?.map((category) => ({
+        key: `category-${category.id}`,
         name: category.name,
-        path: `${ROUTERS.USER.PRODUCTS}?category=${category.id}`,
+        path: `${ROUTERS.USER.PRODUCTS}?category_id=${category.id}`,
       })) || [];
 
     return [
       {
-        name: "Trang chủ",
+        key: "home",
+        name: t("navbar.home"),
         path: ROUTERS.USER.HOME,
       },
       {
-        name: "Cửa hàng",
+        key: "shop",
+        name: t("navbar.shop"),
         path: ROUTERS.USER.PRODUCTS,
         child: categoryItems,
       },
       {
-        name: "Giá tốt",
-        path: `${ROUTERS.USER.PRODUCTS}?max=50000&sort=price-asc`,
+        key: "deals",
+        name: t("navbar.deals"),
+        path: `${ROUTERS.USER.PRODUCTS}?max_price=50000&sort=price_asc`,
       },
       {
-        name: "Còn hàng",
-        path: `${ROUTERS.USER.PRODUCTS}?stock=in-stock`,
+        key: "in-stock",
+        name: t("navbar.inStock"),
+        path: `${ROUTERS.USER.PRODUCTS}?in_stock=1`,
       },
       {
-        name: "Liên hệ",
+        key: "contact",
+        name: t("navbar.contact"),
         href: `tel:${contactPhone}`,
       },
     ];
-  }, [categories, contactPhone]);
+  }, [categories, contactPhone, t]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -111,9 +121,9 @@ const Header = () => {
       ? new URLSearchParams(menu.path.split("?")[1])
       : null;
     const isDealFilter =
-      currentParams.get("max") === "50000" &&
-      currentParams.get("sort") === "price-asc";
-    const isStockFilter = currentParams.get("stock") === "in-stock";
+      currentParams.get("max_price") === "50000" &&
+      currentParams.get("sort") === "price_asc";
+    const isStockFilter = currentParams.get("in_stock") === "1";
 
     if (menuQuery) {
       return [...menuQuery.entries()].every(
@@ -122,7 +132,7 @@ const Header = () => {
     }
 
     return (
-      menu.name === "Cửa hàng" &&
+      menu.key === "shop" &&
       !isDealFilter &&
       !isStockFilter
     );
@@ -157,10 +167,11 @@ const Header = () => {
       >
         <div className="header__logo">
           <Link to={ROUTERS.USER.HOME} onClick={() => setShowHumberger(false)}>
-            <h1>Farta Market</h1>
+            <h1>{t("brand.name")}</h1>
           </Link>
         </div>
         <div className="hunberger__menu__cart">
+          <LanguageSwitcher />
           <ul>
             <li>
               <Link to={ROUTERS.USER.SHOPPING_CART}>
@@ -169,20 +180,20 @@ const Header = () => {
             </li>
           </ul>
           <div className="header__cart__price">
-            Giỏ Hàng <span>{formatter(cartRedux.totalPrice)}</span>
+            {t("navbar.cart")} <span>{formatter(cartRedux.totalPrice)}</span>
           </div>
         </div>
         <div className="hunberger__menu__widget">
           <div className="header__top__right__auth">
             <Link to={ROUTERS.ADMIN.LOGIN} onClick={() => setShowHumberger(false)}>
-              <BiUser /> Đăng Nhập
+              <BiUser /> {t("navbar.login")}
             </Link>
           </div>
         </div>
         <div className="hunberger__menu__nav">
           <ul>
             {menus.map((menu, menuKey) => (
-              <li key={`${menu.name}-${menu.href || menu.path}`}>
+              <li key={`${menu.key}-${menu.href || menu.path}`}>
                 {renderMenuLink(
                   menu,
                   <>
@@ -248,7 +259,7 @@ const Header = () => {
             <li>
               <MdEmail /> khanhlinh@gmail.com
             </li>
-            <li>Miễn phí ship từ {formatter(200000)}</li>
+            <li>{t("navbar.freeShipping", { amount: formatter(200000) })}</li>
           </ul>
         </div>
       </div>
@@ -262,7 +273,7 @@ const Header = () => {
                   <AiOutlineMail />
                   KhanhLinh@gmail.com
                 </li>
-                <li>Miễn phí ship từ {formatter(200000)}</li>
+                <li>{t("navbar.freeShipping", { amount: formatter(200000) })}</li>
               </ul>
             </div>
             <div className="col-6 header__top_right">
@@ -290,7 +301,7 @@ const Header = () => {
                 <li>
                   <BiUser />
                   <span onClick={() => navigate(ROUTERS.ADMIN.LOGIN)}>
-                    Đăng Nhập
+                    {t("navbar.login")}
                   </span>
                 </li>
               </ul>
@@ -299,20 +310,20 @@ const Header = () => {
         </div>
       </div>
       <div className="container">
-        <div className="row">
-          <div className="col-lg-3">
+        <div className="row header__main">
+          <div className="col-lg-3 header__main__logo">
             <div className="header__logo">
               <Link to={ROUTERS.USER.HOME}>
-                <h1>Farta Market</h1>
+                <h1>{t("brand.name")}</h1>
               </Link>
             </div>
           </div>
-          <div className="col-lg-6">
+          <div className="col-lg-6 header__main__nav">
             <nav className="header__menu">
               <ul>
                 {menus?.map((menu, menuKey) => (
                   <li
-                    key={`${menu.name}-${menu.href || menu.path}`}
+                    key={`${menu.key}-${menu.href || menu.path}`}
                     className={isMenuActive(menu) ? "active" : ""}
                   >
                     {renderMenuLink(menu, menu.name)}
@@ -330,19 +341,19 @@ const Header = () => {
               </ul>
             </nav>
           </div>
-          <div className="col-lg-3">
+          <div className="col-lg-3 header__main__actions">
             <div className="header__cart">
-              <div className="header__cart__price">
-                <span>{formatter(cartRedux.totalPrice)}</span>
+              <div className="nav-right">
+                <LanguageSwitcher />
+                <span className="nav-right__divider" aria-hidden="true" />
+                <Link className="cart-chip" to={ROUTERS.USER.SHOPPING_CART}>
+                  <span className="cart-chip__price">
+                    {formatter(cartRedux.totalPrice)}
+                  </span>
+                  <AiOutlineShoppingCart />
+                  <span className="cart-badge">{cartRedux.totalQuantity}</span>
+                </Link>
               </div>
-              <ul>
-                <li>
-                  <Link to={ROUTERS.USER.SHOPPING_CART}>
-                    <AiOutlineShoppingCart />{" "}
-                    <span>{cartRedux.totalQuantity}</span>
-                  </Link>
-                </li>
-              </ul>
             </div>
             <div className="humberger__open">
               <AiOutlineMenu onClick={() => setShowHumberger(true)} />
@@ -358,12 +369,12 @@ const Header = () => {
               onClick={() => setShowCategories(!isShowCategories)}
             >
               <AiOutlineMenu />
-              <p>DANH SÁCH SẢN PHẨM</p>
+              <p>{t("navbar.productList")}</p>
             </div>
             <ul className={isShowCategories ? "" : "hidden"}>
               {categories?.map((category) => (
                 <li key={category.id}>
-                  <Link to={`${ROUTERS.USER.PRODUCTS}?category=${category.id}`}>
+                  <Link to={`${ROUTERS.USER.PRODUCTS}?category_id=${category.id}`}>
                     {category.name}
                   </Link>
                 </li>
@@ -378,9 +389,9 @@ const Header = () => {
                     type="text"
                     value={searchKeyword}
                     onChange={(e) => setSearchKeyword(e.target.value)}
-                    placeholder="Bạn đang tìm kiếm gì ?"
+                    placeholder={t("navbar.searchPlaceholder")}
                   />
-                  <button type="submit">Tìm Kiếm</button>
+                  <button type="submit">{t("navbar.searchButton")}</button>
                 </form>
               </div>
               <div className="hero__search__phone">
@@ -389,21 +400,24 @@ const Header = () => {
                 </div>
                 <div className="hero__search__phone__text">
                   <p>0393.886. 668</p>
-                  <span>Hộ Trợ 24/7</span>
+                  <span>{t("navbar.support")}</span>
                 </div>
               </div>
             </div>
             {isHome && (
-              <div className="hero__item">
+              <div
+                className="hero__item"
+                style={{ backgroundImage: `url(${bannerImg})` }}
+              >
                 <div className="hero__text">
-                  <span>Trái cây tươi</span>
+                  <span>{t("home.hero.eyebrow")}</span>
                   <h2>
-                    Rau quả <br />
-                    Sạch 100%
+                    {t("home.hero.titleLine1")} <br />
+                    {t("home.hero.titleLine2")}
                   </h2>
-                  <p>Miễn phí giao hàng tận nơi</p>
+                  <p>{t("home.hero.subtitle")}</p>
                   <Link to={ROUTERS.USER.PRODUCTS} className="primary-btn">
-                    Mua Ngay
+                    {t("home.hero.cta")}
                   </Link>
                 </div>
               </div>

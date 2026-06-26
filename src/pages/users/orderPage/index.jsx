@@ -12,7 +12,7 @@ import {
   AiOutlineTwitter,
 } from "react-icons/ai";
 import { formatter } from "utils/fomater";
-import { ProductCard, Quantity } from "component";
+import { ProductCard, Quantity, SafeHtml } from "component";
 import { featProducts } from "utils/common";
 import { useProductDetailUS } from "api/productDetailPage";
 import { useParams } from "react-router-dom";
@@ -65,7 +65,7 @@ const ProductDetailPage = () => {
           </div>
           <div className="product__detail__tab">
             <h4>Thông Tin Chi Tiết</h4>
-            <div dangerouslySetInnerHTML={{ __html: product.description }} />
+            <SafeHtml html={product.description} />
           </div>
           <div className="section-title">
             <h2>Sản Phẩm Tương Tự</h2>

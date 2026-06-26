@@ -1,6 +1,11 @@
 @use "sass:map";
-@import "style/pages/_theme";
-@import "style/pages/all";
+@use "style/pages/all" as *;
+
+.product-detail-layout {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr);
+}
 
 .product__detail__pic {
   display: grid;
@@ -119,4 +124,11 @@
   padding: 24px 0;
   text-align: center;
   color: #6f6f6f;
+}
+
+@media (min-width: 1024px) {
+  .product-detail-layout {
+    align-items: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "style/pages/all";
+@use "style/pages/all" as *;
 
 .container__categories_slider {
   max-width: 1200px !important;
@@ -93,6 +93,42 @@
       margin-right: 25px;
       position: relative;
       cursor: pointer;
+    }
+  }
+}
+
+.homepage-state {
+  margin-top: 40px !important;
+  min-height: 260px;
+}
+
+.homepage-state--error {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: center;
+  text-align: center;
+
+  p {
+    color: map.get($theme-colors, "nomal-text");
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  button {
+    background: map.get($theme-colors, "main");
+    border: 0;
+    color: #fff;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 22px;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 0.88;
     }
   }
 }

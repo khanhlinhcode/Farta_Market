@@ -1,27 +1,34 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import { getAdminOrdersAPI, updateAdminOrderStatusAPI } from "api/admin";
 import { formatter } from "utils/fomater";
+import { useTranslation } from "react-i18next";
 import "../admin.scss";
 
 const STATUS_OPTIONS = [
-  { value: "", label: "Tất cả trạng thái" },
-  { value: "ORDERED", label: "Đã đặt" },
-  { value: "PREPARING", label: "Đang chuẩn bị" },
-  { value: "DELIVERING", label: "Đang giao" },
-  { value: "CANCELLED", label: "Đã hủy" },
+  { value: "", labelKey: "admin.orders.allStatus" },
+  { value: "ORDERED", labelKey: "admin.orders.ordered" },
+  { value: "PREPARING", labelKey: "admin.orders.preparing" },
+  { value: "DELIVERING", labelKey: "admin.orders.delivering" },
+  { value: "CANCELLED", labelKey: "admin.orders.cancelled" },
 ];
 
-const statusLabel = (status) => {
-  return STATUS_OPTIONS.find((item) => item.value === status)?.label || status;
+const statusLabel = (status, t) => {
+  const option = STATUS_OPTIONS.find((item) => item.value === status);
+  return option ? t(option.labelKey) : status;
 };
 
 const getOrderTotal = (order) => {
+  if (order.total !== undefined && order.total !== null) {
+    return Number(order.total);
+  }
+
   return (order.details || []).reduce((sum, detail) => {
-    return sum + Number(detail.product?.price || 0) * Number(detail.quantity || 0);
+    return sum + Number(detail.line_total || 0);
   }, 0);
 };
 
 const AdminOrdersPage = () => {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [status, setStatus] = useState("");
@@ -51,7 +58,7 @@ const AdminOrdersPage = () => {
       });
       setOrders(data);
     } catch (err) {
-      setError(err?.response?.data?.message || "Không tải được danh sách đơn hàng.");
+      setError(err?.response?.data?.message || t("admin.orders.loadError"));
     } finally {
       setIsLoading(false);
     }
@@ -71,9 +78,9 @@ const AdminOrdersPage = () => {
       setOrders((prev) =>
         prev.map((order) => (order.id === orderId ? updatedOrder : order))
       );
-      setMessage("Đã cập nhật trạng thái đơn hàng.");
+      setMessage(t("admin.orders.statusUpdated"));
     } catch (err) {
-      setError(err?.response?.data?.message || "Không cập nhật được trạng thái.");
+      setError(err?.response?.data?.message || t("admin.orders.statusUpdateError"));
     }
   };
 
@@ -82,13 +89,13 @@ const AdminOrdersPage = () => {
       <div className="container">
         <div className="admin-page__header">
           <div>
-            <h1 className="admin-page__title">Quản lý đơn hàng</h1>
+            <h1 className="admin-page__title">{t("admin.orders.title")}</h1>
             <p className="admin-page__subtitle">
-              Theo dõi đơn mới, kiểm tra chi tiết sản phẩm và cập nhật trạng thái xử lý.
+              {t("admin.orders.subtitle")}
             </p>
           </div>
           <button className="admin-page__button" onClick={loadOrders}>
-            Làm mới
+            {t("admin.common.refresh")}
           </button>
         </div>
 
@@ -96,9 +103,15 @@ const AdminOrdersPage = () => {
         {error && <div className="admin-page__message admin-page__message--error">{error}</div>}
 
         <div className="admin-page__toolbar">
-          <span className="admin-page__badge">Đơn: {totals.totalOrders}</span>
-          <span className="admin-page__badge">Đơn mới: {totals.ordered}</span>
-          <span className="admin-page__badge">Doanh thu: {formatter(totals.revenue)}</span>
+          <span className="admin-page__badge">
+            {t("admin.orders.totalOrders", { count: totals.totalOrders })}
+          </span>
+          <span className="admin-page__badge">
+            {t("admin.orders.newOrders", { count: totals.ordered })}
+          </span>
+          <span className="admin-page__badge">
+            {t("admin.orders.revenue", { amount: formatter(totals.revenue) })}
+          </span>
         </div>
 
         <div className="admin-page__panel">
@@ -106,17 +119,17 @@ const AdminOrdersPage = () => {
             <select value={status} onChange={(e) => setStatus(e.target.value)}>
               {STATUS_OPTIONS.map((item) => (
                 <option key={item.value} value={item.value}>
-                  {item.label}
+                  {t(item.labelKey)}
                 </option>
               ))}
             </select>
             <input
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="Tìm theo tên, số điện thoại, email"
+              placeholder={t("admin.orders.searchPlaceholder")}
             />
             <button className="admin-page__button" onClick={loadOrders}>
-              Tìm kiếm
+              {t("admin.common.search")}
             </button>
           </div>
 
@@ -124,12 +137,12 @@ const AdminOrdersPage = () => {
             <table className="admin-page__table">
               <thead>
                 <tr>
-                  <th>Mã</th>
-                  <th>Khách hàng</th>
-                  <th>Liên hệ</th>
-                  <th>Tổng tiền</th>
-                  <th>Trạng thái</th>
-                  <th>Thao tác</th>
+                  <th>{t("admin.common.code")}</th>
+                  <th>{t("admin.orders.customer")}</th>
+                  <th>{t("admin.orders.contact")}</th>
+                  <th>{t("admin.orders.totalPrice")}</th>
+                  <th>{t("admin.orders.status")}</th>
+                  <th>{t("admin.common.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -139,12 +152,12 @@ const AdminOrdersPage = () => {
                     <td>
                       <strong>{order.fullname}</strong>
                       <br />
-                      <span>{order.address || "Chưa có địa chỉ"}</span>
+                      <span>{order.address || t("admin.orders.noAddress")}</span>
                     </td>
                     <td>
-                      <span>{order.phone || "Chưa có SĐT"}</span>
+                      <span>{order.phone || t("admin.orders.noPhone")}</span>
                       <br />
-                      <span>{order.email || "Chưa có email"}</span>
+                      <span>{order.email || t("admin.orders.noEmail")}</span>
                     </td>
                     <td>{formatter(getOrderTotal(order))}</td>
                     <td>
@@ -154,7 +167,7 @@ const AdminOrdersPage = () => {
                       >
                         {STATUS_OPTIONS.filter((item) => item.value).map((item) => (
                           <option key={item.value} value={item.value}>
-                            {item.label}
+                            {t(item.labelKey)}
                           </option>
                         ))}
                       </select>
@@ -166,23 +179,32 @@ const AdminOrdersPage = () => {
                           setExpandedId(expandedId === order.id ? null : order.id)
                         }
                       >
-                        {expandedId === order.id ? "Ẩn" : "Chi tiết"}
+                        {expandedId === order.id
+                          ? t("admin.orders.hide")
+                          : t("admin.orders.detail")}
                       </button>
                       {expandedId === order.id && (
                         <div className="admin-page__details">
                           <div className="admin-page__details-list">
                             {(order.details || []).map((detail) => (
                               <div key={detail.id}>
-                                {detail.product?.name || "Sản phẩm đã xoá"} x {detail.quantity}
+                                {detail.product_name ||
+                                  detail.product?.name ||
+                                  t("admin.orders.deletedProduct")}{" "}
+                                x {detail.quantity}
                                 {" - "}
-                                {formatter(
-                                  Number(detail.product?.price || 0) *
-                                    Number(detail.quantity || 0)
-                                )}
+                                {formatter(Number(detail.line_total || 0))}
                               </div>
                             ))}
-                            {order.note && <div>Ghi chú: {order.note}</div>}
-                            <div>Trạng thái hiện tại: {statusLabel(order.status)}</div>
+                            {order.note && (
+                              <div>
+                                {t("admin.orders.note")}: {order.note}
+                              </div>
+                            )}
+                            <div>
+                              {t("admin.orders.currentStatus")}:{" "}
+                              {statusLabel(order.status, t)}
+                            </div>
                           </div>
                         </div>
                       )}
@@ -191,16 +213,16 @@ const AdminOrdersPage = () => {
                 ))}
                 {!orders.length && !isLoading && (
                   <tr>
-                    <td colSpan={6} className="admin-page__empty">
-                      Chưa có đơn hàng phù hợp.
-                    </td>
+                      <td colSpan={6} className="admin-page__empty">
+                        {t("admin.orders.empty")}
+                      </td>
                   </tr>
                 )}
                 {isLoading && (
                   <tr>
-                    <td colSpan={6} className="admin-page__empty">
-                      Đang tải dữ liệu...
-                    </td>
+                      <td colSpan={6} className="admin-page__empty">
+                        {t("admin.common.loadingData")}
+                      </td>
                   </tr>
                 )}
               </tbody>

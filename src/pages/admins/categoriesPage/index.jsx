@@ -5,15 +5,21 @@ import {
   getAdminCategoriesAPI,
   updateAdminCategoryAPI,
 } from "api/admin";
+import { ConfirmModal } from "component";
+import { useTranslation } from "react-i18next";
+import { isAdmin } from "utils/adminAuth";
 import "../admin.scss";
 
 const AdminCategoriesPage = () => {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [pendingDeleteCategory, setPendingDeleteCategory] = useState(null);
+  const canDelete = isAdmin();
 
   const loadCategories = async () => {
     setIsLoading(true);
@@ -23,7 +29,7 @@ const AdminCategoriesPage = () => {
       const data = await getAdminCategoriesAPI();
       setCategories(data);
     } catch (err) {
-      setError(err?.response?.data?.message || "Không tải được danh mục.");
+      setError(err?.response?.data?.message || t("admin.categories.loadError"));
     } finally {
       setIsLoading(false);
     }
@@ -46,16 +52,16 @@ const AdminCategoriesPage = () => {
     try {
       if (editingId) {
         await updateAdminCategoryAPI(editingId, { name });
-        setMessage("Đã cập nhật danh mục.");
+        setMessage(t("admin.categories.updated"));
       } else {
         await createAdminCategoryAPI({ name });
-        setMessage("Đã tạo danh mục.");
+        setMessage(t("admin.categories.created"));
       }
 
       resetForm();
       loadCategories();
     } catch (err) {
-      setError(err?.response?.data?.message || "Không lưu được danh mục.");
+      setError(err?.response?.data?.message || t("admin.categories.saveError"));
     }
   };
 
@@ -65,7 +71,11 @@ const AdminCategoriesPage = () => {
   };
 
   const handleDelete = async (category) => {
-    if (!window.confirm(`Xoá danh mục "${category.name}"?`)) {
+    setPendingDeleteCategory(category);
+  };
+
+  const confirmDeleteCategory = async () => {
+    if (!pendingDeleteCategory) {
       return;
     }
 
@@ -73,11 +83,12 @@ const AdminCategoriesPage = () => {
     setError("");
 
     try {
-      await deleteAdminCategoryAPI(category.id);
-      setMessage("Đã xoá danh mục.");
+      await deleteAdminCategoryAPI(pendingDeleteCategory.id);
+      setMessage(t("admin.categories.deleted"));
+      setPendingDeleteCategory(null);
       loadCategories();
     } catch (err) {
-      setError(err?.response?.data?.message || "Không xoá được danh mục.");
+      setError(err?.response?.data?.message || t("admin.categories.deleteError"));
     }
   };
 
@@ -86,9 +97,9 @@ const AdminCategoriesPage = () => {
       <div className="container">
         <div className="admin-page__header">
           <div>
-            <h1 className="admin-page__title">Quản lý danh mục</h1>
+            <h1 className="admin-page__title">{t("admin.categories.title")}</h1>
             <p className="admin-page__subtitle">
-              Tạo nhóm sản phẩm và kiểm soát danh mục đang dùng trên website.
+              {t("admin.categories.subtitle")}
             </p>
           </div>
         </div>
@@ -99,16 +110,20 @@ const AdminCategoriesPage = () => {
         <div className="admin-page__grid">
           <div className="admin-page__panel">
             <h2 className="admin-page__panel-title">
-              {editingId ? "Cập nhật danh mục" : "Thêm danh mục"}
+              {editingId
+                ? t("admin.categories.updateTitle")
+                : t("admin.categories.createTitle")}
             </h2>
             <form className="admin-page__form" onSubmit={handleSubmit}>
               <label>
-                Tên danh mục
+                {t("admin.categories.name")}
                 <input value={name} onChange={(e) => setName(e.target.value)} required />
               </label>
               <div className="admin-page__actions">
                 <button className="admin-page__button" type="submit">
-                  {editingId ? "Lưu thay đổi" : "Tạo danh mục"}
+                  {editingId
+                    ? t("admin.common.saveChanges")
+                    : t("admin.categories.createButton")}
                 </button>
                 {editingId && (
                   <button
@@ -116,7 +131,7 @@ const AdminCategoriesPage = () => {
                     type="button"
                     onClick={resetForm}
                   >
-                    Hủy
+                    {t("admin.common.cancel")}
                   </button>
                 )}
               </div>
@@ -124,15 +139,17 @@ const AdminCategoriesPage = () => {
           </div>
 
           <div className="admin-page__panel">
-            <h2 className="admin-page__panel-title">Danh sách danh mục</h2>
+            <h2 className="admin-page__panel-title">
+              {t("admin.categories.listTitle")}
+            </h2>
             <div className="admin-page__table-wrap">
               <table className="admin-page__table">
                 <thead>
                   <tr>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Số sản phẩm</th>
-                    <th>Thao tác</th>
+                    <th>{t("admin.common.code")}</th>
+                    <th>{t("admin.common.name")}</th>
+                    <th>{t("admin.categories.productCount")}</th>
+                    <th>{t("admin.common.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -147,14 +164,16 @@ const AdminCategoriesPage = () => {
                             className="admin-page__button admin-page__button--ghost"
                             onClick={() => handleEdit(category)}
                           >
-                            Sửa
+                            {t("admin.common.edit")}
                           </button>
-                          <button
-                            className="admin-page__button admin-page__button--danger"
-                            onClick={() => handleDelete(category)}
-                          >
-                            Xoá
-                          </button>
+                          {canDelete && (
+                            <button
+                              className="admin-page__button admin-page__button--danger"
+                              onClick={() => handleDelete(category)}
+                            >
+                              {t("admin.common.delete")}
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -162,14 +181,14 @@ const AdminCategoriesPage = () => {
                   {!categories.length && !isLoading && (
                     <tr>
                       <td colSpan={4} className="admin-page__empty">
-                        Chưa có danh mục.
+                        {t("admin.categories.empty")}
                       </td>
                     </tr>
                   )}
                   {isLoading && (
                     <tr>
                       <td colSpan={4} className="admin-page__empty">
-                        Đang tải dữ liệu...
+                        {t("admin.common.loadingData")}
                       </td>
                     </tr>
                   )}
@@ -179,6 +198,15 @@ const AdminCategoriesPage = () => {
           </div>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={Boolean(pendingDeleteCategory)}
+        title={t("admin.categories.confirmDeleteTitle")}
+        message={t("admin.categories.confirmDeleteMessage", {
+          name: pendingDeleteCategory?.name || "",
+        })}
+        onConfirm={confirmDeleteCategory}
+        onCancel={() => setPendingDeleteCategory(null)}
+      />
     </main>
   );
 };

@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "style/pages/_theme";
+@use "style/pages/theme" as *;
 
 .footer {
   background: #f3f6fa;

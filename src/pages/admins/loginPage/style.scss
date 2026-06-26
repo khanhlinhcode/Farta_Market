@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "style/pages/all";
+@use "style/pages/all" as *;
 .login {
   input {
     width: calc(100% - 10px);

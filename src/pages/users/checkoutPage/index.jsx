@@ -1,5 +1,5 @@
 import "./style.scss";
-import { memo, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { formatter } from "utils/fomater";
 import Breadcrumb from "../theme/breadcrumb";
 import { SESSION_KEYS } from "utils/constant";
@@ -9,8 +9,10 @@ import { postOrderAPI } from "api/orderPage";
 import { useNavigate } from "react-router-dom";
 import useShoppingCart from "hooks/useShoppingCart";
 import { getSessionItem } from "utils/session";
+import { useTranslation } from "react-i18next";
 
 const CheckoutPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { clearCart } = useShoppingCart();
   const cart = getSessionItem(SESSION_KEYS.CART, {
@@ -20,17 +22,22 @@ const CheckoutPage = () => {
   });
 
   const [orderError, setOrderError] = useState("");
+  const idempotencyKeyRef = useRef(
+    globalThis.crypto?.randomUUID?.() ||
+      `order-${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
 
   const { mutate: postOrder, isPending } = useMutation({
-    mutationFn: postOrderAPI,
+    mutationFn: ({ payload, idempotencyKey }) =>
+      postOrderAPI(payload, idempotencyKey),
     onSuccess: () => {
-      alert("Đặt hàng thành công");
+      alert(t("checkout.success"));
       clearCart();
       navigate(ROUTERS.USER.HOME);
     },
     onError: (err) => {
       setOrderError(
-        err?.response?.data?.message || "Không đặt được hàng, vui lòng thử lại."
+        err?.response?.data?.message || t("checkout.orderError")
       );
     },
   });
@@ -69,25 +76,28 @@ const CheckoutPage = () => {
     let isValid = true;
 
     if (!fullName) {
-      newErrors.fullName = "Vui lòng nhập họ và tên";
+      newErrors.fullName = t("checkout.validation.fullNameRequired");
       isValid = false;
     }
     if (!address) {
-      newErrors.address = "Vui lòng nhập địa chỉ";
+      newErrors.address = t("checkout.validation.addressRequired");
+      isValid = false;
+    } else if (address.trim().length < 10) {
+      newErrors.address = t("checkout.validation.addressMinLength");
       isValid = false;
     }
     if (!phone) {
-      newErrors.phone = "Vui lòng nhập sđt";
+      newErrors.phone = t("checkout.validation.phoneRequired");
       isValid = false;
-    } else if (!/^[0-9]+$/.test(phone)) {
-      newErrors.phone = "Số điện thoại chỉ được chứa số";
+    } else if (!/^[0-9]{10,11}$/.test(phone)) {
+      newErrors.phone = t("checkout.validation.phoneInvalid");
       isValid = false;
     }
     if (!email) {
-      newErrors.email = "Vui lòng nhập email";
+      newErrors.email = t("checkout.validation.emailRequired");
       isValid = false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Email không hợp lệ";
+      newErrors.email = t("checkout.validation.emailInvalid");
       isValid = false;
     }
     // if (!paymentMethod) {
@@ -108,21 +118,26 @@ const CheckoutPage = () => {
     setOrderError("");
 
     if (!cart.products.length) {
-      setOrderError("Giỏ hàng đang trống.");
+      setOrderError(t("checkout.emptyCart"));
       return;
     }
 
     if (validateForm()) {
       postOrder({
-        fullname: fullName,
-        address,
-        phone,
-        email,
-        note,
-        products: cart.products.map(({ product, quantity }) => ({
-          product_id: product.id,
-          quantity,
-        })),
+        idempotencyKey: idempotencyKeyRef.current,
+        payload: {
+          fullname: fullName,
+          customer_name: fullName,
+          address,
+          phone,
+          customer_phone: phone,
+          email,
+          note,
+          products: cart.products.map(({ product, quantity }) => ({
+            product_id: product.id,
+            quantity,
+          })),
+        },
       });
       setErrors({
         fullName: "",
@@ -135,18 +150,18 @@ const CheckoutPage = () => {
 
   return (
     <>
-      <Breadcrumb name="Thanh Toán" />
+      <Breadcrumb name={t("checkout.title")} />
       <div className="container">
         <form onSubmit={handleSubmit}>
           <div className="row">
             <div className="col-lg-6 col-md-12 col-sm-12 col-xs-12">
               <div className="checkout__input">
                 <label htmlFor="">
-                  Họ và Tên: <span className="required">*</span>
+                  {t("checkout.fullName")}: <span className="required">*</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="Nhập họ tên"
+                  placeholder={t("checkout.fullNamePlaceholder")}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                 />
@@ -156,11 +171,11 @@ const CheckoutPage = () => {
               </div>
               <div className="checkout__input">
                 <label htmlFor="">
-                  Địa Chỉ: <span className="required">*</span>
+                  {t("checkout.address")}: <span className="required">*</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="Nhập địa chỉ"
+                  placeholder={t("checkout.addressPlaceholder")}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                 />
@@ -171,11 +186,11 @@ const CheckoutPage = () => {
               <div className="checkout__input__group">
                 <div className="checkout__input">
                   <label htmlFor="">
-                    Điện Thoại: <span className="required">*</span>
+                    {t("checkout.phone")}: <span className="required">*</span>
                   </label>
                   <input
                     type="text"
-                    placeholder="Nhập số điện thoại"
+                    placeholder={t("checkout.phonePlaceholder")}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                   />
@@ -185,11 +200,11 @@ const CheckoutPage = () => {
                 </div>
                 <div className="checkout__input">
                   <label htmlFor="">
-                    Email: <span className="required">*</span>
+                    {t("checkout.email")}: <span className="required">*</span>
                   </label>
                   <input
                     type="text"
-                    placeholder="Nhập email"
+                    placeholder={t("checkout.emailPlaceholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -199,10 +214,10 @@ const CheckoutPage = () => {
                 </div>
               </div>
               <div className="checkout__input">
-                <label htmlFor="">Ghi Chú:</label>
+                <label htmlFor="">{t("checkout.note")}:</label>
                 <textarea
                   rows={15}
-                  placeholder="Nhập ghi chú"
+                  placeholder={t("checkout.notePlaceholder")}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                 />
@@ -211,7 +226,7 @@ const CheckoutPage = () => {
             </div>
             <div className="col-lg-6 col-md-12 col-sm-12 col-xs-12">
               <div className="checkout__order">
-                <h3>Don hàng</h3>
+                <h3>{t("checkout.order")}</h3>
                 <ul>
                   {cart.products.map(({ product, quantity }) => (
                     <li key={product.id}>
@@ -221,18 +236,17 @@ const CheckoutPage = () => {
                       </b>
                     </li>
                   ))}
-                  <li>
-                    <h4>Giảim Giá</h4>
-                    <b>SVC783</b>
-                  </li>
                   <li className="checkout__order__subtotal">
-                    <h3>Tổng Đơn Hàng</h3>
+                    <h3>{t("checkout.totalOrder")}</h3>
                     <b>{formatter(cart.totalPrice)}</b>
                   </li>
                 </ul>
                 {orderError && <span className="error">{orderError}</span>}
                 <button type="submit" className="button-submit" disabled={isPending}>
-                  {isPending ? "Đang đặt hàng..." : "Đặt Hàng"}
+                  {isPending && <span className="checkout-spinner" aria-hidden="true" />}
+                  <span>
+                    {isPending ? t("checkout.placing") : t("checkout.placeOrder")}
+                  </span>
                 </button>
               </div>
             </div>

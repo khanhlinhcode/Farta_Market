@@ -1,9 +1,13 @@
 @use "sass:map";
-@import "style/pages/all";
+@use "style/pages/all" as *;
 
 .table__cart {
-  overflow-y: au to;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
   table {
+    min-width: 680px;
     width: 100%;
 
     thead tr th {
@@ -43,6 +47,29 @@
         }
       }
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .shopping__continue {
+    .shopping_discount {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 12px;
+      padding-right: 0;
+
+      input,
+      button {
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+  }
+
+  .shopping__checkout {
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 20px;
   }
 }
 .shopping__continue {

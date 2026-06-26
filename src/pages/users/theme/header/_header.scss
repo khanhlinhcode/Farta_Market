@@ -1,13 +1,15 @@
 @use "sass:map";
-@import "style/pages/all";
+@use "style/pages/all" as *;
 
 @mixin header-small-device {
   .hero__categories {
     margin-bottom: 30px;
   }
   .hero__search__form {
+    box-sizing: border-box;
+    max-width: 100%;
     padding-left: unset !important;
-    width: 530px !important;
+    width: 100% !important;
   }
 
   .header__top,
@@ -29,8 +31,9 @@
   }
 
   .hunberger__menu__wrapper {
+    box-sizing: border-box;
     position: fixed;
-    width: 300px;
+    width: min(300px, 88vw);
     background: #ffffff;
     height: 100%;
     overflow-y: auto;
@@ -62,7 +65,10 @@
     }
   }
   .hunberger__menu__cart {
+    align-items: center;
     display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
     margin-bottom: 25px;
 
     .header__cart__price {
