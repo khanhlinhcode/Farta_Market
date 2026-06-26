@@ -1,17 +1,27 @@
 @use "sass:map";
-@import "_theme";
-@import "responsive";
-@import "@fontsource/be-vietnam-pro";
+@use "_theme" as *;
+@use "responsive" as *;
+@use "@fontsource/be-vietnam-pro";
+@forward "_theme";
+@forward "responsive";
 
 html,
 body {
   margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 * {
+  box-sizing: border-box;
   font-family: "Be Vietnam Pro";
   padding: 0;
   margin: 0;
+}
+
+*::before,
+*::after {
+  box-sizing: inherit;
 }
 
 .container {
@@ -157,7 +167,7 @@ textarea {
 }
 @include Responsive($SMALL_DEVICE) {
   .container {
-    max-width: 350px;
+    max-width: 100%;
   }
   .col-xs-12 {
     flex: 0 0 100%;
