@@ -4,19 +4,28 @@ import { useNavigate } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 import { SESSION_KEYS } from "utils/constant";
 import { loginAdminAPI } from "api/admin";
+import { useTranslation } from "react-i18next";
+import {
+  clearAdminSession,
+  hasAdminAccess,
+  setAdminSession,
+} from "utils/adminAuth";
 
 const LoginAdPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    email: "test@example.com",
-    password: "password",
+    email: "",
+    password: "",
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN)) {
+    if (hasAdminAccess()) {
       navigate(ROUTERS.ADMIN.ORDERS, { replace: true });
+    } else if (localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN)) {
+      clearAdminSession();
     }
   }, [navigate]);
 
@@ -34,11 +43,14 @@ const LoginAdPage = () => {
 
     try {
       const response = await loginAdminAPI(form);
-      localStorage.setItem(SESSION_KEYS.ADMIN_TOKEN, response.token);
+      setAdminSession({
+        token: response.token,
+        role: response.user.role,
+      });
       navigate(ROUTERS.ADMIN.ORDERS, { replace: true });
     } catch (err) {
       setError(
-        err?.response?.data?.message || "Không đăng nhập được, vui lòng kiểm tra lại."
+        err?.response?.data?.message || t("admin.login.error")
       );
     } finally {
       setIsLoading(false);
@@ -48,7 +60,7 @@ const LoginAdPage = () => {
   return (
     <div className="login">
       <div className="login__container">
-        <h2 className="login__title">Truy Cập Hệ Thống Quản Trị</h2>
+        <h2 className="login__title">{t("admin.login.title")}</h2>
         <form className="login__form" onSubmit={hanldeSubmit}>
           <div className="login__form-group">
             <label htmlFor="email" className="login__label">
@@ -65,7 +77,7 @@ const LoginAdPage = () => {
           </div>
           <div className="login__form-group">
             <label htmlFor="password" className="login__label">
-              Mật Khẩu
+              {t("admin.login.password")}
             </label>
             <input
               type="password"
@@ -78,7 +90,7 @@ const LoginAdPage = () => {
           </div>
           {error && <p className="login__error">{error}</p>}
           <button type="submit" className="login__button">
-            {isLoading ? "Đang đăng nhập..." : "Đăng Nhập"}
+            {isLoading ? t("admin.login.loading") : t("admin.login.button")}
           </button>
         </form>
       </div>

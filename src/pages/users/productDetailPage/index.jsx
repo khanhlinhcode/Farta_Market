@@ -9,13 +9,15 @@ import {
   AiOutlineTwitter,
 } from "react-icons/ai";
 import { formatter } from "utils/fomater";
-import { ProductCard, Quantity } from "component";
+import { ProductCard, Quantity, SafeHtml } from "component";
 import { useProductDetailUS } from "api/productDetailPage";
 import { useGetProductsUS } from "api/homePage";
 import { useParams } from "react-router-dom";
 import { resolveProductImage } from "utils/productImages";
+import { useTranslation } from "react-i18next";
 
 const ProductDetailPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { data: product, isLoading, isError } = useProductDetailUS(id);
   const { data: products = [] } = useGetProductsUS();
@@ -35,40 +37,49 @@ const ProductDetailPage = () => {
 
   return (
     <>
-      <Breadcrumb name="Chi Tiết Sản Phẩm" />
-      {isLoading && <h1 className="product__detail__state">Đang tải...</h1>}
-      {isError && <h1 className="product__detail__state">Không tải được sản phẩm.</h1>}
+      <Breadcrumb name={t("productDetail.breadcrumb")} />
+      {isLoading && (
+        <h1 className="product__detail__state">{t("productDetail.loading")}</h1>
+      )}
+      {isError && (
+        <h1 className="product__detail__state">{t("productDetail.loadError")}</h1>
+      )}
       {!isLoading && product && (
         <div className="container">
-          <div className="row">
-            <div className="col-lg-6 col-xl-12 col-md-12 col-sm-12 col-xs-12 product__detail__pic">
+          <div className="product-detail-layout">
+            <div className="product__detail__pic">
               <img src={resolveProductImage(product.img)} alt={product.name} />
               <div className="main">
                 <img src={resolveProductImage(product.img)} alt={product.name} />
               </div>
             </div>
-            <div className="col-lg-6 col-xl-12 col-md-12 col-sm-12 col-xs-12 product__detail__text">
+            <div className="product__detail__text">
               <h2>{product.name}</h2>
               <div className="seen-icon">
                 <AiOutlineEye />
-                {`10 (Lượt đã xem)`}
+                {t("productDetail.viewCount", { count: 10 })}
               </div>
               <h3>{formatter(product.price)}</h3>
               <p>{product.sort_description}</p>
               <Quantity product={product} maxQuantity={product.inventory} />
               <ul>
                 <li>
-                  <b>Tình trạng:</b>{" "}
-                  <span>{product.inventory > 0 ? "Còn hàng" : "Hết hàng"}</span>
+                  <b>{t("productDetail.status")}:</b>{" "}
+                  <span>
+                    {product.inventory > 0
+                      ? t("productDetail.inStock")
+                      : t("productDetail.outOfStock")}
+                  </span>
                 </li>
                 <li>
-                  <b>Số Lượng:</b> <span>{product.inventory}</span>
+                  <b>{t("productDetail.quantity")}:</b> <span>{product.inventory}</span>
                 </li>
                 <li>
-                  <b>Danh mục:</b> <span>{product.category?.name || "Chưa có"}</span>
+                  <b>{t("productDetail.category")}:</b>{" "}
+                  <span>{product.category?.name || t("common.noCategory")}</span>
                 </li>
                 <li>
-                  <b>Chia Sẻ:</b>{" "}
+                  <b>{t("productDetail.share")}:</b>{" "}
                   <span>
                     <AiOutlineFacebook />
                     <AiOutlineInstagram />
@@ -80,11 +91,11 @@ const ProductDetailPage = () => {
             </div>
           </div>
           <div className="product__detail__tab">
-            <h4>Thông Tin Chi Tiết</h4>
-            <div dangerouslySetInnerHTML={{ __html: product.description }} />
+            <h4>{t("productDetail.detailInfo")}</h4>
+            <SafeHtml html={product.description} />
           </div>
           <div className="section-title">
-            <h2>Sản Phẩm Tương Tự</h2>
+            <h2>{t("productDetail.relatedProducts")}</h2>
           </div>
           <div className="row">
             {relatedProducts.map((item) => (
@@ -93,7 +104,9 @@ const ProductDetailPage = () => {
               </div>
             ))}
             {!relatedProducts.length && (
-              <div className="product__detail__state">Chưa có sản phẩm tương tự.</div>
+              <div className="product__detail__state">
+                {t("productDetail.noRelated")}
+              </div>
             )}
           </div>
         </div>

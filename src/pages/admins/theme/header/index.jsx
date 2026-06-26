@@ -8,10 +8,12 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 import "./style.scss";
-import { SESSION_KEYS } from "utils/constant";
 import { logoutAdminAPI } from "api/admin";
+import { useTranslation } from "react-i18next";
+import { clearAdminSession } from "utils/adminAuth";
 
 const HeaderAD = ({ children, ...props }) => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const handleLogout = async () => {
@@ -20,7 +22,7 @@ const HeaderAD = ({ children, ...props }) => {
     } catch (error) {
       // Token local vẫn được xoá để người dùng thoát khỏi admin trên máy hiện tại.
     } finally {
-      localStorage.removeItem(SESSION_KEYS.ADMIN_TOKEN);
+      clearAdminSession();
       navigate(ROUTERS.ADMIN.LOGIN, { replace: true });
     }
   };
@@ -29,25 +31,25 @@ const HeaderAD = ({ children, ...props }) => {
     {
       path: ROUTERS.ADMIN.ORDERS,
       onClick: () => navigate(ROUTERS.ADMIN.ORDERS),
-      label: "Đặt Hàng",
+      label: t("admin.nav.orders"),
       icon: <AiOutlineShoppingCart />,
     },
     {
       path: ROUTERS.ADMIN.PRODUCTS,
       onClick: () => navigate(ROUTERS.ADMIN.PRODUCTS),
-      label: "Sản Phẩm",
+      label: t("admin.nav.products"),
       icon: <AiOutlineAppstore />,
     },
     {
       path: ROUTERS.ADMIN.CATEGORIES,
       onClick: () => navigate(ROUTERS.ADMIN.CATEGORIES),
-      label: "Danh Mục",
+      label: t("admin.nav.categories"),
       icon: <AiOutlineTags />,
     },
     {
       path: ROUTERS.ADMIN.LOGOUT,
       onClick: handleLogout,
-      label: "Đăng Xuất",
+      label: t("admin.nav.logout"),
       icon: <AiOutlineLogout />,
     },
   ];

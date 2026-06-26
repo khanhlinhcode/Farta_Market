@@ -1,6 +1,5 @@
 @use "sass:map";
-@import "style/pages/_theme";
-@import "style/pages/all";
+@use "style/pages/all" as *;
 .product__detail__pic {
   display: flex;
   column-gap: 10px;

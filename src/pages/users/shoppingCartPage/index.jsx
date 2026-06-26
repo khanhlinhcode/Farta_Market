@@ -2,7 +2,7 @@ import { memo } from "react";
 import Breadcrumb from "../theme/breadcrumb";
 import "./style.scss";
 import { formatter } from "utils/fomater";
-import { Quantity } from "component";
+import { ConfirmModal, Quantity } from "component";
 import { AiOutlineClose } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { ROUTERS } from "utils/router";
@@ -11,25 +11,31 @@ import { useState } from "react";
 import useShoppingCart from "hooks/useShoppingCart";
 import { resolveProductImage } from "utils/productImages";
 import { getSessionItem } from "utils/session";
+import { useTranslation } from "react-i18next";
 const ShoppingCartPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { removeCart, updateCartQuantity, emptyCart } = useShoppingCart();
   const [cart, setCart] = useState(getSessionItem(SESSION_KEYS.CART, emptyCart));
+  const [pendingRemoveId, setPendingRemoveId] = useState(null);
   const hasProducts = cart.products.length > 0;
+  const pendingProduct = cart.products.find(
+    (item) => item.product.id === pendingRemoveId
+  )?.product;
 
   return (
     <>
-      <Breadcrumb name="Giỏ hàng" />
+      <Breadcrumb name={t("cart.title")} />
       {hasProducts ? (
         <div className="container">
           <div className="table__cart">
             <table>
               <thead>
                 <tr>
-                  <th>Tên</th>
-                  <th>Giá</th>
-                  <th>Số Lượng</th>
-                  <th>Thành Tiền</th>
+                  <th>{t("cart.name")}</th>
+                  <th>{t("cart.price")}</th>
+                  <th>{t("cart.quantity")}</th>
+                  <th>{t("cart.lineTotal")}</th>
                   <th />
                 </tr>
               </thead>
@@ -43,7 +49,9 @@ const ShoppingCartPage = () => {
                     <td>{formatter(product.price)}</td>
                     <td>
                       <Quantity
+                        product={product}
                         initQuantity={quantity}
+                        maxQuantity={product.inventory}
                         hasAddToCart={false}
                         onChange={(nextQuantity) =>
                           setCart(updateCartQuantity(product.id, nextQuantity))
@@ -53,7 +61,7 @@ const ShoppingCartPage = () => {
                     <td>{formatter(product.price * quantity)}</td>
                     <td
                       className="icon_close"
-                      onClick={() => setCart(removeCart(product.id))}
+                      onClick={() => setPendingRemoveId(product.id)}
                     >
                       <AiOutlineClose />
                     </td>
@@ -63,26 +71,15 @@ const ShoppingCartPage = () => {
             </table>
           </div>
           <div className="row">
-            <div className="col-lg-6 col-md-12 col-sm-12 col-xs-12">
-              <div className="shopping__continue">
-                <h3>MÃ Giảm Giá</h3>
-                <div className="shopping_discount">
-                  <input placeholder="Nhap Ma Giam Gia" />
-                  <button type="button" className="button-submit">
-                    Áp Dụng
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+            <div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
               <div className="shopping__checkout">
-                <h2>Tổng Đơn</h2>
+                <h2>{t("cart.orderTotal")}</h2>
                 <ul>
                   <li>
-                    Số Lượng: <span>{cart.totalQuantity}</span>
+                    {t("cart.quantity")}: <span>{cart.totalQuantity}</span>
                   </li>
                   <li>
-                    Thành Tiền: <span>{formatter(cart.totalPrice)}</span>
+                    {t("cart.lineTotal")}: <span>{formatter(cart.totalPrice)}</span>
                   </li>
                 </ul>
                 <button
@@ -90,7 +87,7 @@ const ShoppingCartPage = () => {
                   className="button-submit"
                   onClick={() => navigate(ROUTERS.USER.CHECKOUT)}
                 >
-                  Thanh Toán
+                  {t("cart.checkout")}
                 </button>
               </div>
             </div>
@@ -98,9 +95,21 @@ const ShoppingCartPage = () => {
         </div>
       ) : (
         <div className="container">
-          <div className="product-list-state">Giỏ hàng đang trống.</div>
+          <div className="product-list-state">{t("cart.empty")}</div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={Boolean(pendingRemoveId)}
+        title={t("cart.confirmRemoveTitle")}
+        message={t("cart.confirmRemoveMessage", {
+          name: pendingProduct?.name || t("common.productFallback"),
+        })}
+        onConfirm={() => {
+          setCart(removeCart(pendingRemoveId));
+          setPendingRemoveId(null);
+        }}
+        onCancel={() => setPendingRemoveId(null)}
+      />
     </>
   );
 };
