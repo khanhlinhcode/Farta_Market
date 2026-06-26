@@ -11,9 +11,10 @@ export const getCategoriesAPI = async () => {
     method: "GET",
   });
 };
-export const getProductsAPI = async () => {
+export const getProductsAPI = async (params = {}) => {
   return await axios.request({
     url: END_POINT.PRODUCTS,
     method: "GET",
+    params,
   });
 };

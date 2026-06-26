@@ -4,7 +4,17 @@ export const getSessionItem = (key, fallback = null) => {
   }
 
   try {
-    const value = window.sessionStorage.getItem(key);
+    let value = window.localStorage.getItem(key);
+
+    if (!value) {
+      value = window.sessionStorage.getItem(key);
+
+      if (value) {
+        window.localStorage.setItem(key, value);
+        window.sessionStorage.removeItem(key);
+      }
+    }
+
     return value ? JSON.parse(value) : fallback;
   } catch (error) {
     return fallback;
@@ -16,7 +26,8 @@ export const setSessionItem = (key, value) => {
     return;
   }
 
-  window.sessionStorage.setItem(key, JSON.stringify(value));
+  window.localStorage.setItem(key, JSON.stringify(value));
+  window.sessionStorage.removeItem(key);
 };
 
 export const removeSessionItem = (key) => {
@@ -24,5 +35,6 @@ export const removeSessionItem = (key) => {
     return;
   }
 
+  window.localStorage.removeItem(key);
   window.sessionStorage.removeItem(key);
 };

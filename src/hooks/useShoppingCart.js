@@ -1,21 +1,7 @@
 import { useDispatch } from "react-redux";
-import { setCart } from "../redux/commonSlide";
+import { calculateCart, emptyCart, setCart } from "../redux/commonSlide";
 import { SESSION_KEYS } from "../utils/constant";
 import { getSessionItem, removeSessionItem, setSessionItem } from "utils/session";
-
-const emptyCart = {
-  products: [],
-  totalPrice: 0,
-  totalQuantity: 0,
-};
-
-const calculateCart = (products) => ({
-  products,
-  totalPrice: products.reduce((sum, item) => {
-    return sum + Number(item.product.price || 0) * Number(item.quantity || 0);
-  }, 0),
-  totalQuantity: products.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
-});
 
 const useShoppingCart = () => {
   const dispatch = useDispatch();
@@ -64,13 +50,9 @@ const useShoppingCart = () => {
 
   const removeCart = (id) => {
     const cart = getCart();
-    if (window.confirm("Bạn có chắc chắn muốn xoá khỏi giỏ hàng không")) {
-      const products = cart.products.filter(({ product }) => product.id !== id);
+    const products = cart.products.filter(({ product }) => product.id !== id);
 
-      return persistCart(products);
-    }
-
-    return cart;
+    return persistCart(products);
   };
 
   const updateCartQuantity = (id, quantity) => {

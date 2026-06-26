@@ -1,8 +1,11 @@
 import axios from "axios";
 import { SESSION_KEYS } from "utils/constant";
+import { clearAdminSession } from "utils/adminAuth";
+import { getApiBaseUrl } from "../config/api";
 
-const baseURL = process.env.REACT_APP_API_URI;
-const timeout = +process.env.REACT_APP_API_TIME_OUT || 20000;
+const baseURL = getApiBaseUrl();
+const timeout =
+  Number(import.meta.env.VITE_API_TIME_OUT || import.meta.env.REACT_APP_API_TIME_OUT) || 20000;
 
 const axiosInstance = axios.create({
   baseURL,
@@ -10,7 +13,11 @@ const axiosInstance = axios.create({
 });
 axiosInstance.interceptors.request.use(
   function (config) {
-    config.headers["Content-Type"] = "application/json";
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    } else {
+      config.headers["Content-Type"] = "application/json";
+    }
     config.headers.Accept = "application/json";
 
     const token = localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN);
@@ -33,7 +40,7 @@ axiosInstance.interceptors.response.use(
   },
   function (error) {
     if (error?.response?.status === 401) {
-      localStorage.removeItem(SESSION_KEYS.ADMIN_TOKEN);
+      clearAdminSession();
     }
 
     return Promise.reject(error);

@@ -10,11 +10,14 @@ export const useGetCategoriesUS = (option) => {
   });
 };
 
-export const useGetProductsUS = (option) => {
+export const useGetProductsUS = (params = {}, option = {}) => {
+  const { raw = false, ...queryOptions } = option;
+
   return useQuery({
-    queryKey: ["GetProductsAPI"],
-    queryFn: () => getProductsAPI(),
+    queryKey: ["GetProductsAPI", params],
+    queryFn: () => getProductsAPI(params),
+    select: raw ? undefined : (response) => response?.data || [],
     ...optionUseQuery,
-    ...option,
+    ...queryOptions,
   });
 };
