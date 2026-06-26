@@ -6,20 +6,22 @@ import { formatter } from "utils/fomater";
 import { ROUTERS } from "utils/router";
 import { resolveProductImage } from "utils/productImages";
 import useShoppingCart from "hooks/useShoppingCart";
+import { useTranslation } from "react-i18next";
 
 const ProductCard = ({ product }) => {
+  const { t } = useTranslation();
   const { addToCart } = useShoppingCart();
   const [notice, setNotice] = useState("");
   const isOutOfStock = Number(product.inventory || 0) <= 0;
 
   const handleAddToCart = () => {
     if (isOutOfStock) {
-      setNotice("Sản phẩm đã hết hàng");
+      setNotice(t("productCard.outOfStockNotice"));
       return;
     }
 
     addToCart(product, 1);
-    setNotice("Đã thêm vào giỏ");
+    setNotice(t("productCard.addedToCart"));
     window.setTimeout(() => setNotice(""), 1200);
   };
 
@@ -42,7 +44,11 @@ const ProductCard = ({ product }) => {
                 className="featured__item__cart-button"
                 disabled={isOutOfStock}
                 onClick={handleAddToCart}
-                title={isOutOfStock ? "Sản phẩm đã hết hàng" : "Thêm vào giỏ"}
+                title={
+                  isOutOfStock
+                    ? t("productCard.outOfStockNotice")
+                    : t("productCard.addToCart")
+                }
               >
                 <AiOutlineShoppingCart />
               </button>
@@ -53,7 +59,9 @@ const ProductCard = ({ product }) => {
               isOutOfStock ? " featured__item__stock--out" : ""
             }`}
           >
-            {isOutOfStock ? "Hết hàng" : `Còn ${product.inventory}`}
+            {isOutOfStock
+              ? t("productCard.outOfStock")
+              : t("productCard.stockRemaining", { count: product.inventory })}
           </span>
         </div>
         <div className="featured__item__text">

@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "style/pages/all";
+@use "style/pages/all" as *;
 .featured__item {
   margin-bottom: 50px;
 

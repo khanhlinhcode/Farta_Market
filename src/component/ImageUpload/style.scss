@@ -1,0 +1,25 @@
+.image-upload {
+  display: grid;
+  gap: 10px;
+
+  img {
+    background: #f5f5f5;
+    border: 1px solid #ebebeb;
+    height: 120px;
+    object-fit: contain;
+    width: 120px;
+  }
+
+  input {
+    cursor: pointer;
+  }
+
+  span {
+    color: #777777;
+    font-size: 13px;
+  }
+}
+
+.image-upload__error {
+  color: #d64545 !important;
+}
