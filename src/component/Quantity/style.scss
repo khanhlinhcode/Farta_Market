@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "style/pages/all";
+@use "style/pages/all" as *;
 .quantity-container {
   color: map.get($theme-colors, "description");
   display: flex;
@@ -9,11 +9,18 @@
     display: flex;
     align-items: center;
 
-    span {
+    .qtybtn {
+      border: 0;
+      color: inherit;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+
+      &:disabled {
+        color: #b2b2b2;
+        cursor: not-allowed;
+      }
     }
     .qtybtn,
     input {

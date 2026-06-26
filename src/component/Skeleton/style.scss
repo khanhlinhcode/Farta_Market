@@ -1,0 +1,48 @@
+.product-card-skeleton {
+  margin-bottom: 50px;
+  width: 100%;
+}
+
+.product-card-skeleton__image {
+  aspect-ratio: 1 / 1;
+  background: #e8eceb;
+  width: 100%;
+}
+
+.product-card-skeleton__line {
+  background: #e8eceb;
+  height: 16px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.product-card-skeleton__line--name {
+  margin-top: 14px;
+  width: 72%;
+}
+
+.product-card-skeleton__line--price {
+  margin-top: 10px;
+  width: 42%;
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 1.3s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-pulse {
+    animation: none;
+  }
+}

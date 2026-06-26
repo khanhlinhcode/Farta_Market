@@ -1,5 +1,6 @@
 import useShoppingCart from "hooks/useShoppingCart";
 import React, { memo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import "./style.scss";
 const Quantity = ({
   hasAddToCart = true,
@@ -8,6 +9,7 @@ const Quantity = ({
   maxQuantity,
   onChange,
 }) => {
+  const { t } = useTranslation();
   const { addToCart } = useShoppingCart();
   const max = Math.max(1, Number(maxQuantity || product?.inventory || 1));
   const [quantity, setQuantity] = useState(Math.min(initQuantity || 1, max));
@@ -29,13 +31,23 @@ const Quantity = ({
   return (
     <div className="quantity-container">
       <div className="quantity">
-        <span className="qtybtn" onClick={() => incrementQuantity(false)}>
+        <button
+          type="button"
+          className="qtybtn"
+          disabled={quantity <= 1}
+          onClick={() => incrementQuantity(false)}
+        >
           -
-        </span>
+        </button>
         <input type="number" value={quantity} readOnly />
-        <span className="qtybtn" onClick={() => incrementQuantity(true)}>
+        <button
+          type="button"
+          className="qtybtn"
+          disabled={quantity >= max}
+          onClick={() => incrementQuantity(true)}
+        >
           +
-        </span>
+        </button>
       </div>
       {hasAddToCart && (
         <button
@@ -46,7 +58,9 @@ const Quantity = ({
             addToCart(product, quantity); // gửi đúng quantity người dùng chọn
           }}
         >
-          {Number(product?.inventory || 0) > 0 ? "Thêm Giỏ Hàng" : "Hết Hàng"}
+          {Number(product?.inventory || 0) > 0
+            ? t("productDetail.addToCart")
+            : t("productDetail.outOfStock")}
         </button>
       )}
     </div>
