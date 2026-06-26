@@ -31,10 +31,25 @@ export const updateAdminOrderStatusAPI = async (id, status) => {
   });
 };
 
-export const getAdminProductsAPI = async () => {
+export const getAdminProductsAPI = async (params = {}) => {
   return await axios({
     url: "/admin/products",
     method: "GET",
+    params: {
+      page: params.page || 1,
+      per_page: params.per_page || 20,
+    },
+  });
+};
+
+export const uploadAdminProductImageAPI = async (id, file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  return await axios({
+    url: `/admin/products/${id}/image`,
+    method: "POST",
+    data: formData,
   });
 };
 
