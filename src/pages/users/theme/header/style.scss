@@ -415,6 +415,23 @@
         background: map.get($theme-colors, "main");
         letter-spacing: 0;
         text-decoration: none;
+        cursor: pointer;
+        transition: background 0.2s ease, box-shadow 0.2s ease,
+          transform 0.15s ease;
+
+        &:hover {
+          background: #007a68;
+          box-shadow: 0 8px 18px rgba(0, 136, 116, 0.2);
+        }
+
+        &:active {
+          transform: translateY(1px);
+        }
+
+        &:focus-visible {
+          outline: 3px solid rgba(0, 136, 116, 0.25);
+          outline-offset: 2px;
+        }
       }
     }
   }

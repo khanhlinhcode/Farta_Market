@@ -50,6 +50,18 @@
   }
 }
 
+.table__cart + .row {
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+
+  > .col-lg-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .shopping__continue {
     .shopping_discount {
@@ -96,22 +108,103 @@
 }
 
 .shopping__checkout {
-  background: #f5f5f5;
-  padding: 30px;
-  padding-top: 20px;
-  margin-top: 50px;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e8eeee;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 160px repeat(2, minmax(0, 1fr)) minmax(220px, 1.15fr);
+  margin-top: 36px;
+  padding: 22px 24px;
+  width: 100%;
+
+  h2 {
+    color: map.get($theme-colors, "bold-text");
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  ul {
+    align-items: center;
+    display: contents;
+    margin: 0;
+    padding: 0;
+  }
 
   ul li {
-    list-style: none;
+    align-items: center;
+    background: #f7fbfa;
+    border: 1px solid #e6f0ed;
+    border-radius: 6px;
     display: flex;
+    gap: 14px;
     justify-content: space-between;
-    margin: 20px 0;
+    color: map.get($theme-colors, "nomal-text");
+    font-size: 16px;
+    list-style: none;
+    margin: 0;
+    min-height: 56px;
+    padding: 12px 16px;
+    white-space: nowrap;
+    width: 100%;
 
-    button {
+    span {
+      color: map.get($theme-colors, "bold-text");
+      font-weight: 800;
+      text-align: right;
+      white-space: nowrap;
+    }
+  }
+
+  .button-submit {
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    min-height: 48px;
+    padding-left: 24px;
+    padding-right: 24px;
+    min-height: 56px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 992px) {
+  .shopping__checkout {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+
+    ul {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .button-submit {
       width: 100%;
     }
   }
-  button {
-    width: 100%;
+}
+
+@media (max-width: 576px) {
+  .shopping__checkout {
+    padding: 20px;
+
+    ul {
+      align-items: stretch;
+      gap: 12px;
+      grid-template-columns: 1fr;
+    }
+
+    ul li {
+      justify-content: space-between;
+      min-width: 0;
+      width: 100%;
+    }
   }
 }

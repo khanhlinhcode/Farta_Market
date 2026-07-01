@@ -27,6 +27,8 @@
     "productList": "DANH SÁCH SẢN PHẨM",
     "searchPlaceholder": "Bạn đang tìm kiếm gì?",
     "searchButton": "Tìm kiếm",
+    "myOrders": "Đơn hàng của tôi",
+    "wishlist": "Yêu thích",
     "support": "Hỗ trợ 24/7"
   },
   "home": {
@@ -52,8 +54,23 @@
       "beef": "Thịt Bò"
     }
   },
+  "categories": {
+    "vegetables": "Rau Củ",
+    "freshVegetables": "Rau Củ Tươi",
+    "milk": "Sữa",
+    "milkBox": "Sữa Hộp",
+    "freshMeat": "Thịt Tươi",
+    "beef": "Thịt Bò",
+    "leanBeef": "Thịt bò nạt",
+    "fastFood": "Thức Ăn Nhanh",
+    "fruit": "Trái Cây",
+    "freshOrange": "Cam Tươi",
+    "driedFruit": "Hoa Quả Khô"
+  },
   "footer": {
     "addressLabel": "Địa chỉ",
+    "phoneLabel": "Điện thoại",
+    "emailLabel": "Email",
     "shop": "Cửa hàng",
     "contact": "Liên hệ",
     "about": "Thông tin về chúng tôi",
@@ -64,7 +81,9 @@
     "promotion": "Khuyến mãi & ưu đãi",
     "subscribeText": "Đăng ký nhận thông tin tại đây",
     "emailPlaceholder": "Nhập email",
-    "subscribe": "Đăng ký"
+    "subscribe": "Đăng ký",
+    "emailInvalid": "Vui lòng nhập email hợp lệ",
+    "subscribeSuccess": "Cảm ơn bạn đã đăng ký nhận ưu đãi."
   },
   "products": {
     "title": "Danh sách sản phẩm",
@@ -128,6 +147,37 @@
     "outOfStock": "Hết hàng",
     "stockRemaining": "Còn {{count}}"
   },
+  "wishlist": {
+    "title": "Sản phẩm yêu thích",
+    "subtitle": "Bạn đã lưu {{count}} sản phẩm.",
+    "toggle": "Thêm hoặc xóa khỏi yêu thích",
+    "added": "Đã thêm vào danh sách yêu thích",
+    "removed": "Đã xóa khỏi danh sách yêu thích",
+    "remove": "Xóa yêu thích",
+    "loadError": "Không tải được danh sách yêu thích.",
+    "loginRequired": "Vui lòng đăng nhập để lưu sản phẩm yêu thích.",
+    "emptyTitle": "Chưa có sản phẩm yêu thích",
+    "empty": "Hãy lưu những sản phẩm bạn muốn mua sau để xem lại nhanh hơn.",
+    "continueShopping": "Tiếp tục mua sắm"
+  },
+  "reviews": {
+    "title": "Đánh giá",
+    "summary": "{{rating}}/5 · {{count}} đánh giá",
+    "noReviewsShort": "Chưa có đánh giá",
+    "empty": "Chưa có đánh giá cho sản phẩm này.",
+    "loadError": "Không tải được đánh giá.",
+    "loadMore": "Xem thêm",
+    "writeReview": "Viết đánh giá của bạn",
+    "commentPlaceholder": "Chia sẻ cảm nhận của bạn về sản phẩm...",
+    "commentRequired": "Vui lòng nhập nội dung đánh giá.",
+    "submit": "Gửi đánh giá",
+    "submitSuccess": "Cảm ơn bạn đã đánh giá sản phẩm.",
+    "submitError": "Không gửi được đánh giá.",
+    "loginToReview": "Đăng nhập để đánh giá sản phẩm sau khi mua.",
+    "purchaseRequired": "Bạn cần mua sản phẩm này trước khi đánh giá.",
+    "alreadyReviewed": "Bạn đã đánh giá sản phẩm này.",
+    "customer": "Khách hàng"
+  },
   "cart": {
     "title": "Giỏ hàng",
     "name": "Tên",
@@ -145,7 +195,43 @@
     "apply": "Áp dụng",
     "orderTotal": "Tổng đơn",
     "confirmRemoveTitle": "Xác nhận xoá khỏi giỏ",
-    "confirmRemoveMessage": "Bạn có chắc chắn muốn xoá \"{{name}}\" khỏi giỏ hàng không?"
+    "confirmRemoveMessage": "Bạn có chắc chắn muốn xoá \"{{name}}\" khỏi giỏ hàng không?",
+    "added": "Đã thêm vào giỏ hàng",
+    "removed": "Đã xóa khỏi giỏ hàng"
+  },
+  "order": {
+    "success": "Đặt hàng thành công! Chúng tôi sẽ liên hệ sớm.",
+    "successTitle": "Đặt hàng thành công",
+    "successMessage": "Cảm ơn bạn đã mua sắm tại Farta Market. Chúng tôi sẽ xác nhận và giao hàng trong thời gian sớm nhất.",
+    "orderCode": "Mã đơn hàng",
+    "total": "Tổng tiền",
+    "deliveryAddress": "Địa chỉ giao hàng",
+    "paymentMethod": "Phương thức thanh toán",
+    "paymentMethods": {
+      "cod": "Thanh toán khi nhận hàng",
+      "vnpay": "VNPay"
+    },
+    "paidBadge": "Đã thanh toán",
+    "continueShopping": "Tiếp tục mua sắm",
+    "viewOrder": "Xem đơn hàng"
+  },
+  "myOrders": {
+    "title": "Đơn hàng của tôi",
+    "subtitle": "Bạn có {{count}} đơn hàng.",
+    "empty": "Bạn chưa có đơn hàng nào.",
+    "loadError": "Không tải được lịch sử đơn hàng.",
+    "cancel": "Hủy đơn",
+    "cancelSuccess": "Đã hủy đơn hàng.",
+    "confirmCancelTitle": "Xác nhận hủy đơn",
+    "confirmCancelMessage": "Bạn có chắc chắn muốn hủy đơn #{{id}}?",
+    "status": {
+      "pending": "Đang chờ",
+      "pendingPayment": "Chờ thanh toán",
+      "processing": "Đang xử lý",
+      "cancelled": "Đã hủy",
+      "paymentFailed": "Thanh toán thất bại",
+      "delivered": "Đã giao"
+    }
   },
   "checkout": {
     "title": "Thanh toán",
@@ -162,11 +248,23 @@
     "order": "Đơn hàng",
     "discount": "Giảm giá",
     "totalOrder": "Tổng đơn hàng",
+    "paymentMethod": "Phương thức thanh toán",
+    "paymentMethods": {
+      "cod": "Thanh toán khi nhận hàng (COD)",
+      "vnpay": "Thanh toán VNPay (ATM/Visa/QR)"
+    },
+    "paymentDescriptions": {
+      "cod": "Bạn thanh toán trực tiếp cho nhân viên giao hàng.",
+      "vnpay": "Chuyển sang cổng VNPay sandbox để thanh toán an toàn."
+    },
     "placing": "Đang đặt hàng...",
     "placeOrder": "Đặt hàng",
+    "payWithVnpay": "Thanh toán qua VNPay",
     "confirm": "Xác nhận",
     "success": "Đặt hàng thành công",
     "orderError": "Không đặt được hàng, vui lòng thử lại.",
+    "paymentFailed": "Thanh toán VNPay thất bại hoặc đã bị hủy. Vui lòng thử lại.",
+    "loginForVnpay": "Vui lòng đăng nhập để thanh toán qua VNPay.",
     "emptyCart": "Giỏ hàng đang trống.",
     "validation": {
       "fullNameRequired": "Vui lòng nhập họ và tên",
@@ -184,6 +282,7 @@
       "orders": "Đặt hàng",
       "products": "Sản phẩm",
       "categories": "Danh mục",
+      "users": "Người dùng",
       "logout": "Đăng xuất"
     },
     "common": {
@@ -236,6 +335,7 @@
       "uploadImage": "Upload ảnh",
       "saveBeforeUpload": "Lưu sản phẩm trước khi upload ảnh riêng."
     },
+    "uploadSuccess": "Tải ảnh lên thành công",
     "categories": {
       "title": "Quản lý danh mục",
       "subtitle": "Tạo nhóm sản phẩm và kiểm soát danh mục đang dùng trên website.",
@@ -263,9 +363,11 @@
       "revenue": "Doanh thu: {{amount}}",
       "allStatus": "Tất cả trạng thái",
       "ordered": "Đã đặt",
+      "pendingPayment": "Chờ thanh toán",
       "preparing": "Đang chuẩn bị",
       "delivering": "Đang giao",
       "cancelled": "Đã hủy",
+      "paymentFailed": "Thanh toán thất bại",
       "customer": "Khách hàng",
       "contact": "Liên hệ",
       "totalPrice": "Tổng tiền",
@@ -283,6 +385,34 @@
       "loadError": "Không tải được danh sách đơn hàng.",
       "statusUpdated": "Đã cập nhật trạng thái đơn hàng.",
       "statusUpdateError": "Không cập nhật được trạng thái."
+    },
+    "users": {
+      "title": "Quản lý người dùng",
+      "subtitle": "Theo dõi tài khoản quản trị, vai trò và số đơn hàng phát sinh.",
+      "searchPlaceholder": "Tìm theo tên hoặc email",
+      "allRoles": "Tất cả vai trò",
+      "role": "Vai trò",
+      "roleAdmin": "Admin",
+      "roleStaff": "Nhân viên",
+      "createdAt": "Ngày tạo",
+      "orderCount": "Số đơn",
+      "status": "Trạng thái",
+      "activeStatus": "Đang hoạt động",
+      "disabledStatus": "Đã vô hiệu hóa",
+      "viewOrders": "Xem đơn",
+      "makeAdmin": "Đổi thành admin",
+      "makeStaff": "Đổi thành nhân viên",
+      "disable": "Vô hiệu hóa",
+      "empty": "Chưa có người dùng phù hợp.",
+      "loadError": "Không tải được danh sách người dùng.",
+      "roleUpdated": "Đã cập nhật vai trò.",
+      "disabled": "Đã vô hiệu hóa tài khoản.",
+      "noOrders": "Người dùng này chưa có đơn hàng.",
+      "pageStatus": "Trang {{current}}/{{last}} · {{total}} người dùng",
+      "confirmRoleTitle": "Xác nhận đổi vai trò",
+      "confirmRoleMessage": "Đổi vai trò của \"{{name}}\" thành {{role}}?",
+      "confirmDisableTitle": "Xác nhận vô hiệu hóa",
+      "confirmDisableMessage": "Bạn có chắc chắn muốn vô hiệu hóa tài khoản \"{{name}}\"?"
     },
     "login": {
       "title": "Truy cập hệ thống quản trị",

@@ -168,6 +168,11 @@
     color: map.get($theme-colors, "main");
     font-size: 12px;
     font-weight: 700;
+
+    &--danger {
+      background: #fee4e2;
+      color: #b42318;
+    }
   }
 
   &__image {

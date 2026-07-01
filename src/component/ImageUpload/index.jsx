@@ -2,6 +2,7 @@ import { memo, useEffect, useState } from "react";
 import { uploadAdminProductImageAPI } from "api/admin";
 import { resolveProductImage } from "utils/productImages";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 import "./style.scss";
 
 const ImageUpload = ({ productId, value, onUploaded, disabled = false }) => {
@@ -39,13 +40,15 @@ const ImageUpload = ({ productId, value, onUploaded, disabled = false }) => {
     try {
       const response = await uploadAdminProductImageAPI(productId, file);
       onUploaded?.(response.image_url);
+      toast.success(t("admin.uploadSuccess"));
       setFile(null);
     } catch (err) {
-      setError(
+      const nextError =
         err?.response?.data?.errors?.image?.[0] ||
           err?.response?.data?.message ||
-          t("admin.products.uploadError")
-      );
+          t("admin.products.uploadError");
+      setError(nextError);
+      toast.error(nextError);
     } finally {
       setIsUploading(false);
     }

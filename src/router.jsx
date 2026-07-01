@@ -17,12 +17,16 @@ const ProductDetailPage = React.lazy(() =>
 );
 const ShoppingCartPage = React.lazy(() => import("pages/users/shoppingCartPage"));
 const CheckoutPage = React.lazy(() => import("pages/users/checkoutPage"));
+const OrderSuccessPage = React.lazy(() => import("pages/users/orderSuccessPage"));
+const MyOrdersPage = React.lazy(() => import("pages/users/myOrdersPage"));
+const WishlistPage = React.lazy(() => import("pages/users/wishlistPage"));
 const LoginAdPage = React.lazy(() => import("pages/admins/loginPage"));
 const AdminOrdersPage = React.lazy(() => import("pages/admins/ordersPage"));
 const AdminProductsPage = React.lazy(() => import("pages/admins/productsPage"));
 const AdminCategoriesPage = React.lazy(() =>
   import("pages/admins/categoriesPage")
 );
+const AdminUsersPage = React.lazy(() => import("pages/admins/usersPage"));
 
 const RequireRole = ({ allowedRoles, children }) => {
   if (!hasAdminRole(allowedRoles)) {
@@ -67,6 +71,22 @@ const renderUserRouter = (fallback) => {
       path: ROUTERS.USER.CHECKOUT,
       component: <CheckoutPage />,
     },
+    {
+      path: ROUTERS.USER.ORDER_SUCCESS,
+      component: <OrderSuccessPage />,
+    },
+    {
+      path: ROUTERS.USER.MY_ORDERS,
+      component: <MyOrdersPage />,
+    },
+    {
+      path: ROUTERS.USER.WISHLIST,
+      component: <WishlistPage />,
+    },
+    {
+      path: ROUTERS.USER.LOGIN,
+      component: <LoginAdPage />,
+    },
   ];
 
   return (
@@ -110,6 +130,14 @@ const renderAdminRouter = (fallback) => {
         <RequireAdminOrStaff>
           <AdminCategoriesPage />
         </RequireAdminOrStaff>
+      ),
+    },
+    {
+      path: ROUTERS.ADMIN.USERS,
+      component: (
+        <RequireAdmin>
+          <AdminUsersPage />
+        </RequireAdmin>
       ),
     },
   ];

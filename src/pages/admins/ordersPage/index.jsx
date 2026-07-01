@@ -7,9 +7,11 @@ import "../admin.scss";
 const STATUS_OPTIONS = [
   { value: "", labelKey: "admin.orders.allStatus" },
   { value: "ORDERED", labelKey: "admin.orders.ordered" },
+  { value: "PENDING_PAYMENT", labelKey: "admin.orders.pendingPayment" },
   { value: "PREPARING", labelKey: "admin.orders.preparing" },
   { value: "DELIVERING", labelKey: "admin.orders.delivering" },
   { value: "CANCELLED", labelKey: "admin.orders.cancelled" },
+  { value: "PAYMENT_FAILED", labelKey: "admin.orders.paymentFailed" },
 ];
 
 const statusLabel = (status, t) => {

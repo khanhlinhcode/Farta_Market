@@ -28,6 +28,8 @@
     "searchPlaceholder": "What are you looking for?",
     "searchButton": "Search",
     "filter": "Filter",
+    "myOrders": "My orders",
+    "wishlist": "Wishlist",
     "support": "24/7 Support"
   },
   "home": {
@@ -53,8 +55,23 @@
       "beef": "Beef"
     }
   },
+  "categories": {
+    "vegetables": "Vegetables",
+    "freshVegetables": "Fresh Vegetables",
+    "milk": "Milk",
+    "milkBox": "Milk Box",
+    "freshMeat": "Fresh Meat",
+    "beef": "Beef",
+    "leanBeef": "Lean Beef",
+    "fastFood": "Fast Food",
+    "fruit": "Fruit",
+    "freshOrange": "Fresh Orange",
+    "driedFruit": "Dried Fruit"
+  },
   "footer": {
     "addressLabel": "Address",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email",
     "shop": "Shop",
     "contact": "Contact",
     "about": "About us",
@@ -65,7 +82,9 @@
     "promotion": "Promotions & Offers",
     "subscribeText": "Subscribe for updates here",
     "emailPlaceholder": "Enter email",
-    "subscribe": "Subscribe"
+    "subscribe": "Subscribe",
+    "emailInvalid": "Please enter a valid email",
+    "subscribeSuccess": "Thanks for subscribing to our offers."
   },
   "products": {
     "title": "Product List",
@@ -128,6 +147,37 @@
     "outOfStock": "Out of stock",
     "stockRemaining": "{{count}} left"
   },
+  "wishlist": {
+    "title": "Wishlist",
+    "subtitle": "You saved {{count}} product(s).",
+    "toggle": "Add or remove from wishlist",
+    "added": "Added to wishlist",
+    "removed": "Removed from wishlist",
+    "remove": "Remove",
+    "loadError": "Unable to load wishlist.",
+    "loginRequired": "Please log in to save favorite products.",
+    "emptyTitle": "No favorite products yet",
+    "empty": "Save products you want to buy later so you can find them faster.",
+    "continueShopping": "Continue shopping"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "summary": "{{rating}}/5 · {{count}} review(s)",
+    "noReviewsShort": "No reviews yet",
+    "empty": "No reviews for this product yet.",
+    "loadError": "Unable to load reviews.",
+    "loadMore": "View more",
+    "writeReview": "Write your review",
+    "commentPlaceholder": "Share your thoughts about this product...",
+    "commentRequired": "Please enter your review comment.",
+    "submit": "Submit review",
+    "submitSuccess": "Thanks for reviewing this product.",
+    "submitError": "Unable to submit review.",
+    "loginToReview": "Log in to review this product after purchase.",
+    "purchaseRequired": "You need to buy this product before reviewing it.",
+    "alreadyReviewed": "You already reviewed this product.",
+    "customer": "Customer"
+  },
   "cart": {
     "title": "Cart",
     "name": "Name",
@@ -145,7 +195,43 @@
     "apply": "Apply",
     "orderTotal": "Order total",
     "confirmRemoveTitle": "Remove from cart",
-    "confirmRemoveMessage": "Are you sure you want to remove \"{{name}}\" from the cart?"
+    "confirmRemoveMessage": "Are you sure you want to remove \"{{name}}\" from the cart?",
+    "added": "Added to cart",
+    "removed": "Removed from cart"
+  },
+  "order": {
+    "success": "Order placed successfully! We will contact you soon.",
+    "successTitle": "Order placed successfully",
+    "successMessage": "Thank you for shopping at Farta Market. We will confirm and deliver your order as soon as possible.",
+    "orderCode": "Order code",
+    "total": "Total",
+    "deliveryAddress": "Delivery address",
+    "paymentMethod": "Payment method",
+    "paymentMethods": {
+      "cod": "Cash on delivery",
+      "vnpay": "VNPay"
+    },
+    "paidBadge": "Paid",
+    "continueShopping": "Continue shopping",
+    "viewOrder": "View order"
+  },
+  "myOrders": {
+    "title": "My orders",
+    "subtitle": "You have {{count}} order(s).",
+    "empty": "You have no orders yet.",
+    "loadError": "Unable to load order history.",
+    "cancel": "Cancel order",
+    "cancelSuccess": "Order cancelled.",
+    "confirmCancelTitle": "Confirm cancellation",
+    "confirmCancelMessage": "Are you sure you want to cancel order #{{id}}?",
+    "status": {
+      "pending": "Pending",
+      "pendingPayment": "Pending payment",
+      "processing": "Processing",
+      "cancelled": "Cancelled",
+      "paymentFailed": "Payment failed",
+      "delivered": "Delivered"
+    }
   },
   "checkout": {
     "title": "Checkout",
@@ -162,11 +248,23 @@
     "order": "Order",
     "discount": "Discount",
     "totalOrder": "Order total",
+    "paymentMethod": "Payment method",
+    "paymentMethods": {
+      "cod": "Cash on delivery (COD)",
+      "vnpay": "VNPay payment (ATM/Visa/QR)"
+    },
+    "paymentDescriptions": {
+      "cod": "Pay directly to the delivery staff.",
+      "vnpay": "Continue to the VNPay sandbox gateway for secure payment."
+    },
     "placing": "Placing order...",
     "placeOrder": "Place order",
+    "payWithVnpay": "Pay with VNPay",
     "confirm": "Confirm",
     "success": "Order placed successfully",
     "orderError": "Unable to place order, please try again.",
+    "paymentFailed": "VNPay payment failed or was cancelled. Please try again.",
+    "loginForVnpay": "Please log in to pay with VNPay.",
     "emptyCart": "Your cart is empty.",
     "validation": {
       "fullNameRequired": "Please enter full name",
@@ -184,6 +282,7 @@
       "orders": "Orders",
       "products": "Products",
       "categories": "Categories",
+      "users": "Users",
       "logout": "Logout"
     },
     "common": {
@@ -236,6 +335,7 @@
       "uploadImage": "Upload image",
       "saveBeforeUpload": "Save the product before uploading a separate image."
     },
+    "uploadSuccess": "Image uploaded successfully",
     "categories": {
       "title": "Category Management",
       "subtitle": "Create product groups and control categories used on the website.",
@@ -263,9 +363,11 @@
       "revenue": "Revenue: {{amount}}",
       "allStatus": "All statuses",
       "ordered": "Ordered",
+      "pendingPayment": "Pending payment",
       "preparing": "Preparing",
       "delivering": "Delivering",
       "cancelled": "Cancelled",
+      "paymentFailed": "Payment failed",
       "customer": "Customer",
       "contact": "Contact",
       "totalPrice": "Total price",
@@ -283,6 +385,34 @@
       "loadError": "Unable to load orders.",
       "statusUpdated": "Order status updated.",
       "statusUpdateError": "Unable to update status."
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Track admin accounts, roles, and related order volume.",
+      "searchPlaceholder": "Search by name or email",
+      "allRoles": "All roles",
+      "role": "Role",
+      "roleAdmin": "Admin",
+      "roleStaff": "Staff",
+      "createdAt": "Created at",
+      "orderCount": "Orders",
+      "status": "Status",
+      "activeStatus": "Active",
+      "disabledStatus": "Disabled",
+      "viewOrders": "View orders",
+      "makeAdmin": "Make admin",
+      "makeStaff": "Make staff",
+      "disable": "Disable",
+      "empty": "No matching users.",
+      "loadError": "Unable to load users.",
+      "roleUpdated": "Role updated.",
+      "disabled": "Account disabled.",
+      "noOrders": "This user has no orders yet.",
+      "pageStatus": "Page {{current}}/{{last}} · {{total}} users",
+      "confirmRoleTitle": "Confirm role change",
+      "confirmRoleMessage": "Change \"{{name}}\" role to {{role}}?",
+      "confirmDisableTitle": "Confirm disable",
+      "confirmDisableMessage": "Are you sure you want to disable \"{{name}}\"?"
     },
     "login": {
       "title": "Admin System Access",

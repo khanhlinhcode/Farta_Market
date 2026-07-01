@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getSessionItem } from "utils/session";
 import bannerImg from "assets/users/images/hero/Banner.png";
+import { translateCategoryName } from "utils/i18nLabels";
 import {
   AiOutlineFacebook,
   AiOutlineInstagram,
@@ -38,6 +39,9 @@ const Header = () => {
   const [isHome, setIsHome] = useState(location.pathname.length <= 1);
   const [isShowCategories, setShowCategories] = useState(isHome);
   const { cart: cartRedux } = useSelector((state) => state.commonSlide);
+  const isLoggedIn =
+    typeof window !== "undefined" &&
+    Boolean(window.localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN));
 
   useEffect(() => {
     const isHome = location.pathname.length <= 1;
@@ -58,7 +62,7 @@ const Header = () => {
     const categoryItems =
       categories?.map((category) => ({
         key: `category-${category.id}`,
-        name: category.name,
+        name: translateCategoryName(category.name, t),
         path: `${ROUTERS.USER.PRODUCTS}?category_id=${category.id}`,
       })) || [];
 
@@ -84,13 +88,22 @@ const Header = () => {
         name: t("navbar.inStock"),
         path: `${ROUTERS.USER.PRODUCTS}?in_stock=1`,
       },
+      ...(isLoggedIn
+        ? [
+            {
+              key: "my-orders",
+              name: t("navbar.myOrders"),
+              path: ROUTERS.USER.MY_ORDERS,
+            },
+          ]
+        : []),
       {
         key: "contact",
         name: t("navbar.contact"),
         href: `tel:${contactPhone}`,
       },
     ];
-  }, [categories, contactPhone, t]);
+  }, [categories, contactPhone, isLoggedIn, t]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -375,7 +388,7 @@ const Header = () => {
               {categories?.map((category) => (
                 <li key={category.id}>
                   <Link to={`${ROUTERS.USER.PRODUCTS}?category_id=${category.id}`}>
-                    {category.name}
+                    {translateCategoryName(category.name, t)}
                   </Link>
                 </li>
               ))}

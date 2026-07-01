@@ -21,6 +21,7 @@ import { useGetCategoriesUS, useGetProductsUS } from "api/homePage";
 import { Link } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 import { useTranslation } from "react-i18next";
+import { translateCategoryName } from "utils/i18nLabels";
 
 const HomPage = () => {
   const { t } = useTranslation();
@@ -76,7 +77,7 @@ const HomPage = () => {
     .map((category, index) => ({
       id: category.id,
       bgImg: categoryImages[index % categoryImages.length],
-      name: category.name,
+      name: translateCategoryName(category.name, t),
       path: `${ROUTERS.USER.PRODUCTS}?category_id=${category.id}`,
     }));
 
@@ -85,8 +86,8 @@ const HomPage = () => {
     const tabPanels = [];
 
     tabList.push(
-      categories?.map((categery) => (
-        <Tab key={categery.id}>{categery.name}</Tab>
+      categories?.map((category) => (
+        <Tab key={category.id}>{translateCategoryName(category.name, t)}</Tab>
       ))
     );
 

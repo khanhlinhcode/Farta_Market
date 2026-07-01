@@ -4,13 +4,14 @@ import {
   AiOutlineLogout,
   AiOutlineShoppingCart,
   AiOutlineTags,
+  AiOutlineUser,
 } from "react-icons/ai";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 import "./style.scss";
 import { logoutAdminAPI } from "api/admin";
 import { useTranslation } from "react-i18next";
-import { clearAdminSession } from "utils/adminAuth";
+import { clearAdminSession, isAdmin } from "utils/adminAuth";
 
 const HeaderAD = ({ children, ...props }) => {
   const { t } = useTranslation();
@@ -46,6 +47,16 @@ const HeaderAD = ({ children, ...props }) => {
       label: t("admin.nav.categories"),
       icon: <AiOutlineTags />,
     },
+    ...(isAdmin()
+      ? [
+          {
+            path: ROUTERS.ADMIN.USERS,
+            onClick: () => navigate(ROUTERS.ADMIN.USERS),
+            label: t("admin.nav.users"),
+            icon: <AiOutlineUser />,
+          },
+        ]
+      : []),
     {
       path: ROUTERS.ADMIN.LOGOUT,
       onClick: handleLogout,

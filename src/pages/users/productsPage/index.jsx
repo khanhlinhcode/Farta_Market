@@ -5,6 +5,7 @@ import { useGetCategoriesUS, useGetProductsUS } from "api/homePage";
 import Breadcrumb from "../theme/breadcrumb";
 import { useTranslation } from "react-i18next";
 import { AiOutlineClose, AiOutlineFilter } from "react-icons/ai";
+import { translateCategoryName } from "utils/i18nLabels";
 import "./style.scss";
 
 const SORT_OPTIONS = [
@@ -141,6 +142,9 @@ const ProductsPage = () => {
   const selectedCategory = categories.find(
     (category) => category.id === Number(filters.categoryId)
   );
+  const selectedCategoryName = selectedCategory
+    ? translateCategoryName(selectedCategory.name, t)
+    : "";
   const hasInvalidPriceRange =
     filters.minPrice !== "" &&
     filters.maxPrice !== "" &&
@@ -214,7 +218,7 @@ const ProductsPage = () => {
     },
     selectedCategory && {
       key: "category_id",
-      label: t("products.categoryChip", { category: selectedCategory.name }),
+      label: t("products.categoryChip", { category: selectedCategoryName }),
       clearValue: "",
     },
     filters.minPrice && {
@@ -391,7 +395,7 @@ const ProductsPage = () => {
                         }
                         onClick={() => updateFilter("category_id", category.id)}
                       >
-                        {category.name}
+                        {translateCategoryName(category.name, t)}
                       </button>
                     </li>
                   ))}

@@ -1,19 +1,21 @@
 import "./style.scss";
-import { memo, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { formatter } from "utils/fomater";
 import Breadcrumb from "../theme/breadcrumb";
 import { SESSION_KEYS } from "utils/constant";
 import { useMutation } from "@tanstack/react-query";
 import { ROUTERS } from "utils/router";
-import { postOrderAPI } from "api/orderPage";
-import { useNavigate } from "react-router-dom";
+import { createVNPayPaymentAPI, postOrderAPI } from "api/orderPage";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useShoppingCart from "hooks/useShoppingCart";
-import { getSessionItem } from "utils/session";
+import { getSessionItem, setSessionItem } from "utils/session";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 
 const CheckoutPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { clearCart } = useShoppingCart();
   const cart = getSessionItem(SESSION_KEYS.CART, {
     products: [],
@@ -27,18 +29,32 @@ const CheckoutPage = () => {
       `order-${Date.now()}-${Math.random().toString(36).slice(2)}`
   );
 
-  const { mutate: postOrder, isPending } = useMutation({
-    mutationFn: ({ payload, idempotencyKey }) =>
-      postOrderAPI(payload, idempotencyKey),
-    onSuccess: () => {
-      alert(t("checkout.success"));
+  const { mutate: submitOrder, isPending } = useMutation({
+    mutationFn: ({ payload, idempotencyKey, paymentMethod }) =>
+      paymentMethod === "vnpay"
+        ? createVNPayPaymentAPI(payload, idempotencyKey)
+        : postOrderAPI(payload, idempotencyKey),
+    onSuccess: (response, variables) => {
+      const order = response?.data;
+
+      if (variables.paymentMethod === "vnpay") {
+        setSessionItem(SESSION_KEYS.LAST_ORDER_SUCCESS, order);
+        window.location.href = response.payment_url;
+        return;
+      }
+
+      toast.success(t("order.success"));
+      setSessionItem(SESSION_KEYS.LAST_ORDER_SUCCESS, order);
       clearCart();
-      navigate(ROUTERS.USER.HOME);
+      navigate(`${ROUTERS.USER.ORDER_SUCCESS}?orderId=${order?.id || ""}`, {
+        state: { order },
+      });
     },
     onError: (err) => {
       setOrderError(
         err?.response?.data?.message || t("checkout.orderError")
       );
+      toast.error(t("common.error"));
     },
   });
 
@@ -53,7 +69,7 @@ const CheckoutPage = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");
-  // const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
 
   const [errors, setErrors] = useState({
     fullName: "",
@@ -63,6 +79,13 @@ const CheckoutPage = () => {
     note: "",
     paymentMethod: "",
   });
+
+  useEffect(() => {
+    if (searchParams.get("error") === "payment_failed") {
+      setOrderError(t("checkout.paymentFailed"));
+      toast.error(t("checkout.paymentFailed"));
+    }
+  }, [searchParams, t]);
 
   const validateForm = () => {
     const newErrors = {
@@ -123,8 +146,22 @@ const CheckoutPage = () => {
     }
 
     if (validateForm()) {
-      postOrder({
+      if (
+        paymentMethod === "vnpay" &&
+        !window.localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN)
+      ) {
+        setOrderError(t("checkout.loginForVnpay"));
+        navigate(
+          `${ROUTERS.USER.LOGIN}?redirect=${encodeURIComponent(
+            ROUTERS.USER.CHECKOUT
+          )}`
+        );
+        return;
+      }
+
+      submitOrder({
         idempotencyKey: idempotencyKeyRef.current,
+        paymentMethod,
         payload: {
           fullname: fullName,
           customer_name: fullName,
@@ -133,6 +170,7 @@ const CheckoutPage = () => {
           customer_phone: phone,
           email,
           note,
+          payment_method: paymentMethod,
           products: cart.products.map(({ product, quantity }) => ({
             product_id: product.id,
             quantity,
@@ -161,6 +199,7 @@ const CheckoutPage = () => {
                 </label>
                 <input
                   type="text"
+                  name="customer_name"
                   placeholder={t("checkout.fullNamePlaceholder")}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -175,6 +214,7 @@ const CheckoutPage = () => {
                 </label>
                 <input
                   type="text"
+                  name="address"
                   placeholder={t("checkout.addressPlaceholder")}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -190,6 +230,7 @@ const CheckoutPage = () => {
                   </label>
                   <input
                     type="text"
+                    name="customer_phone"
                     placeholder={t("checkout.phonePlaceholder")}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -204,6 +245,7 @@ const CheckoutPage = () => {
                   </label>
                   <input
                     type="text"
+                    name="email"
                     placeholder={t("checkout.emailPlaceholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -216,6 +258,7 @@ const CheckoutPage = () => {
               <div className="checkout__input">
                 <label htmlFor="">{t("checkout.note")}:</label>
                 <textarea
+                  name="note"
                   rows={15}
                   placeholder={t("checkout.notePlaceholder")}
                   value={note}
@@ -241,11 +284,49 @@ const CheckoutPage = () => {
                     <b>{formatter(cart.totalPrice)}</b>
                   </li>
                 </ul>
+                <div className="checkout__payment-method">
+                  <h4>{t("checkout.paymentMethod")}</h4>
+                  <label>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="cod"
+                      checked={paymentMethod === "cod"}
+                      onChange={(event) => setPaymentMethod(event.target.value)}
+                    />
+                    <span>
+                      <b>{t("checkout.paymentMethods.cod")}</b>
+                      <small>{t("checkout.paymentDescriptions.cod")}</small>
+                    </span>
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="vnpay"
+                      checked={paymentMethod === "vnpay"}
+                      onChange={(event) => setPaymentMethod(event.target.value)}
+                    />
+                    <span>
+                      <b>{t("checkout.paymentMethods.vnpay")}</b>
+                      <small>{t("checkout.paymentDescriptions.vnpay")}</small>
+                    </span>
+                  </label>
+                </div>
                 {orderError && <span className="error">{orderError}</span>}
-                <button type="submit" className="button-submit" disabled={isPending}>
+                <button
+                  type="submit"
+                  className="button-submit"
+                  data-testid="place-order"
+                  disabled={isPending}
+                >
                   {isPending && <span className="checkout-spinner" aria-hidden="true" />}
                   <span>
-                    {isPending ? t("checkout.placing") : t("checkout.placeOrder")}
+                    {isPending
+                      ? t("checkout.placing")
+                      : paymentMethod === "vnpay"
+                      ? t("checkout.payWithVnpay")
+                      : t("checkout.placeOrder")}
                   </span>
                 </button>
               </div>

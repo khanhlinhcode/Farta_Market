@@ -8,7 +8,7 @@ describe("SafeHtml", () => {
     const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
     const { container } = render(
       <SafeHtml
-        html={'<strong>Cam</strong><img src="x" onerror="alert(1)"><script>alert(2)</script>'}
+        html={'<strong>Cam</strong><img src="x" onerror="window.evil=1"><script>window.evil=2</script>'}
       />
     );
 
@@ -20,7 +20,7 @@ describe("SafeHtml", () => {
 
   it("strips javascript: protocol", () => {
     const { container } = render(
-      <SafeHtml html={'<a href="javascript:alert(1)">click</a>'} />
+      <SafeHtml html={'<a href="javascript:window.evil=1">click</a>'} />
     );
     const link = container.querySelector("a");
 

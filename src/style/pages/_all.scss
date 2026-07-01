@@ -86,7 +86,27 @@ body {
   padding: 16px 30px 17px;
   background: map.get($theme-colors, "main");
   border: none;
+  cursor: pointer;
   height: 100%;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: #007a68;
+    box-shadow: 0 8px 18px rgba(0, 136, 116, 0.2);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(0, 136, 116, 0.25);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 .pl-r-10 {
   padding-left: 10px;

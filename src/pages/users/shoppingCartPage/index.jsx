@@ -12,6 +12,7 @@ import useShoppingCart from "hooks/useShoppingCart";
 import { resolveProductImage } from "utils/productImages";
 import { getSessionItem } from "utils/session";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 const ShoppingCartPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -85,6 +86,7 @@ const ShoppingCartPage = () => {
                 <button
                   type="button"
                   className="button-submit"
+                  data-testid="checkout-btn"
                   onClick={() => navigate(ROUTERS.USER.CHECKOUT)}
                 >
                   {t("cart.checkout")}
@@ -107,6 +109,7 @@ const ShoppingCartPage = () => {
         onConfirm={() => {
           setCart(removeCart(pendingRemoveId));
           setPendingRemoveId(null);
+          toast.success(t("cart.removed"));
         }}
         onCancel={() => setPendingRemoveId(null)}
       />

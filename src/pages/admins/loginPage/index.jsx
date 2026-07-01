@@ -1,9 +1,10 @@
 import { memo, useEffect, useState } from "react";
 import "./style.scss";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 import { SESSION_KEYS } from "utils/constant";
 import { loginAdminAPI } from "api/admin";
+import { syncGuestWishlistAPI } from "api/wishlist";
 import { useTranslation } from "react-i18next";
 import {
   clearAdminSession,
@@ -14,6 +15,8 @@ import {
 const LoginAdPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -23,11 +26,13 @@ const LoginAdPage = () => {
 
   useEffect(() => {
     if (hasAdminAccess()) {
-      navigate(ROUTERS.ADMIN.ORDERS, { replace: true });
+      navigate(getSafeRedirectPath(redirectPath) || ROUTERS.ADMIN.ORDERS, {
+        replace: true,
+      });
     } else if (localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN)) {
       clearAdminSession();
     }
-  }, [navigate]);
+  }, [navigate, redirectPath]);
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -47,7 +52,13 @@ const LoginAdPage = () => {
         token: response.token,
         role: response.user.role,
       });
-      navigate(ROUTERS.ADMIN.ORDERS, { replace: true });
+      const wishlistIds = getStoredWishlistIds();
+      if (wishlistIds.length) {
+        await syncGuestWishlistAPI(wishlistIds);
+      }
+      navigate(getSafeRedirectPath(redirectPath) || ROUTERS.ADMIN.ORDERS, {
+        replace: true,
+      });
     } catch (err) {
       setError(
         err?.response?.data?.message || t("admin.login.error")
@@ -98,3 +109,19 @@ const LoginAdPage = () => {
   );
 };
 export default memo(LoginAdPage);
+
+const getSafeRedirectPath = (path) => {
+  if (!path || !path.startsWith("/") || path.startsWith("//")) {
+    return "";
+  }
+
+  return path;
+};
+
+const getStoredWishlistIds = () => {
+  try {
+    return JSON.parse(localStorage.getItem(SESSION_KEYS.WISHLIST_IDS) || "[]");
+  } catch (error) {
+    return [];
+  }
+};

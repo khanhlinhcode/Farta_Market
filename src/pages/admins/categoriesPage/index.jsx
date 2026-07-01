@@ -8,6 +8,7 @@ import {
 import { ConfirmModal } from "component";
 import { useTranslation } from "react-i18next";
 import { isAdmin } from "utils/adminAuth";
+import { translateCategoryName } from "utils/i18nLabels";
 import "../admin.scss";
 
 const AdminCategoriesPage = () => {
@@ -156,7 +157,7 @@ const AdminCategoriesPage = () => {
                   {categories.map((category) => (
                     <tr key={category.id}>
                       <td>#{category.id}</td>
-                      <td>{category.name}</td>
+                      <td>{translateCategoryName(category.name, t)}</td>
                       <td>{category.products_count || 0}</td>
                       <td>
                         <div className="admin-page__actions">
