@@ -105,3 +105,34 @@ export const deleteAdminCategoryAPI = async (id) => {
     method: "DELETE",
   });
 };
+
+export const getAdminUsersAPI = async (params = {}) => {
+  return await axios({
+    url: "/admin/users",
+    method: "GET",
+    params,
+  });
+};
+
+export const updateAdminUserRoleAPI = async (id, role) => {
+  return await axios({
+    url: `/admin/users/${id}/role`,
+    method: "PATCH",
+    data: { role },
+  });
+};
+
+export const getAdminUserOrdersAPI = async (id, params = {}) => {
+  return await axios({
+    url: `/admin/users/${id}/orders`,
+    method: "GET",
+    params,
+  });
+};
+
+export const disableAdminUserAPI = async (id) => {
+  return await axios({
+    url: `/admin/users/${id}`,
+    method: "DELETE",
+  });
+};

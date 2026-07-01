@@ -11,6 +11,7 @@ import { formatter } from "utils/fomater";
 import { PRODUCT_IMAGE_OPTIONS, resolveProductImage } from "utils/productImages";
 import { useTranslation } from "react-i18next";
 import { isAdmin } from "utils/adminAuth";
+import { translateCategoryName } from "utils/i18nLabels";
 import "../admin.scss";
 
 const emptyProductForm = {
@@ -236,7 +237,7 @@ const AdminProductsPage = () => {
                 >
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
-                      {category.name}
+                      {translateCategoryName(category.name, t)}
                     </option>
                   ))}
                 </select>
@@ -329,7 +330,11 @@ const AdminProductsPage = () => {
                         <br />
                         <span>{product.sort_description}</span>
                       </td>
-                      <td>{product.category?.name || t("common.noCategory")}</td>
+                      <td>
+                        {product.category?.name
+                          ? translateCategoryName(product.category.name, t)
+                          : t("common.noCategory")}
+                      </td>
                       <td>{formatter(product.price)}</td>
                       <td>{product.inventory}</td>
                       <td>

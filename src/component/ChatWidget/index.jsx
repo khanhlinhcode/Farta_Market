@@ -3,6 +3,7 @@ import { FiMessageCircle, FiSend, FiX } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { getApiBaseUrl } from "../../config/api";
 import useShoppingCart from "hooks/useShoppingCart";
+import toast from "react-hot-toast";
 import "./style.scss";
 
 const CHAT_TIMEOUT_MS = 30000;
@@ -183,6 +184,7 @@ const ChatWidget = () => {
         Number(data.action.quantity) > 0
       ) {
         addToCart(data.action.product, Number(data.action.quantity));
+        toast.success(t("cart.added"));
       }
       appendAssistantMessage(data.reply);
     } catch {
@@ -256,6 +258,11 @@ const ChatWidget = () => {
             {messages.map((message, index) => (
               <div
                 className={`chat-widget__message chat-widget__message--${message.role}`}
+                data-testid={
+                  message.role === "assistant"
+                    ? "chat-message-bot"
+                    : "chat-message-user"
+                }
                 key={`${message.role}-${index}`}
               >
                 {message.content}
@@ -279,6 +286,7 @@ const ChatWidget = () => {
             <input
               ref={inputRef}
               type="text"
+              data-testid="chat-input"
               value={input}
               maxLength={500}
               placeholder={t("chat.placeholder")}
@@ -301,6 +309,7 @@ const ChatWidget = () => {
       <button
         type="button"
         className={`chat-widget__bubble${isOpen ? " is-open" : ""}`}
+        data-testid="chat-bubble"
         onClick={() => setIsOpen((open) => !open)}
         aria-label={isOpen ? t("common.close") : t("chat.title")}
         aria-expanded={isOpen}

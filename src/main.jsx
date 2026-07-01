@@ -4,6 +4,7 @@ import "./style/style.scss";
 import store from "./redux/store";
 import RouterCustom from "./router";
 import ChatWidget from "./component/ChatWidget";
+import { Toaster } from "react-hot-toast";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -18,6 +19,15 @@ root.render(
       <BrowserRouter>
         <RouterCustom />
         <ChatWidget />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 2600,
+            style: {
+              fontFamily: "inherit",
+            },
+          }}
+        />
       </BrowserRouter>
     </QueryClientProvider>
   </Provider>

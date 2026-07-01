@@ -1,6 +1,7 @@
 import useShoppingCart from "hooks/useShoppingCart";
 import React, { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 import "./style.scss";
 const Quantity = ({
   hasAddToCart = true,
@@ -53,9 +54,11 @@ const Quantity = ({
         <button
           type="button"
           className="button-submit"
+          data-testid="add-to-cart"
           disabled={!product || Number(product.inventory || 0) <= 0}
           onClick={() => {
-            addToCart(product, quantity); // gửi đúng quantity người dùng chọn
+            addToCart(product, quantity);
+            toast.success(t("cart.added"));
           }}
         >
           {Number(product?.inventory || 0) > 0
