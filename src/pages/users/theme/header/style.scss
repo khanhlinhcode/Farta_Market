@@ -540,6 +540,12 @@
 @media (max-width: 768px) {
   @include header.header-small-device;
 
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 100% !important;
+  }
+
   .container,
   .row,
   .header__main,
@@ -552,12 +558,15 @@
   .header__main {
     align-items: center;
     flex-wrap: nowrap;
-    padding: 0 15px;
+    justify-content: space-between;
+    min-height: 76px;
+    padding: 0;
   }
 
   .header__main__logo {
     flex: 1 1 auto;
-    max-width: calc(100% - 52px);
+    max-width: calc(100% - 58px);
+    min-width: 0;
   }
 
   .header__main__nav {
@@ -565,31 +574,90 @@
   }
 
   .header__main__actions {
-    flex: 0 0 52px;
-    max-width: 52px;
+    flex: 0 0 58px;
+    max-width: 58px;
   }
 
   .hero__search {
     display: grid;
+    gap: 14px;
   }
 
   .header__logo {
     max-width: 100%;
     width: auto;
+    padding: 10px 0;
 
     h1 {
-      font-size: 28px;
-      overflow-wrap: anywhere;
+      display: block;
+      font-size: clamp(25px, 7vw, 32px);
+      line-height: 1.05;
+      max-width: 100%;
+      overflow-wrap: normal;
+      white-space: nowrap;
+      word-break: keep-all;
     }
   }
 
+  .humberger__open {
+    min-height: 48px;
+
+    svg {
+      cursor: pointer;
+      font-size: 32px;
+    }
+  }
+
+  .hero__categories {
+    margin-bottom: 14px;
+    padding-left: 0;
+    padding-right: 0;
+
+    .hero__categories__all {
+      justify-content: flex-start;
+      min-height: 52px;
+      padding: 14px 18px;
+
+      p {
+        font-size: 16px;
+        line-height: 1.2;
+      }
+    }
+
+    ul {
+      border-top: 0;
+      box-shadow: none;
+      display: block;
+      position: static;
+      width: 100%;
+
+      &.hidden {
+        display: none;
+        opacity: 0;
+      }
+
+      li a {
+        line-height: 42px;
+        padding-left: 18px;
+      }
+    }
+  }
+
+  .hero__search_container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   .hero__search__form {
+    float: none !important;
     height: auto;
-    margin-bottom: 20px;
+    margin-bottom: 0;
     max-width: 100%;
+    padding-left: 0 !important;
     width: 100% !important;
 
     form {
+      display: flex;
       width: 100%;
     }
 
@@ -601,28 +669,74 @@
 
     button {
       flex: 0 0 auto;
+      min-width: 106px;
       padding-left: 18px;
       padding-right: 18px;
     }
   }
 
   .hero__search__phone {
-    margin-bottom: 30px;
+    display: none !important;
   }
 
   .hero__item {
-    background-position: 60% center;
-    height: 360px;
+    background-position: center;
+    background-size: cover;
+    border-radius: 0;
+    height: 320px;
     margin-left: unset !important;
     max-width: 100%;
+    overflow: hidden;
 
     .hero__text {
-      max-width: 75%;
-      padding-left: 24px;
+      max-width: 68%;
+      padding-left: 22px;
 
       h2 {
-        font-size: 32px;
-        line-height: 38px;
+        font-size: 30px;
+        line-height: 1.15;
+      }
+
+      p {
+        font-size: 14px;
+        line-height: 22px;
+      }
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  .header__logo h1 {
+    font-size: 24px;
+  }
+
+  .hero__search__form {
+    input {
+      font-size: 14px;
+      padding-left: 12px;
+    }
+
+    button {
+      font-size: 13px;
+      min-width: 96px;
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+  }
+
+  .hero__item {
+    height: 300px;
+
+    .hero__text {
+      max-width: 72%;
+      padding-left: 18px;
+
+      span {
+        font-size: 12px;
+      }
+
+      h2 {
+        font-size: 26px;
       }
     }
   }
