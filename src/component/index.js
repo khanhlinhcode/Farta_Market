@@ -5,6 +5,8 @@ import { default as ImageUpload } from "./ImageUpload";
 import { default as LanguageSwitcher } from "./LanguageSwitcher";
 import { default as ProductCardSkeleton } from "./Skeleton";
 import { default as SafeHtml } from "./SafeHtml";
+import { default as SearchBar } from "./SearchBar";
+import { default as AuthBootstrap } from "./AuthBootstrap";
 
 export {
   ProductCard,
@@ -14,4 +16,6 @@ export {
   LanguageSwitcher,
   ProductCardSkeleton,
   SafeHtml,
+  SearchBar,
+  AuthBootstrap,
 };

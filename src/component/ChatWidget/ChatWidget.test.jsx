@@ -5,14 +5,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "../../i18n";
 import i18n from "../../i18n";
 
-const { addToCartMock } = vi.hoisted(() => ({
+const { addToCartMock, axiosMock } = vi.hoisted(() => ({
   addToCartMock: vi.fn(),
+  axiosMock: vi.fn(),
 }));
 
 vi.mock("hooks/useShoppingCart", () => ({
   default: () => ({
     addToCart: addToCartMock,
   }),
+}));
+
+vi.mock("api/axios", () => ({
+  default: axiosMock,
 }));
 
 import ChatWidget from ".";
@@ -27,6 +32,7 @@ describe("ChatWidget", () => {
   beforeEach(async () => {
     await i18n.changeLanguage("vi");
     addToCartMock.mockReset();
+    axiosMock.mockReset();
     Element.prototype.scrollIntoView = vi.fn();
   });
 
@@ -51,15 +57,10 @@ describe("ChatWidget", () => {
   });
 
   it("does not send the local welcome message as chat history", async () => {
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((url) => {
-      if (String(url).endsWith("/chat/health")) {
-        return Promise.resolve(jsonResponse({ status: "online" }));
-      }
-
-      return Promise.resolve(
-        jsonResponse({ reply: "Cam tươi có giá 50.000đ." })
-      );
-    });
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      jsonResponse({ status: "online" })
+    );
+    axiosMock.mockResolvedValue({ reply: "Cam tươi có giá 50.000đ." });
 
     render(<ChatWidget />);
 
@@ -76,14 +77,16 @@ describe("ChatWidget", () => {
 
     await screen.findByText("Cam tươi có giá 50.000đ.");
 
-    const chatCall = fetchMock.mock.calls.find(([url]) =>
-      String(url).endsWith("/chat")
+    expect(axiosMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: "/chat",
+        method: "POST",
+        data: {
+          message: "Cam tươi giá bao nhiêu?",
+          history: [],
+        },
+      })
     );
-    expect(chatCall).toBeDefined();
-    expect(JSON.parse(chatCall[1].body)).toEqual({
-      message: "Cam tươi giá bao nhiêu?",
-      history: [],
-    });
   });
 
   it("aborts a slow chat request and allows the UI to recover", async () => {
@@ -110,6 +113,19 @@ describe("ChatWidget", () => {
         }
 
         options.signal?.addEventListener("abort", rejectAbort, { once: true });
+      });
+    });
+    axiosMock.mockImplementation(({ signal }) => {
+      return new Promise((resolve, reject) => {
+        const rejectAbort = () =>
+          reject(new DOMException("The operation was aborted", "AbortError"));
+
+        if (signal?.aborted) {
+          rejectAbort();
+          return;
+        }
+
+        signal?.addEventListener("abort", rejectAbort, { once: true });
       });
     });
 
@@ -148,22 +164,17 @@ describe("ChatWidget", () => {
       inventory: 30,
     };
 
-    vi.spyOn(globalThis, "fetch").mockImplementation((url) => {
-      if (String(url).endsWith("/chat/health")) {
-        return Promise.resolve(jsonResponse({ status: "online" }));
-      }
-
-      return Promise.resolve(
-        jsonResponse({
-          reply: "Đã thêm 2 Cam Tươi vào giỏ hàng.",
-          action: {
-            type: "add_to_cart",
-            product_id: 1,
-            quantity: 2,
-            product,
-          },
-        })
-      );
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      jsonResponse({ status: "online" })
+    );
+    axiosMock.mockResolvedValue({
+      reply: "Đã thêm 2 Cam Tươi vào giỏ hàng.",
+      action: {
+        type: "add_to_cart",
+        product_id: 1,
+        quantity: 2,
+        product,
+      },
     });
 
     render(<ChatWidget />);

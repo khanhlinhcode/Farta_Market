@@ -1,23 +1,12 @@
-import { SESSION_KEYS } from "./constant";
-
 export const ADMIN_ROLES = {
   ADMIN: "admin",
   STAFF: "staff",
 };
 
+const LEGACY_ADMIN_KEYS = ["farta_admin_token", "farta_admin_role"];
+
 const getStorage = () =>
   typeof window === "undefined" ? null : window.localStorage;
-
-export const setAdminSession = ({ token, role }) => {
-  const storage = getStorage();
-
-  if (!storage) {
-    return;
-  }
-
-  storage.setItem(SESSION_KEYS.ADMIN_TOKEN, token);
-  storage.setItem(SESSION_KEYS.ADMIN_ROLE, role);
-};
 
 export const clearAdminSession = () => {
   const storage = getStorage();
@@ -26,22 +15,19 @@ export const clearAdminSession = () => {
     return;
   }
 
-  storage.removeItem(SESSION_KEYS.ADMIN_TOKEN);
-  storage.removeItem(SESSION_KEYS.ADMIN_ROLE);
+  LEGACY_ADMIN_KEYS.forEach((key) => storage.removeItem(key));
 };
 
-export const getAdminRole = () =>
-  getStorage()?.getItem(SESSION_KEYS.ADMIN_ROLE) || "";
+export const getAdminRole = (adminUser) => adminUser?.role || "";
 
-export const hasAdminRole = (allowedRoles) => {
-  const storage = getStorage();
-  const token = storage?.getItem(SESSION_KEYS.ADMIN_TOKEN);
-  const role = getAdminRole();
+export const hasAdminRole = (adminUser, allowedRoles) => {
+  const role = getAdminRole(adminUser);
 
-  return Boolean(token && allowedRoles.includes(role));
+  return Boolean(role && allowedRoles.includes(role));
 };
 
-export const hasAdminAccess = () =>
-  hasAdminRole([ADMIN_ROLES.ADMIN, ADMIN_ROLES.STAFF]);
+export const hasAdminAccess = (adminUser) =>
+  hasAdminRole(adminUser, [ADMIN_ROLES.ADMIN, ADMIN_ROLES.STAFF]);
 
-export const isAdmin = () => getAdminRole() === ADMIN_ROLES.ADMIN;
+export const isAdmin = (adminUser) =>
+  getAdminRole(adminUser) === ADMIN_ROLES.ADMIN;

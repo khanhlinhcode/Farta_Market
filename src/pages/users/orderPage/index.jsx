@@ -16,14 +16,24 @@ import { ProductCard, Quantity, SafeHtml } from "component";
 import { featProducts } from "utils/common";
 import { useProductDetailUS } from "api/productDetailPage";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import {
+  translateProductDescription,
+  translateProductName,
+  translateProductShortDescription,
+} from "utils/i18nLabels";
+
 const ProductDetailPage = () => {
+  const { t } = useTranslation();
   const imgs = [cat1Img, cat2Img, cat3Img];
   const { id } = useParams();
   const { data: product, isLoading } = useProductDetailUS(id);
+  const productName = product ? translateProductName(product, t) : "";
+
   return (
     <>
-      <Breadcrumb name="Chi Tiết Sản Phẩm" />
-      {isLoading && <h1>Loading</h1>}
+      <Breadcrumb name={t("productDetail.breadcrumb")} />
+      {isLoading && <h1>{t("common.loading")}</h1>}
       {!isLoading && (
         <div className="container">
           <div className="row">
@@ -36,23 +46,25 @@ const ProductDetailPage = () => {
               </div>
             </div>
             <div className="col-lg-6 col-xl-12 col-md-12 col-sm-12 col-xs-12 product__detail__text">
-              <h2>{product.name}</h2>
+              <h2>{productName}</h2>
               <div className="seen-icon">
                 <AiOutlineEye />
-                {`10(Lượt đã xem)`}
+                {t("productDetail.viewCount", { count: 10 })}
               </div>
               <h3>{formatter(product.price)}</h3>
-              <p>{product.sort_description}</p>
+              <p>{translateProductShortDescription(product, t)}</p>
               <Quantity product={product} />
               <ul>
                 <li>
-                  <b>Tình trạng:</b> <span>Còn Hàng</span>
+                  <b>{t("productDetail.status")}:</b>{" "}
+                  <span>{t("productDetail.inStock")}</span>
                 </li>
                 <li>
-                  <b>Số Lượng:</b> <span>{product.inventory}</span>
+                  <b>{t("productDetail.quantity")}:</b>{" "}
+                  <span>{product.inventory}</span>
                 </li>
                 <li>
-                  <b>Chia Sẻ:</b>{" "}
+                  <b>{t("productDetail.share")}:</b>{" "}
                   <span>
                     <AiOutlineFacebook />
                     <AiOutlineInstagram />
@@ -64,11 +76,11 @@ const ProductDetailPage = () => {
             </div>
           </div>
           <div className="product__detail__tab">
-            <h4>Thông Tin Chi Tiết</h4>
-            <SafeHtml html={product.description} />
+            <h4>{t("productDetail.detailInfo")}</h4>
+            <SafeHtml html={translateProductDescription(product, t)} />
           </div>
           <div className="section-title">
-            <h2>Sản Phẩm Tương Tự</h2>
+            <h2>{t("productDetail.relatedProducts")}</h2>
           </div>
           <div className="row">
             {featProducts.all.product.map((item, key) => (

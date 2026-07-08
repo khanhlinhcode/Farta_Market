@@ -123,6 +123,62 @@
     padding: 16px 18px 18px;
   }
 
+  &__timeline {
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e6ecea;
+    border-radius: 8px;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: 14px;
+
+    &.is-cancelled {
+      display: block;
+    }
+  }
+
+  &__timeline-step {
+    align-items: center;
+    color: #98a2b3;
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    text-align: center;
+
+    i {
+      background: #e4e7ec;
+      border-radius: 50%;
+      display: block;
+      height: 14px;
+      width: 14px;
+    }
+
+    span {
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    &.is-active {
+      color: map.get($theme-colors, "main");
+
+      i {
+        background: map.get($theme-colors, "main");
+        box-shadow: 0 0 0 5px #e2f5f1;
+      }
+    }
+  }
+
+  &__timeline-cancelled {
+    background: #fef3f2;
+    border: 1px solid #fecdca;
+    border-radius: 6px;
+    color: #b42318;
+    font-weight: 800;
+    padding: 12px;
+    text-align: center;
+  }
+
   &__address {
     color: #475467;
     line-height: 22px;
@@ -136,6 +192,24 @@
     gap: 12px;
     grid-template-columns: minmax(160px, 1fr) 160px 130px;
     padding: 12px;
+  }
+
+  &__totals {
+    background: #fff;
+    border: 1px solid #e6ecea;
+    border-radius: 8px;
+    display: grid;
+    gap: 8px;
+    justify-self: end;
+    min-width: 280px;
+    padding: 12px;
+
+    span {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
   }
 
   &__cancel {
@@ -184,6 +258,24 @@
     &__summary,
     &__line {
       grid-template-columns: 1fr;
+    }
+
+    &__timeline {
+      grid-template-columns: 1fr;
+      justify-items: start;
+    }
+
+    &__timeline-step {
+      align-items: center;
+      grid-template-columns: 18px 1fr;
+      justify-items: start;
+      text-align: left;
+      width: 100%;
+    }
+
+    &__totals {
+      justify-self: stretch;
+      min-width: 0;
     }
   }
 }

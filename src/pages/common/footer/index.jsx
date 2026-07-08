@@ -72,7 +72,7 @@ const Footer = () => {
                 <li>
                   {t("footer.addressLabel")}:{" "}
                   <a href={mapsUrl} target="_blank" rel="noreferrer">
-                    213 Trương Đình Nghệ
+                    {t("footer.addressValue")}
                   </a>
                 </li>
                 <li>
@@ -86,7 +86,7 @@ const Footer = () => {
                   </a>
                 </li>
               </ul>
-              <div className="footer__social" aria-label="Social links">
+              <div className="footer__social" aria-label={t("footer.socialLinks")}>
                 {socialLinks.map(({ label, href, Icon }) => (
                   <a
                     href={href}

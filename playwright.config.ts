@@ -1,7 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "node:path";
 
 const backendDir =
-  "/Users/tolinh/Documents/Programming/sivicode/SVC01072023BE/SVC01072023BE";
+  process.env.BACKEND_DIR ||
+  path.resolve(__dirname, "../SVC01072023BE/SVC01072023BE");
+const frontendPort = process.env.E2E_FRONTEND_PORT || "5174";
+const frontendUrl = `http://127.0.0.1:${frontendPort}`;
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -10,19 +14,19 @@ export default defineConfig({
     timeout: 15_000,
   },
   use: {
-    baseURL: "http://127.0.0.1:5173",
+    baseURL: frontendUrl,
     trace: "on-first-retry",
   },
   webServer: [
     {
-      command: `cd ${backendDir} && php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=127.0.0.1 --port=8000`,
+      command: `cd "${backendDir}" && php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=127.0.0.1 --port=8000`,
       url: "http://127.0.0.1:8000/up",
       reuseExistingServer: true,
       timeout: 120_000,
     },
     {
-      command: "npm run dev -- --host 127.0.0.1 --port 5173",
-      url: "http://127.0.0.1:5173",
+      command: `npm run dev -- --host 127.0.0.1 --port ${frontendPort}`,
+      url: frontendUrl,
       reuseExistingServer: true,
       timeout: 120_000,
     },

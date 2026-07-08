@@ -9,36 +9,41 @@ import feature7Img from "assets/users/images/featured/feature-7.png";
 import feature8Img from "assets/users/images/featured/feature-8.png";
 export const featProducts = {
   all: {
-    title: "Toàn Bộ",
+    titleKey: "products.allProducts",
     product: [
       {
         id: 1,
         img: feature1Img,
-        name: "Thịt Bò",
+        name: "Lean Beef",
+        translation_key: "leanBeef",
         price: 20000,
       },
       {
         id: 2,
         img: feature2Img,
-        name: "Chuối",
+        name: "Banana",
+        translation_key: "banana",
         price: 17800,
       },
       {
         id: 3,
         img: feature3Img,
-        name: "Ổi",
+        name: "Guava",
+        translation_key: "guava",
         price: "25000",
       },
       {
         id: 4,
         img: feature4Img,
-        name: "Dưa Hấu",
+        name: "Watermelon",
+        translation_key: "watermelon",
         price: "44020",
       },
       {
         id: 5,
         img: feature5Img,
-        name: "Nho Tím",
+        name: "Purple Grapes",
+        translation_key: "purpleGrapes",
         price: "120000",
       },
       {
@@ -50,72 +55,81 @@ export const featProducts = {
       {
         id: 7,
         img: feature7Img,
-        name: "Xoài Keo",
+        name: "Green Mango",
+        translation_key: "greenMango",
         price: "69000",
       },
       {
         id: 8,
         img: feature8Img,
-        name: "Táo Úc",
+        name: "Australian Apple",
+        translation_key: "australianApple",
         price: "53000",
       },
     ],
   },
   freshMeat: {
-    title: "Thịt Tươi",
+    titleKey: "categories.freshMeat",
     product: [
       {
         id: 9,
         img: feature1Img,
-        name: "Thịt Bò",
+        name: "Lean Beef",
+        translation_key: "leanBeef",
         price: 20000,
       },
     ],
   },
 
   fruits: {
-    title: "Trái Cây",
+    titleKey: "categories.fruit",
     product: [
       {
         id: 10,
         img: feature2Img,
-        name: "Chuối",
+        name: "Banana",
+        translation_key: "banana",
         price: 17800,
       },
       {
         id: 11,
         img: feature3Img,
-        name: "Ổi",
+        name: "Guava",
+        translation_key: "guava",
         price: "25000",
       },
       {
         id: 12,
         img: feature4Img,
-        name: "Dưa Hấu",
+        name: "Watermelon",
+        translation_key: "watermelon",
         price: "44020",
       },
       {
         id: 13,
         img: feature5Img,
-        name: "Nho Tím",
+        name: "Purple Grapes",
+        translation_key: "purpleGrapes",
         price: "120000",
       },
       {
         id: 14,
         img: feature7Img,
-        name: "Xoài Keo",
+        name: "Green Mango",
+        translation_key: "greenMango",
         price: "69000",
       },
       {
         id: 15,
         img: feature8Img,
-        name: "Táo Úc",
+        name: "Australian Apple",
+        translation_key: "australianApple",
         price: "53000",
       },
     ],
   },
   fastFood: {
-    title: "Thức Ăn Nhanh",
+    titleKey: "categories.fastFood",
     product: [
       {
         id: 16,

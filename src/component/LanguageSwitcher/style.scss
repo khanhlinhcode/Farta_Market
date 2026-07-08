@@ -3,9 +3,9 @@
   align-items: center;
   gap: 2px;
   padding: 3px;
-  border: 1px solid #e1e1e1;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .language-switcher__button {
@@ -14,7 +14,7 @@
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: #555;
+  color: var(--color-muted);
   cursor: pointer;
   font-size: 13px;
   font-weight: 700;
@@ -23,6 +23,6 @@
 }
 
 .language-switcher__button.active {
-  background: #00917c;
+  background: var(--color-primary);
   color: #fff;
 }

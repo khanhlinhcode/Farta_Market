@@ -1,6 +1,7 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 import {
   disableAdminUserAPI,
   getAdminUserOrdersAPI,
@@ -10,13 +11,21 @@ import {
 import { ConfirmModal } from "component";
 import { formatter } from "utils/fomater";
 import { isAdmin } from "utils/adminAuth";
+import { selectAdminUser } from "../../../redux/authSlice";
 import "../admin.scss";
 
 const ROLE_OPTIONS = [
   { value: "", labelKey: "admin.users.allRoles" },
   { value: "admin", labelKey: "admin.users.roleAdmin" },
   { value: "staff", labelKey: "admin.users.roleStaff" },
+  { value: "customer", labelKey: "admin.users.roleCustomer" },
 ];
+
+const getRoleLabelKey = (role) => {
+  if (role === "admin") return "admin.users.roleAdmin";
+  if (role === "staff") return "admin.users.roleStaff";
+  return "admin.users.roleCustomer";
+};
 
 const getOrderTotal = (order) => {
   if (order.total !== undefined && order.total !== null) {
@@ -31,7 +40,8 @@ const getOrderTotal = (order) => {
 
 const AdminUsersPage = () => {
   const { t } = useTranslation();
-  const canManage = isAdmin();
+  const adminUser = useSelector(selectAdminUser);
+  const canManage = isAdmin(adminUser);
   const [users, setUsers] = useState([]);
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
   const [keyword, setKeyword] = useState("");
@@ -196,9 +206,7 @@ const AdminUsersPage = () => {
                     <td>{user.email}</td>
                     <td>
                       <span className="admin-page__badge">
-                        {user.role === "admin"
-                          ? t("admin.users.roleAdmin")
-                          : t("admin.users.roleStaff")}
+                        {t(getRoleLabelKey(user.role))}
                       </span>
                     </td>
                     <td>
@@ -226,8 +234,9 @@ const AdminUsersPage = () => {
                         >
                           {t("admin.users.viewOrders")}
                         </button>
-                        {canManage && !user.deleted_at && (
-                          <>
+                        {canManage &&
+                          !user.deleted_at &&
+                          ["admin", "staff"].includes(user.role) && (
                             <button
                               className="admin-page__button admin-page__button--ghost"
                               onClick={() =>
@@ -242,18 +251,19 @@ const AdminUsersPage = () => {
                                 ? t("admin.users.makeStaff")
                                 : t("admin.users.makeAdmin")}
                             </button>
-                            <button
-                              className="admin-page__button admin-page__button--danger"
-                              onClick={() =>
-                                setPendingAction({
-                                  type: "disable",
-                                  userId: user.id,
-                                })
-                              }
-                            >
-                              {t("admin.users.disable")}
-                            </button>
-                          </>
+                        )}
+                        {canManage && !user.deleted_at && (
+                          <button
+                            className="admin-page__button admin-page__button--danger"
+                            onClick={() =>
+                              setPendingAction({
+                                type: "disable",
+                                userId: user.id,
+                              })
+                            }
+                          >
+                            {t("admin.users.disable")}
+                          </button>
                         )}
                       </div>
                       {expandedUserId === user.id && (

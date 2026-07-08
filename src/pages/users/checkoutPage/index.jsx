@@ -5,12 +5,20 @@ import Breadcrumb from "../theme/breadcrumb";
 import { SESSION_KEYS } from "utils/constant";
 import { useMutation } from "@tanstack/react-query";
 import { ROUTERS } from "utils/router";
-import { createVNPayPaymentAPI, postOrderAPI } from "api/orderPage";
+import {
+  createVNPayPaymentAPI,
+  postOrderAPI,
+  validateCouponAPI,
+} from "api/orderPage";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useShoppingCart from "hooks/useShoppingCart";
 import { getSessionItem, setSessionItem } from "utils/session";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
+import { translateProductName } from "utils/i18nLabels";
+import { getAddressesAPI, getProfileAPI } from "api/profile";
+import { selectCustomerUser } from "../../../redux/authSlice";
 
 const CheckoutPage = () => {
   const { t } = useTranslation();
@@ -70,6 +78,21 @@ const CheckoutPage = () => {
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCouponCode, setAppliedCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponMessage, setCouponMessage] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState("");
+  const [useManualAddress, setUseManualAddress] = useState(false);
+  const currentUser = useSelector(selectCustomerUser);
+  const isLoggedIn = Boolean(currentUser);
+  const subtotal = Number(cart.totalPrice || 0);
+  const shippingFee = subtotal > 0 && subtotal < 200000 ? 20000 : 0;
+  const grandTotal = subtotal + shippingFee;
+  const finalTotal = Math.max(grandTotal - couponDiscount, 0);
 
   const [errors, setErrors] = useState({
     fullName: "",
@@ -86,6 +109,114 @@ const CheckoutPage = () => {
       toast.error(t("checkout.paymentFailed"));
     }
   }, [searchParams, t]);
+
+  const applySavedAddress = (savedAddress, profile = {}) => {
+    if (!savedAddress) {
+      return;
+    }
+
+    setSelectedAddressId(String(savedAddress.id));
+    setUseManualAddress(false);
+    setFullName(savedAddress.recipient_name || profile?.name || "");
+    setPhone(savedAddress.phone || profile?.phone || "");
+    setAddress(savedAddress.address_line || profile?.default_address || "");
+  };
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      return;
+    }
+
+    const loadProfile = async () => {
+      try {
+        const [profile, addressResponse] = await Promise.all([
+          getProfileAPI(),
+          getAddressesAPI().catch(() => ({ data: [] })),
+        ]);
+        const addresses = addressResponse?.data || [];
+        const defaultAddress =
+          addresses.find((item) => item.is_default) || addresses[0];
+
+        setSavedAddresses(addresses);
+        setFullName((current) => current || profile?.name || "");
+        setPhone((current) => current || profile?.phone || "");
+        setEmail((current) => current || profile?.email || "");
+
+        if (defaultAddress) {
+          setSelectedAddressId(String(defaultAddress.id));
+          setFullName((current) =>
+            current || defaultAddress.recipient_name || profile?.name || ""
+          );
+          setPhone((current) =>
+            current || defaultAddress.phone || profile?.phone || ""
+          );
+          setAddress((current) =>
+            current || defaultAddress.address_line || profile?.default_address || ""
+          );
+        } else {
+          setAddress((current) => current || profile?.default_address || "");
+        }
+      } catch (err) {
+        // Keep checkout usable if the profile request fails.
+      }
+    };
+
+    loadProfile();
+  }, [isLoggedIn]);
+
+  const handleSavedAddressChange = (event) => {
+    const nextAddress = savedAddresses.find(
+      (item) => String(item.id) === event.target.value
+    );
+    applySavedAddress(nextAddress);
+  };
+
+  const handleCouponChange = (event) => {
+    const nextCode = event.target.value;
+    setCouponCode(nextCode);
+    setCouponError("");
+
+    if (appliedCouponCode && nextCode.trim().toUpperCase() !== appliedCouponCode) {
+      setAppliedCouponCode("");
+      setCouponDiscount(0);
+      setCouponMessage("");
+    }
+  };
+
+  const handleApplyCoupon = async () => {
+    const code = couponCode.trim().toUpperCase();
+
+    setCouponError("");
+    setCouponMessage("");
+
+    if (!code) {
+      setCouponError(t("checkout.couponRequired"));
+      return;
+    }
+
+    if (!isLoggedIn) {
+      setCouponError(t("checkout.loginForCoupon"));
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+
+    try {
+      const response = await validateCouponAPI({
+        code,
+        order_amount: subtotal,
+      });
+      setAppliedCouponCode(code);
+      setCouponDiscount(Number(response.discount_amount || 0));
+      setCouponMessage(response.message || t("checkout.couponApplied"));
+    } catch (err) {
+      setAppliedCouponCode("");
+      setCouponDiscount(0);
+      setCouponError(err?.response?.data?.message || t("checkout.couponInvalid"));
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {
@@ -123,10 +254,6 @@ const CheckoutPage = () => {
       newErrors.email = t("checkout.validation.emailInvalid");
       isValid = false;
     }
-    // if (!paymentMethod) {
-    //   newErrors.paymentMethod = "Vui lòng nhập phương thức thanh toán";
-    //   isValid = false;
-    // }
     if (!isValid) {
       setErrors(newErrors);
       return false;
@@ -148,7 +275,7 @@ const CheckoutPage = () => {
     if (validateForm()) {
       if (
         paymentMethod === "vnpay" &&
-        !window.localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN)
+        !isLoggedIn
       ) {
         setOrderError(t("checkout.loginForVnpay"));
         navigate(
@@ -171,6 +298,7 @@ const CheckoutPage = () => {
           email,
           note,
           payment_method: paymentMethod,
+          coupon_code: appliedCouponCode || undefined,
           products: cart.products.map(({ product, quantity }) => ({
             product_id: product.id,
             quantity,
@@ -193,6 +321,48 @@ const CheckoutPage = () => {
         <form onSubmit={handleSubmit}>
           <div className="row">
             <div className="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+              {savedAddresses.length > 0 && (
+                <div className="checkout__saved-address">
+                  {!useManualAddress ? (
+                    <>
+                      <label htmlFor="saved-address">
+                        {t("checkout.savedAddress")}
+                      </label>
+                      <div>
+                        <select
+                          id="saved-address"
+                          value={selectedAddressId}
+                          onChange={handleSavedAddressChange}
+                        >
+                          {savedAddresses.map((savedAddress) => (
+                            <option key={savedAddress.id} value={savedAddress.id}>
+                              {savedAddress.label} - {savedAddress.address_line}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => setUseManualAddress(true)}
+                        >
+                          {t("checkout.enterDifferentAddress")}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const selectedAddress = savedAddresses.find(
+                          (item) => String(item.id) === selectedAddressId
+                        );
+                        applySavedAddress(selectedAddress || savedAddresses[0]);
+                      }}
+                    >
+                      {t("checkout.useSavedAddress")}
+                    </button>
+                  )}
+                </div>
+              )}
               <div className="checkout__input">
                 <label htmlFor="">
                   {t("checkout.fullName")}: <span className="required">*</span>
@@ -273,17 +443,61 @@ const CheckoutPage = () => {
                 <ul>
                   {cart.products.map(({ product, quantity }) => (
                     <li key={product.id}>
-                      <span>{product.name}</span>
+                      <span>{translateProductName(product, t)}</span>
                       <b>
                         {formatter(product.price)} ({quantity})
                       </b>
                     </li>
                   ))}
                   <li className="checkout__order__subtotal">
-                    <h3>{t("checkout.totalOrder")}</h3>
-                    <b>{formatter(cart.totalPrice)}</b>
+                    <span>{t("checkout.subtotal")}</span>
+                    <b>{formatter(subtotal)}</b>
+                  </li>
+                  <li className="checkout__order__subtotal">
+                    <span>{t("checkout.shippingFee")}</span>
+                    <b>
+                      {shippingFee === 0
+                        ? t("checkout.freeShipping")
+                        : formatter(shippingFee)}
+                    </b>
+                  </li>
+                  {couponDiscount > 0 && (
+                    <li className="checkout__order__subtotal checkout__order__subtotal--discount">
+                      <span>{t("checkout.discountAmount")}</span>
+                      <b>-{formatter(couponDiscount)}</b>
+                    </li>
+                  )}
+                  <li className="checkout__order__subtotal checkout__order__subtotal--grand">
+                    <h3>{t("checkout.grandTotal")}</h3>
+                    <b>{formatter(finalTotal)}</b>
                   </li>
                 </ul>
+                <div className="checkout__coupon">
+                  <label htmlFor="coupon-code">{t("checkout.couponCode")}</label>
+                  <div className="checkout__coupon-row">
+                    <input
+                      id="coupon-code"
+                      value={couponCode}
+                      onChange={handleCouponChange}
+                      placeholder={t("checkout.couponPlaceholder")}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={isApplyingCoupon || subtotal <= 0}
+                    >
+                      {isApplyingCoupon ? t("common.loading") : t("cart.apply")}
+                    </button>
+                  </div>
+                  {couponMessage && (
+                    <span className="checkout__coupon-success">
+                      {couponMessage}
+                    </span>
+                  )}
+                  {couponError && (
+                    <span className="checkout__coupon-error">{couponError}</span>
+                  )}
+                </div>
                 <div className="checkout__payment-method">
                   <h4>{t("checkout.paymentMethod")}</h4>
                   <label>

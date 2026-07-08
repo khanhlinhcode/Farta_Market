@@ -1,11 +1,28 @@
 import { memo, useEffect, useState } from "react";
-import { uploadAdminProductImageAPI } from "api/admin";
+import {
+  deleteAdminProductImageAPI,
+  uploadAdminProductImageAPI,
+  uploadAdminProductImagesAPI,
+} from "api/admin";
 import { resolveProductImage } from "utils/productImages";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import "./style.scss";
 
-const ImageUpload = ({ productId, value, onUploaded, disabled = false }) => {
+const ImageUpload = ({
+  productId,
+  value,
+  images = [],
+  multiple = false,
+  onUploaded,
+  onDeleted,
+  uploadHandler,
+  disabled = false,
+  uploadText,
+  uploadingText,
+  saveBeforeUploadText,
+  previewAlt,
+}) => {
   const { t } = useTranslation();
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -13,12 +30,14 @@ const ImageUpload = ({ productId, value, onUploaded, disabled = false }) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!file) {
+    const previewFile = Array.isArray(file) ? file[0] : file;
+
+    if (!previewFile) {
       setPreviewUrl("");
       return undefined;
     }
 
-    const objectUrl = URL.createObjectURL(file);
+    const objectUrl = URL.createObjectURL(previewFile);
     setPreviewUrl(objectUrl);
 
     return () => URL.revokeObjectURL(objectUrl);
@@ -26,11 +45,14 @@ const ImageUpload = ({ productId, value, onUploaded, disabled = false }) => {
 
   const handleFileChange = (event) => {
     setError("");
-    setFile(event.target.files?.[0] || null);
+    const files = Array.from(event.target.files || []);
+    setFile(multiple ? files : files[0] || null);
   };
 
   const handleUpload = async () => {
-    if (!productId || !file) {
+    const selectedFiles = multiple ? file || [] : file ? [file] : [];
+
+    if ((!productId && !uploadHandler) || selectedFiles.length === 0) {
       return;
     }
 
@@ -38,10 +60,21 @@ const ImageUpload = ({ productId, value, onUploaded, disabled = false }) => {
     setError("");
 
     try {
-      const response = await uploadAdminProductImageAPI(productId, file);
-      onUploaded?.(response.image_url);
+      const response = uploadHandler
+        ? await uploadHandler(multiple ? selectedFiles : selectedFiles[0])
+        : multiple
+        ? await uploadAdminProductImagesAPI(productId, selectedFiles)
+        : await uploadAdminProductImageAPI(productId, selectedFiles[0]);
+      const imageUrl =
+        response.image_url ||
+        response.avatar_url ||
+        response.data?.avatar_url ||
+        response.product?.img ||
+        response.images?.[0]?.url ||
+        value;
+      onUploaded?.(imageUrl, response.product || response.data, response);
       toast.success(t("admin.uploadSuccess"));
-      setFile(null);
+      setFile(multiple ? [] : null);
     } catch (err) {
       const nextError =
         err?.response?.data?.errors?.image?.[0] ||
@@ -54,14 +87,37 @@ const ImageUpload = ({ productId, value, onUploaded, disabled = false }) => {
     }
   };
 
+  const handleDeleteImage = async (imageId) => {
+    if (!imageId || disabled) {
+      return;
+    }
+
+    setIsUploading(true);
+    setError("");
+
+    try {
+      const response = await deleteAdminProductImageAPI(imageId);
+      onDeleted?.(response.product);
+      toast.success(t("cart.removed"));
+    } catch (err) {
+      const nextError = err?.response?.data?.message || t("common.error");
+      setError(nextError);
+      toast.error(nextError);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const imageSrc = previewUrl || (value ? resolveProductImage(value) : "");
+  const hasFile = multiple ? Boolean(file?.length) : Boolean(file);
 
   return (
     <div className="image-upload">
-      {imageSrc && <img src={imageSrc} alt={t("admin.products.imagePreviewAlt")} />}
+      {imageSrc && <img src={imageSrc} alt={previewAlt || t("admin.products.imagePreviewAlt")} />}
       <input
         type="file"
         accept="image/jpeg,image/png,image/webp"
+        multiple={multiple}
         onChange={handleFileChange}
         disabled={disabled}
       />
@@ -69,11 +125,37 @@ const ImageUpload = ({ productId, value, onUploaded, disabled = false }) => {
         type="button"
         className="admin-page__button admin-page__button--ghost"
         onClick={handleUpload}
-        disabled={disabled || !productId || !file || isUploading}
+        disabled={disabled || (!productId && !uploadHandler) || !hasFile || isUploading}
       >
-        {isUploading ? t("admin.products.uploading") : t("admin.products.uploadImage")}
+        {isUploading
+          ? uploadingText || t("admin.products.uploading")
+          : uploadText ||
+          (multiple
+          ? t("admin.products.uploadImages")
+          : t("admin.products.uploadImage"))}
       </button>
-      {!productId && <span>{t("admin.products.saveBeforeUpload")}</span>}
+      {!productId && !uploadHandler && (
+        <span>{saveBeforeUploadText || t("admin.products.saveBeforeUpload")}</span>
+      )}
+      {multiple && images.length > 0 && (
+        <div className="image-upload__gallery">
+          {images.map((image) => (
+            <div key={image.id}>
+              <img
+                src={resolveProductImage(image.url || image.path)}
+                alt={t("admin.products.imagePreviewAlt")}
+              />
+              <button
+                type="button"
+                onClick={() => handleDeleteImage(image.id)}
+                disabled={disabled || isUploading}
+              >
+                {t("admin.products.deleteImage")}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
       {error && <span className="image-upload__error">{error}</span>}
     </div>
   );
