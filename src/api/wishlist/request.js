@@ -28,7 +28,14 @@ export const removeWishlistAPI = async (productId) => {
 export const syncGuestWishlistAPI = async (ids = []) => {
   const productIds = [...new Set(ids.map(Number).filter(Boolean))];
 
-  return await Promise.allSettled(
+  const results = await Promise.allSettled(
     productIds.map((productId) => addWishlistAPI(productId))
   );
+
+  const failedResult = results.find((result) => result.status === "rejected");
+  if (failedResult) {
+    throw failedResult.reason;
+  }
+
+  return results;
 };

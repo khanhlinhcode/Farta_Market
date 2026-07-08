@@ -1,6 +1,8 @@
 import "@testing-library/jest-dom/vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import "../../../i18n";
 import i18n from "../../../i18n";
@@ -42,7 +44,21 @@ describe("AdminProductsPage pagination", () => {
   });
 
   it("loads the next page from the backend", async () => {
-    render(<AdminProductsPage />);
+    const store = configureStore({
+      reducer: {
+        auth: () => ({
+          adminUser: { role: "admin" },
+          isBootstrapped: true,
+          user: null,
+        }),
+      },
+    });
+
+    render(
+      <Provider store={store}>
+        <AdminProductsPage />
+      </Provider>
+    );
 
     expect(
       await screen.findByText("Trang 1/2 · 21 sản phẩm")

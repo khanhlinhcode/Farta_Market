@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FiMessageCircle, FiSend, FiX } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
+import axios from "api/axios";
 import { getApiBaseUrl } from "../../config/api";
 import useShoppingCart from "hooks/useShoppingCart";
 import toast from "react-hot-toast";
@@ -36,14 +37,25 @@ const ChatWidget = () => {
   }, [isOpen]);
 
   useEffect(() => {
-    setMessages((currentMessages) =>
-      currentMessages.map((message, index) =>
-        index === 0 && message.role === "assistant"
-          ? { ...message, content: t("chat.welcome") }
-          : message
-      )
-    );
-  }, [i18n.resolvedLanguage, t]);
+    const welcomeMessage = t("chat.welcome");
+
+    setMessages((currentMessages) => {
+      const firstMessage = currentMessages[0];
+
+      if (
+        !firstMessage ||
+        firstMessage.role !== "assistant" ||
+        firstMessage.content === welcomeMessage
+      ) {
+        return currentMessages;
+      }
+
+      return [
+        { ...firstMessage, content: welcomeMessage },
+        ...currentMessages.slice(1),
+      ];
+    });
+  }, [i18n.language]);
 
   useEffect(() => {
     if (isOpen) {
@@ -148,30 +160,20 @@ const ChatWidget = () => {
     let errorMessage = t("chat.error");
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/chat`, {
+      const data = await axios({
+        url: "/chat",
         method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
         signal: controller.signal,
-        body: JSON.stringify({
+        data: {
           message,
           history: messages
             .slice(1)
             .slice(-6)
             .map(({ role, content }) => ({ role, content })),
-        }),
+        },
       });
-      const data = await response.json().catch(() => ({}));
 
-      if (!response.ok || typeof data.reply !== "string" || !data.reply.trim()) {
-        if (response.status === 429) {
-          errorMessage = t("chat.rateLimited");
-        } else if (response.status === 503) {
-          errorMessage = data.message || t("chat.unavailable");
-        }
-
+      if (typeof data.reply !== "string" || !data.reply.trim()) {
         throw new Error(data.message || "Chat request failed");
       }
 
@@ -187,7 +189,16 @@ const ChatWidget = () => {
         toast.success(t("cart.added"));
       }
       appendAssistantMessage(data.reply);
-    } catch {
+    } catch (error) {
+      const status = error?.response?.status;
+      const responseData = error?.response?.data || {};
+
+      if (status === 429) {
+        errorMessage = t("chat.rateLimited");
+      } else if (status === 503) {
+        errorMessage = responseData.message || t("chat.unavailable");
+      }
+
       if (didTimeout) {
         errorMessage = t("chat.timeout");
       }

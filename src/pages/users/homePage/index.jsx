@@ -17,7 +17,11 @@ import ProductCardSkeleton from "component/Skeleton";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import { featProducts } from "utils/common";
 import "./style.scss";
-import { useGetCategoriesUS, useGetProductsUS } from "api/homePage";
+import {
+  useGetCategoriesUS,
+  useGetProductsUS,
+  useRecommendedProductsUS,
+} from "api/homePage";
 import { Link } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 import { useTranslation } from "react-i18next";
@@ -66,6 +70,7 @@ const HomPage = () => {
     isError: isProductsError,
     refetch: refetchProducts,
   } = useGetProductsUS();
+  const { data: recommendedProducts = [] } = useRecommendedProductsUS();
   const isLoading = isCategoriesLoading || isProductsLoading;
   const isError = isCategoriesError || isProductsError;
   const refetchHomeData = () => {
@@ -189,6 +194,25 @@ const HomPage = () => {
         </div>
       </div>
       {/* Featured End */}
+      {recommendedProducts.length >= 4 && (
+        <div className="container">
+          <div className="featured featured--recommended">
+            <div className="section-title">
+              <h2>{t("home.recommendedProducts")}</h2>
+            </div>
+            <div className="row">
+              {recommendedProducts.slice(0, 4).map((product) => (
+                <div
+                  className="col-lg-3 col-md-4 col-sm-6 col-xs-12"
+                  key={product.id}
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {/* banner Begin */}
       <div className="container">
         <div className="banner">

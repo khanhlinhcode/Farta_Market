@@ -14,12 +14,8 @@ import {
   removeFromWishlist,
   setWishlist,
 } from "../redux/wishlistSlice";
-import { SESSION_KEYS } from "utils/constant";
+import { selectCustomerUser } from "../redux/authSlice";
 import { ROUTERS } from "utils/router";
-
-const isAuthenticated = () =>
-  typeof window !== "undefined" &&
-  Boolean(window.localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN));
 
 const useWishlist = () => {
   const { t } = useTranslation();
@@ -28,7 +24,8 @@ const useWishlist = () => {
   const location = useLocation();
   const queryClient = useQueryClient();
   const ids = useSelector((state) => state.wishlist?.ids || []);
-  const loggedIn = isAuthenticated();
+  const currentUser = useSelector(selectCustomerUser);
+  const loggedIn = Boolean(currentUser);
 
   const wishlistQuery = useQuery({
     queryKey: ["wishlist"],
@@ -56,7 +53,7 @@ const useWishlist = () => {
         return false;
       }
 
-      if (!isAuthenticated()) {
+      if (!loggedIn) {
         toast.error(t("wishlist.loginRequired"));
         const redirect = `${location.pathname}${location.search}`;
         navigate(
@@ -96,7 +93,7 @@ const useWishlist = () => {
         return false;
       }
     },
-    [dispatch, idSet, location.pathname, location.search, navigate, queryClient, t]
+    [dispatch, idSet, location.pathname, location.search, loggedIn, navigate, queryClient, t]
   );
 
   return {

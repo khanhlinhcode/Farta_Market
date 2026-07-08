@@ -2,19 +2,23 @@ import { memo, useEffect, useState } from "react";
 import "./style.scss";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ROUTERS } from "utils/router";
-import { SESSION_KEYS } from "utils/constant";
 import { loginAdminAPI } from "api/admin";
-import { syncGuestWishlistAPI } from "api/wishlist";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
 import {
   clearAdminSession,
   hasAdminAccess,
-  setAdminSession,
 } from "utils/adminAuth";
+import {
+  selectAdminUser,
+  setAuthenticatedUser,
+} from "../../../redux/authSlice";
 
 const LoginAdPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const adminUser = useSelector(selectAdminUser);
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get("redirect");
   const [form, setForm] = useState({
@@ -25,14 +29,14 @@ const LoginAdPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (hasAdminAccess()) {
+    clearAdminSession();
+
+    if (hasAdminAccess(adminUser)) {
       navigate(getSafeRedirectPath(redirectPath) || ROUTERS.ADMIN.ORDERS, {
         replace: true,
       });
-    } else if (localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN)) {
-      clearAdminSession();
     }
-  }, [navigate, redirectPath]);
+  }, [adminUser, navigate, redirectPath]);
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -48,14 +52,7 @@ const LoginAdPage = () => {
 
     try {
       const response = await loginAdminAPI(form);
-      setAdminSession({
-        token: response.token,
-        role: response.user.role,
-      });
-      const wishlistIds = getStoredWishlistIds();
-      if (wishlistIds.length) {
-        await syncGuestWishlistAPI(wishlistIds);
-      }
+      dispatch(setAuthenticatedUser(response.user));
       navigate(getSafeRedirectPath(redirectPath) || ROUTERS.ADMIN.ORDERS, {
         replace: true,
       });
@@ -116,12 +113,4 @@ const getSafeRedirectPath = (path) => {
   }
 
   return path;
-};
-
-const getStoredWishlistIds = () => {
-  try {
-    return JSON.parse(localStorage.getItem(SESSION_KEYS.WISHLIST_IDS) || "[]");
-  } catch (error) {
-    return [];
-  }
 };

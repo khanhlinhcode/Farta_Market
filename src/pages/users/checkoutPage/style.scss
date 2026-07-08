@@ -6,7 +6,7 @@
   max-width: 100%;
   margin-top: 20px;
 
-  input,
+  > input,
   textarea {
     box-sizing: border-box;
     margin: 10px 0;
@@ -28,6 +28,53 @@
     min-width: 0;
   }
 }
+
+.checkout__saved-address {
+  background: #f7fbfa;
+  border: 1px solid #d7ebe7;
+  border-radius: 8px;
+  box-sizing: border-box;
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+  max-width: 100%;
+  padding: 14px;
+
+  > label {
+    color: map.get($theme-colors, "bold-text");
+    font-weight: 700;
+  }
+
+  > div {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  select {
+    background: #ffffff;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    min-height: 42px;
+    min-width: 0;
+    padding: 0 12px;
+    width: 100%;
+  }
+
+  button {
+    background: #ffffff;
+    border: 1px solid #b7ddd7;
+    border-radius: 6px;
+    color: map.get($theme-colors, "main");
+    cursor: pointer;
+    font-weight: 700;
+    min-height: 42px;
+    padding: 0 14px;
+    white-space: nowrap;
+  }
+}
+
 .checkout__order {
   box-sizing: border-box;
   background: #f5f5f5;
@@ -65,6 +112,33 @@
       b {
         color: map.get($theme-colors, "description");
       }
+
+      &--grand {
+        align-items: center;
+        background: #fff;
+        border: 1px solid #d7ebe7;
+        border-radius: 8px;
+        line-height: 1.5;
+        margin-top: 12px;
+        padding: 14px;
+
+        h3 {
+          border: 0;
+          margin: 0;
+          padding: 0;
+        }
+
+        b {
+          color: map.get($theme-colors, "main");
+          font-size: 20px;
+        }
+      }
+
+      &--discount {
+        b {
+          color: #027a48;
+        }
+      }
     }
   }
   button {
@@ -74,6 +148,69 @@
     justify-content: center;
     width: 100%;
   }
+}
+
+.checkout__coupon {
+  border-bottom: 1px solid #eee;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+
+  label {
+    color: map.get($theme-colors, "bold-text");
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
+.checkout__coupon-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+
+  input {
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    min-height: 42px;
+    min-width: 0;
+    padding: 0 12px;
+    text-transform: uppercase;
+    width: 100%;
+  }
+
+  button {
+    background: #ffffff;
+    border: 1px solid #b7ddd7;
+    border-radius: 6px;
+    color: map.get($theme-colors, "main");
+    cursor: pointer;
+    font-weight: 700;
+    min-height: 42px;
+    padding: 0 14px;
+    white-space: nowrap;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
+.checkout__coupon-success,
+.checkout__coupon-error {
+  display: block;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.checkout__coupon-success {
+  color: #027a48;
+}
+
+.checkout__coupon-error {
+  color: #b42318;
 }
 
 .checkout__payment-method {
@@ -88,39 +225,53 @@
   }
 
   label {
-    align-items: flex-start;
+    align-items: center;
     background: #ffffff;
     border: 1px solid #e6ecea;
     border-radius: 8px;
+    box-sizing: border-box;
     cursor: pointer;
-    display: flex;
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
     gap: 12px;
     margin-bottom: 10px;
+    max-width: 100%;
     padding: 12px;
     transition: border-color 0.15s, background 0.15s;
+    width: 100%;
 
     &:hover {
       background: #f7fbfa;
       border-color: #b7ddd7;
     }
 
-    input {
-      flex: 0 0 auto;
-      margin-top: 4px;
+    input[type="radio"] {
+      accent-color: map.get($theme-colors, "main");
+      cursor: pointer;
+      height: 20px;
+      margin: 0;
+      width: 20px;
     }
 
     span {
       display: grid;
       gap: 4px;
+      max-width: 100%;
+      min-width: 0;
     }
 
     b {
       color: map.get($theme-colors, "bold-text");
+      display: block;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
     }
 
     small {
       color: #667085;
+      display: block;
       line-height: 18px;
+      overflow-wrap: anywhere;
     }
   }
 }
@@ -152,6 +303,16 @@
     flex-direction: column;
   }
 
+  .checkout__saved-address {
+    > div {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .checkout__coupon-row {
+    grid-template-columns: 1fr;
+  }
+
   .checkout__order {
     margin-left: 0;
     padding: 24px 20px;
@@ -167,6 +328,13 @@
         min-width: 0;
         overflow-wrap: anywhere;
       }
+    }
+  }
+
+  .checkout__payment-method {
+    label {
+      align-items: flex-start;
+      padding: 14px;
     }
   }
 }

@@ -11,6 +11,20 @@ export const getProductDetaiAPI = async (id) => {
   });
 };
 
+export const getRelatedProductsAPI = async (id) => {
+  return await axios.request({
+    url: `${END_POINT.PRODUCTS}/${id}/related`,
+    method: "GET",
+  });
+};
+
+export const getFrequentlyBoughtWithAPI = async (id) => {
+  return await axios.request({
+    url: `${END_POINT.PRODUCTS}/${id}/frequently-bought-with`,
+    method: "GET",
+  });
+};
+
 export const getProductReviewsAPI = async (id, params = {}) => {
   return await axios.request({
     url: `${END_POINT.PRODUCTS}/${id}/reviews`,

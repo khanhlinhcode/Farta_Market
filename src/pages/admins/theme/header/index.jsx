@@ -1,5 +1,6 @@
 import { memo } from "react";
 import {
+  AiOutlineDashboard,
   AiOutlineAppstore,
   AiOutlineLogout,
   AiOutlineShoppingCart,
@@ -11,24 +12,38 @@ import { ROUTERS } from "utils/router";
 import "./style.scss";
 import { logoutAdminAPI } from "api/admin";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
 import { clearAdminSession, isAdmin } from "utils/adminAuth";
+import {
+  clearAdminUser,
+  selectAdminUser,
+} from "../../../../redux/authSlice";
 
 const HeaderAD = ({ children, ...props }) => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const adminUser = useSelector(selectAdminUser);
   const handleLogout = async () => {
     try {
       await logoutAdminAPI();
     } catch (error) {
-      // Token local vẫn được xoá để người dùng thoát khỏi admin trên máy hiện tại.
+      // Local token is still cleared so this browser exits the admin area.
     } finally {
       clearAdminSession();
+      dispatch(clearAdminUser());
       navigate(ROUTERS.ADMIN.LOGIN, { replace: true });
     }
   };
 
   const navItems = [
+    {
+      path: ROUTERS.ADMIN.DASHBOARD,
+      onClick: () => navigate(ROUTERS.ADMIN.DASHBOARD),
+      label: t("admin.nav.dashboard"),
+      icon: <AiOutlineDashboard />,
+    },
     {
       path: ROUTERS.ADMIN.ORDERS,
       onClick: () => navigate(ROUTERS.ADMIN.ORDERS),
@@ -47,7 +62,13 @@ const HeaderAD = ({ children, ...props }) => {
       label: t("admin.nav.categories"),
       icon: <AiOutlineTags />,
     },
-    ...(isAdmin()
+    {
+      path: ROUTERS.ADMIN.COUPONS,
+      onClick: () => navigate(ROUTERS.ADMIN.COUPONS),
+      label: t("admin.nav.coupons"),
+      icon: <AiOutlineTags />,
+    },
+    ...(isAdmin(adminUser)
       ? [
           {
             path: ROUTERS.ADMIN.USERS,

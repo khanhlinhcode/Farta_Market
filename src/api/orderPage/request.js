@@ -24,6 +24,14 @@ export const createVNPayPaymentAPI = async (data, idempotencyKey) => {
   });
 };
 
+export const validateCouponAPI = async (data) => {
+  return await axios({
+    url: "/coupons/validate",
+    method: "POST",
+    data,
+  });
+};
+
 export const getMyOrdersAPI = async (params = {}) => {
   return await axios({
     url: "/my-orders",

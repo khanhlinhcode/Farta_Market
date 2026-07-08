@@ -1,6 +1,8 @@
-import axios from "api/axios";
+import axios, { getCsrfCookieAPI } from "api/axios";
 
 export const loginAdminAPI = async (data) => {
+  await getCsrfCookieAPI();
+
   return await axios({
     url: "/admin/login",
     method: "POST",
@@ -8,7 +10,16 @@ export const loginAdminAPI = async (data) => {
   });
 };
 
+export const getAdminMeAPI = async () => {
+  return await axios({
+    url: "/admin/me",
+    method: "GET",
+  });
+};
+
 export const logoutAdminAPI = async () => {
+  await getCsrfCookieAPI();
+
   return await axios({
     url: "/admin/logout",
     method: "POST",
@@ -23,11 +34,57 @@ export const getAdminOrdersAPI = async (params = {}) => {
   });
 };
 
-export const updateAdminOrderStatusAPI = async (id, status) => {
+export const getAdminDashboardAPI = async () => {
+  return await axios({
+    url: "/admin/dashboard",
+    method: "GET",
+  });
+};
+
+export const getAdminDashboardSummaryAPI = async () => {
+  return await axios({
+    url: "/admin/dashboard/summary",
+    method: "GET",
+  });
+};
+
+export const getAdminRevenueChartAPI = async (params = {}) => {
+  return await axios({
+    url: "/admin/dashboard/revenue-chart",
+    method: "GET",
+    params,
+  });
+};
+
+export const getAdminTopProductsAPI = async (params = {}) => {
+  return await axios({
+    url: "/admin/dashboard/top-products",
+    method: "GET",
+    params,
+  });
+};
+
+export const getAdminQueueHealthAPI = async () => {
+  return await axios({
+    url: "/admin/system/queue-health",
+    method: "GET",
+  });
+};
+
+export const exportAdminOrdersAPI = async (params = {}) => {
+  return await axios({
+    url: "/admin/orders/export.csv",
+    method: "GET",
+    params,
+    responseType: "blob",
+  });
+};
+
+export const updateAdminOrderStatusAPI = async (id, status, note = "") => {
   return await axios({
     url: `/admin/orders/${id}/status`,
     method: "PATCH",
-    data: { status },
+    data: { status, note },
   });
 };
 
@@ -36,6 +93,7 @@ export const getAdminProductsAPI = async (params = {}) => {
     url: "/admin/products",
     method: "GET",
     params: {
+      ...params,
       page: params.page || 1,
       per_page: params.per_page || 20,
     },
@@ -50,6 +108,24 @@ export const uploadAdminProductImageAPI = async (id, file) => {
     url: `/admin/products/${id}/image`,
     method: "POST",
     data: formData,
+  });
+};
+
+export const uploadAdminProductImagesAPI = async (id, files = []) => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("images[]", file));
+
+  return await axios({
+    url: `/admin/products/${id}/images`,
+    method: "POST",
+    data: formData,
+  });
+};
+
+export const deleteAdminProductImageAPI = async (id) => {
+  return await axios({
+    url: `/admin/product-images/${id}`,
+    method: "DELETE",
   });
 };
 
@@ -134,5 +210,43 @@ export const disableAdminUserAPI = async (id) => {
   return await axios({
     url: `/admin/users/${id}`,
     method: "DELETE",
+  });
+};
+
+export const getAdminCouponsAPI = async (params = {}) => {
+  return await axios({
+    url: "/admin/coupons",
+    method: "GET",
+    params,
+  });
+};
+
+export const createAdminCouponAPI = async (data) => {
+  return await axios({
+    url: "/admin/coupons",
+    method: "POST",
+    data,
+  });
+};
+
+export const updateAdminCouponAPI = async (id, data) => {
+  return await axios({
+    url: `/admin/coupons/${id}`,
+    method: "PUT",
+    data,
+  });
+};
+
+export const deleteAdminCouponAPI = async (id) => {
+  return await axios({
+    url: `/admin/coupons/${id}`,
+    method: "DELETE",
+  });
+};
+
+export const getAdminCouponStatsAPI = async (id) => {
+  return await axios({
+    url: `/admin/coupons/${id}/usage-stats`,
+    method: "GET",
   });
 };

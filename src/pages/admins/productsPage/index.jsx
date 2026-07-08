@@ -10,15 +10,19 @@ import { ConfirmModal, ImageUpload } from "component";
 import { formatter } from "utils/fomater";
 import { PRODUCT_IMAGE_OPTIONS, resolveProductImage } from "utils/productImages";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import { isAdmin } from "utils/adminAuth";
+import { selectAdminUser } from "../../../redux/authSlice";
 import { translateCategoryName } from "utils/i18nLabels";
 import "../admin.scss";
 
 const emptyProductForm = {
   name: "",
+  slug: "",
   img: PRODUCT_IMAGE_OPTIONS[0].value,
   price: 0,
   inventory: 0,
+  is_active: true,
   category_id: "",
   sort_description: "",
   description: "",
@@ -26,6 +30,7 @@ const emptyProductForm = {
   twitter: "",
   instagram: "",
   linkedin: "",
+  images: [],
 };
 
 const AdminProductsPage = () => {
@@ -43,7 +48,8 @@ const AdminProductsPage = () => {
     last_page: 1,
     total: 0,
   });
-  const canDelete = isAdmin();
+  const adminUser = useSelector(selectAdminUser);
+  const canDelete = isAdmin(adminUser);
 
   const loadData = async (page = 1) => {
     setIsLoading(true);
@@ -101,7 +107,9 @@ const AdminProductsPage = () => {
     ...form,
     price: Number(form.price),
     inventory: Number(form.inventory),
+    is_active: Boolean(form.is_active),
     category_id: Number(form.category_id),
+    images: undefined,
   });
 
   const handleSubmit = async (e) => {
@@ -129,9 +137,11 @@ const AdminProductsPage = () => {
     setEditingId(product.id);
     setForm({
       name: product.name || "",
+      slug: product.slug || "",
       img: product.img || PRODUCT_IMAGE_OPTIONS[0].value,
       price: product.price || 0,
       inventory: product.inventory || 0,
+      is_active: product.is_active !== false,
       category_id: product.category_id || "",
       sort_description: product.sort_description || "",
       description: product.description || "",
@@ -139,6 +149,7 @@ const AdminProductsPage = () => {
       twitter: product.twitter || "",
       instagram: product.instagram || "",
       linkedin: product.linkedin || "",
+      images: product.images || [],
     });
   };
 
@@ -200,6 +211,15 @@ const AdminProductsPage = () => {
                 <input name="name" value={form.name} onChange={handleChange} required />
               </label>
               <label>
+                {t("admin.products.slug")}
+                <input
+                  name="slug"
+                  value={form.slug}
+                  onChange={handleChange}
+                  placeholder="cam-tuoi"
+                />
+              </label>
+              <label>
                 {t("admin.products.image")}
                 <select name="img" value={form.img} onChange={handleChange}>
                   {!PRODUCT_IMAGE_OPTIONS.some((item) => item.value === form.img) && (
@@ -215,14 +235,41 @@ const AdminProductsPage = () => {
               <ImageUpload
                 productId={editingId}
                 value={form.img}
-                onUploaded={(imageUrl) => {
+                images={form.images}
+                multiple
+                onUploaded={(imageUrl, updatedProduct) => {
                   setForm((prev) => ({
                     ...prev,
                     img: imageUrl,
+                    images: updatedProduct?.images || prev.images,
                   }));
                   setProducts((prev) =>
                     prev.map((product) =>
-                      product.id === editingId ? { ...product, img: imageUrl } : product
+                      product.id === editingId
+                        ? {
+                            ...product,
+                            img: imageUrl,
+                            images: updatedProduct?.images || product.images,
+                          }
+                        : product
+                    )
+                  );
+                }}
+                onDeleted={(updatedProduct) => {
+                  setForm((prev) => ({
+                    ...prev,
+                    img: updatedProduct?.img || prev.img,
+                    images: updatedProduct?.images || [],
+                  }));
+                  setProducts((prev) =>
+                    prev.map((product) =>
+                      product.id === editingId
+                        ? {
+                            ...product,
+                            img: updatedProduct?.img || product.img,
+                            images: updatedProduct?.images || [],
+                          }
+                        : product
                     )
                   );
                 }}
@@ -263,6 +310,20 @@ const AdminProductsPage = () => {
                   onChange={handleChange}
                   required
                 />
+              </label>
+              <label className="admin-page__checkbox">
+                <input
+                  name="is_active"
+                  type="checkbox"
+                  checked={form.is_active}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      is_active: event.target.checked,
+                    }))
+                  }
+                />
+                <span>{t("admin.products.active")}</span>
               </label>
               <label>
                 {t("admin.products.shortDescription")}
@@ -312,6 +373,7 @@ const AdminProductsPage = () => {
                     <th>{t("admin.products.category")}</th>
                     <th>{t("admin.products.price")}</th>
                     <th>{t("admin.products.stockShort")}</th>
+                    <th>{t("admin.products.activeShort")}</th>
                     <th>{t("admin.common.actions")}</th>
                   </tr>
                 </thead>
@@ -338,6 +400,19 @@ const AdminProductsPage = () => {
                       <td>{formatter(product.price)}</td>
                       <td>{product.inventory}</td>
                       <td>
+                        <span
+                          className={`admin-page__badge${
+                            product.is_active === false
+                              ? " admin-page__badge--danger"
+                              : ""
+                          }`}
+                        >
+                          {product.is_active === false
+                            ? t("admin.products.hidden")
+                            : t("admin.products.visible")}
+                        </span>
+                      </td>
+                      <td>
                         <div className="admin-page__actions">
                           <button
                             className="admin-page__button admin-page__button--ghost"
@@ -359,14 +434,14 @@ const AdminProductsPage = () => {
                   ))}
                   {!products.length && !isLoading && (
                     <tr>
-                      <td colSpan={6} className="admin-page__empty">
+                      <td colSpan={7} className="admin-page__empty">
                         {t("admin.products.empty")}
                       </td>
                     </tr>
                   )}
                   {isLoading && (
                     <tr>
-                      <td colSpan={6} className="admin-page__empty">
+                      <td colSpan={7} className="admin-page__empty">
                         {t("admin.common.loadingData")}
                       </td>
                     </tr>

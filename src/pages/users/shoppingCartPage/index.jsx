@@ -13,6 +13,7 @@ import { resolveProductImage } from "utils/productImages";
 import { getSessionItem } from "utils/session";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+import { translateProductName } from "utils/i18nLabels";
 const ShoppingCartPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -44,8 +45,11 @@ const ShoppingCartPage = () => {
                 {cart?.products.map(({ product, quantity }, key) => (
                   <tr key={key}>
                     <td className="shopping__cart__item">
-                      <img src={resolveProductImage(product.img)} alt="product-pic" />
-                      <h4>{product.name}</h4>
+                      <img
+                        src={resolveProductImage(product.img)}
+                        alt={translateProductName(product, t)}
+                      />
+                      <h4>{translateProductName(product, t)}</h4>
                     </td>
                     <td>{formatter(product.price)}</td>
                     <td>
@@ -104,7 +108,9 @@ const ShoppingCartPage = () => {
         isOpen={Boolean(pendingRemoveId)}
         title={t("cart.confirmRemoveTitle")}
         message={t("cart.confirmRemoveMessage", {
-          name: pendingProduct?.name || t("common.productFallback"),
+          name: pendingProduct
+            ? translateProductName(pendingProduct, t)
+            : t("common.productFallback"),
         })}
         onConfirm={() => {
           setCart(removeCart(pendingRemoveId));

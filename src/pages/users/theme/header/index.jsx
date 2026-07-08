@@ -6,7 +6,7 @@ import { formatter } from "utils/fomater";
 import { setCart } from "../../../../redux/commonSlide";
 import { SESSION_KEYS } from "utils/constant";
 import { useGetCategoriesUS } from "api/homePage";
-import { LanguageSwitcher } from "component";
+import { LanguageSwitcher, SearchBar } from "component";
 import { useDispatch, useSelector } from "react-redux";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,12 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getSessionItem } from "utils/session";
 import bannerImg from "assets/users/images/hero/Banner.png";
 import { translateCategoryName } from "utils/i18nLabels";
+import { clearUserSession, getUserName } from "utils/userAuth";
+import { logoutUserAPI } from "api/auth";
+import {
+  clearCustomerUser,
+  selectCustomerUser,
+} from "../../../../redux/authSlice";
 import {
   AiOutlineFacebook,
   AiOutlineInstagram,
@@ -27,6 +33,30 @@ import {
   AiOutlineUpCircle,
 } from "react-icons/ai";
 
+const CONTACT_EMAIL = "FartaMarket@gmail.com";
+const SOCIAL_LINKS = [
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com",
+    Icon: AiOutlineFacebook,
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com",
+    Icon: AiOutlineInstagram,
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com",
+    Icon: AiOutlineLinkedin,
+  },
+  {
+    label: "Twitter",
+    href: "https://www.twitter.com",
+    Icon: AiFillTwitterSquare,
+  },
+];
+
 const Header = () => {
   const { t } = useTranslation();
   const contactPhone = "0393886668";
@@ -35,19 +65,18 @@ const Header = () => {
   const location = useLocation();
   const [isShowHumberger, setShowHumberger] = useState(false);
   const [activeMobileMenu, setActiveMobileMenu] = useState(null);
-  const [searchKeyword, setSearchKeyword] = useState("");
   const [isHome, setIsHome] = useState(location.pathname.length <= 1);
   const [isShowCategories, setShowCategories] = useState(isHome);
   const { cart: cartRedux } = useSelector((state) => state.commonSlide);
-  const isLoggedIn =
-    typeof window !== "undefined" &&
-    Boolean(window.localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN));
+  const currentUser = useSelector(selectCustomerUser);
+  const isLoggedIn = Boolean(currentUser);
+  const userName = getUserName(currentUser);
+  const accountName = userName || t("navbar.account");
 
   useEffect(() => {
     const isHome = location.pathname.length <= 1;
     setIsHome(isHome);
     setShowCategories(isHome);
-    setSearchKeyword(new URLSearchParams(location.search).get("q") || "");
   }, [location]);
 
   useEffect(() => {
@@ -88,32 +117,25 @@ const Header = () => {
         name: t("navbar.inStock"),
         path: `${ROUTERS.USER.PRODUCTS}?in_stock=1`,
       },
-      ...(isLoggedIn
-        ? [
-            {
-              key: "my-orders",
-              name: t("navbar.myOrders"),
-              path: ROUTERS.USER.MY_ORDERS,
-            },
-          ]
-        : []),
       {
         key: "contact",
         name: t("navbar.contact"),
         href: `tel:${contactPhone}`,
       },
     ];
-  }, [categories, contactPhone, isLoggedIn, t]);
+  }, [categories, contactPhone, t]);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    const keyword = searchKeyword.trim();
-
-    navigate(
-      keyword
-        ? `${ROUTERS.USER.PRODUCTS}?q=${encodeURIComponent(keyword)}`
-        : ROUTERS.USER.PRODUCTS
-    );
+  const handleUserLogout = async () => {
+    try {
+      await logoutUserAPI();
+    } catch (error) {
+      // The local UI still exits the account state if the server session is gone.
+    } finally {
+      clearUserSession();
+      dispatch(clearCustomerUser());
+      setShowHumberger(false);
+      navigate(ROUTERS.USER.HOME);
+    }
   };
 
   const isMenuActive = (menu) => {
@@ -198,9 +220,28 @@ const Header = () => {
         </div>
         <div className="hunberger__menu__widget">
           <div className="header__top__right__auth">
-            <Link to={ROUTERS.ADMIN.LOGIN} onClick={() => setShowHumberger(false)}>
-              <BiUser /> {t("navbar.login")}
-            </Link>
+            {isLoggedIn ? (
+              <div className="header-account-chip header-account-chip--mobile">
+                <span className="header-account-chip__icon">
+                  <BiUser />
+                </span>
+                <Link
+                  className="header-account-chip__name"
+                  to={ROUTERS.USER.MY_ORDERS}
+                  onClick={() => setShowHumberger(false)}
+                  title={t("navbar.myOrders")}
+                >
+                  {accountName}
+                </Link>
+                <button type="button" onClick={handleUserLogout}>
+                  {t("navbar.logout")}
+                </button>
+              </div>
+            ) : (
+              <Link to={ROUTERS.USER.LOGIN} onClick={() => setShowHumberger(false)}>
+                <BiUser /> {t("navbar.login")}
+              </Link>
+            )}
           </div>
         </div>
         <div className="hunberger__menu__nav">
@@ -253,24 +294,17 @@ const Header = () => {
           </ul>
         </div>
         <div className="header__top__right__social">
-          <Link to={"https://www.facebook.com"}>
-            <AiOutlineFacebook />
-          </Link>
-
-          <Link to={"https://www.instagram.com"}>
-            <AiOutlineInstagram />
-          </Link>
-          <Link to={"https://www.linkedin.com"}>
-            <AiOutlineLinkedin />
-          </Link>
-          <Link to={"https://www.twitter.com"}>
-            <AiFillTwitterSquare />
-          </Link>
+          {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+            <a href={href} key={label} target="_blank" rel="noreferrer" aria-label={label}>
+              <Icon />
+            </a>
+          ))}
         </div>
         <div className="hunberger__menu__contact">
           <ul>
             <li>
-              <MdEmail /> khanhlinh@gmail.com
+              <MdEmail />
+              <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
             </li>
             <li>{t("navbar.freeShipping", { amount: formatter(200000) })}</li>
           </ul>
@@ -284,38 +318,45 @@ const Header = () => {
               <ul>
                 <li>
                   <AiOutlineMail />
-                  KhanhLinh@gmail.com
+                  <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
                 </li>
                 <li>{t("navbar.freeShipping", { amount: formatter(200000) })}</li>
               </ul>
             </div>
             <div className="col-6 header__top_right">
               <ul>
-                <li>
-                  <Link to={"https://www.facebook.com"}>
-                    <AiOutlineFacebook />
-                  </Link>
-                </li>
-                <li>
-                  <Link to={"https://www.instagram.com"}>
-                    <AiOutlineInstagram />
-                  </Link>
-                </li>
-                <li>
-                  <Link to={"https://www.linkedin.com"}>
-                    <AiOutlineLinkedin />
-                  </Link>
-                </li>
-                <li>
-                  <Link to={"https://www.twitter.com"}>
-                    <AiFillTwitterSquare />
-                  </Link>
-                </li>
-                <li>
-                  <BiUser />
-                  <span onClick={() => navigate(ROUTERS.ADMIN.LOGIN)}>
-                    {t("navbar.login")}
-                  </span>
+                {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+                  <li key={label}>
+                    <a href={href} target="_blank" rel="noreferrer" aria-label={label}>
+                      <Icon />
+                    </a>
+                  </li>
+                ))}
+                <li className="header__top__auth">
+                  {isLoggedIn ? (
+                    <div className="header-account-chip">
+                      <span className="header-account-chip__icon">
+                        <BiUser />
+                      </span>
+                      <Link
+                        className="header-account-chip__name"
+                        to={ROUTERS.USER.MY_ORDERS}
+                        title={t("navbar.myOrders")}
+                      >
+                        {accountName}
+                      </Link>
+                      <button type="button" onClick={handleUserLogout}>
+                        {t("navbar.logout")}
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <BiUser />
+                      <span onClick={() => navigate(ROUTERS.USER.LOGIN)}>
+                      {t("navbar.login")}
+                      </span>
+                    </>
+                  )}
                 </li>
               </ul>
             </div>
@@ -397,15 +438,7 @@ const Header = () => {
           <div className="col-lg-9 col-md-12 col-sm-12 col-xs-12  hero__search_container">
             <div className="hero__search">
               <div className="hero__search__form">
-                <form onSubmit={handleSearchSubmit}>
-                  <input
-                    type="text"
-                    value={searchKeyword}
-                    onChange={(e) => setSearchKeyword(e.target.value)}
-                    placeholder={t("navbar.searchPlaceholder")}
-                  />
-                  <button type="submit">{t("navbar.searchButton")}</button>
-                </form>
+                <SearchBar />
               </div>
               <div className="hero__search__phone">
                 <div className="hero__search__phone__icon">

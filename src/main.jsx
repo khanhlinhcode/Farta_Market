@@ -4,6 +4,7 @@ import "./style/style.scss";
 import store from "./redux/store";
 import RouterCustom from "./router";
 import ChatWidget from "./component/ChatWidget";
+import { AuthBootstrap } from "./component";
 import { Toaster } from "react-hot-toast";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom/client";
@@ -17,6 +18,7 @@ root.render(
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <AuthBootstrap />
         <RouterCustom />
         <ChatWidget />
         <Toaster

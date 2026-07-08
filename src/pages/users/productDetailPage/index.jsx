@@ -10,21 +10,40 @@ import {
 } from "react-icons/ai";
 import { formatter } from "utils/fomater";
 import { ProductCard, Quantity, SafeHtml } from "component";
-import { useProductDetailUS } from "api/productDetailPage";
-import { useGetProductsUS } from "api/homePage";
-import { useParams } from "react-router-dom";
+import {
+  useFrequentlyBoughtWithUS,
+  useProductDetailUS,
+  useRelatedProductsUS,
+} from "api/productDetailPage";
+import { Link, useParams } from "react-router-dom";
 import { resolveProductImage } from "utils/productImages";
 import { useTranslation } from "react-i18next";
-import { translateCategoryName } from "utils/i18nLabels";
+import {
+  getDateLocale,
+  translateCategoryName,
+  translateProductDescription,
+  translateProductName,
+  translateProductShortDescription,
+} from "utils/i18nLabels";
 import {
   getProductReviewEligibilityAPI,
   getProductReviewsAPI,
   postProductReviewAPI,
 } from "api/productDetailPage";
-import { SESSION_KEYS } from "utils/constant";
+import { ROUTERS } from "utils/router";
 import toast from "react-hot-toast";
+import useShoppingCart from "hooks/useShoppingCart";
+import { useSelector } from "react-redux";
+import { selectCustomerUser } from "../../../redux/authSlice";
 
-const renderStars = (rating, interactive = false, onSelect = null) =>
+const EMPTY_PRODUCTS = [];
+
+const renderStars = (
+  rating,
+  interactive = false,
+  onSelect = null,
+  starLabel = (value) => String(value)
+) =>
   [1, 2, 3, 4, 5].map((value) => {
     const active = value <= Number(rating || 0);
 
@@ -42,7 +61,7 @@ const renderStars = (rating, interactive = false, onSelect = null) =>
         key={value}
         className={active ? "is-active" : ""}
         onClick={() => onSelect?.(value)}
-        aria-label={`${value} sao`}
+        aria-label={starLabel(value)}
       >
         ★
       </button>
@@ -50,10 +69,14 @@ const renderStars = (rating, interactive = false, onSelect = null) =>
   });
 
 const ProductDetailPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { data: product, isLoading, isError } = useProductDetailUS(id);
-  const { data: products = [] } = useGetProductsUS();
+  const { data: relatedProducts = EMPTY_PRODUCTS } = useRelatedProductsUS(id);
+  const { data: frequentlyBoughtProducts = EMPTY_PRODUCTS } =
+    useFrequentlyBoughtWithUS(id);
+  const { addToCart } = useShoppingCart();
+  const currentUser = useSelector(selectCustomerUser);
   const [reviews, setReviews] = useState([]);
   const [reviewMeta, setReviewMeta] = useState({
     current_page: 1,
@@ -74,23 +97,79 @@ const ProductDetailPage = () => {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewError, setReviewError] = useState("");
+  const [selectedImage, setSelectedImage] = useState("");
+  const [bundleProductIds, setBundleProductIds] = useState([]);
 
-  const relatedProducts = useMemo(() => {
+  const isLoggedIn = Boolean(currentUser);
+  const productName = product ? translateProductName(product, t) : "";
+  const productShortDescription = product
+    ? translateProductShortDescription(product, t)
+    : "";
+  const productDescription = product ? translateProductDescription(product, t) : "";
+  const dateLocale = getDateLocale(i18n.language);
+  const galleryImages = useMemo(() => {
     if (!product) {
       return [];
     }
 
-    return products
-      .filter(
-        (item) =>
-          item.id !== product.id && item.category_id === product.category_id
-      )
-      .slice(0, 4);
-  }, [product, products]);
+    const images = (product.images || [])
+      .map((image) => image.url || image.path)
+      .filter(Boolean);
 
-  const isLoggedIn =
-    typeof window !== "undefined" &&
-    Boolean(window.localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN));
+    return images.length ? images : [product.img].filter(Boolean);
+  }, [product]);
+
+  useEffect(() => {
+    if (galleryImages.length) {
+      setSelectedImage((current) =>
+        current && galleryImages.includes(current) ? current : galleryImages[0]
+      );
+    }
+  }, [galleryImages]);
+
+  useEffect(() => {
+    if (!product || typeof document === "undefined") {
+      return undefined;
+    }
+
+    const previousTitle = document.title;
+    const descriptionMeta = document.querySelector('meta[name="description"]');
+    const previousDescription = descriptionMeta?.getAttribute("content");
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    const hadCanonical = Boolean(canonicalLink);
+    const previousCanonical = canonicalLink?.getAttribute("href");
+
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute("rel", "canonical");
+      document.head.appendChild(canonicalLink);
+    }
+
+    document.title = `${productName} | ${t("brand.name")}`;
+    descriptionMeta?.setAttribute(
+      "content",
+      productShortDescription || t("productDetail.metaDescription", { name: productName })
+    );
+    canonicalLink.setAttribute("href", window.location.href.split("?")[0]);
+
+    return () => {
+      document.title = previousTitle;
+
+      if (descriptionMeta && previousDescription !== null) {
+        descriptionMeta.setAttribute("content", previousDescription);
+      }
+
+      if (!canonicalLink) {
+        return;
+      }
+
+      if (hadCanonical && previousCanonical !== null) {
+        canonicalLink.setAttribute("href", previousCanonical);
+      } else {
+        canonicalLink.remove();
+      }
+    };
+  }, [product, productName, productShortDescription, t]);
 
   const loadReviews = async (page = 1, append = false) => {
     if (!id) {
@@ -147,6 +226,18 @@ const ProductDetailPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isLoggedIn]);
 
+  useEffect(() => {
+    const nextIds = frequentlyBoughtProducts.map((item) => item.id);
+
+    setBundleProductIds((currentIds) => {
+      const isSame =
+        currentIds.length === nextIds.length &&
+        currentIds.every((currentId, index) => currentId === nextIds[index]);
+
+      return isSame ? currentIds : nextIds;
+    });
+  }, [frequentlyBoughtProducts]);
+
   const effectiveSummary = {
     avg_rating:
       Number(reviewSummary.avg_rating) || Number(product?.avg_rating || 0),
@@ -195,6 +286,27 @@ const ProductDetailPage = () => {
     }
   };
 
+  const handleToggleBundleProduct = (productId) => {
+    setBundleProductIds((current) =>
+      current.includes(productId)
+        ? current.filter((id) => id !== productId)
+        : [...current, productId]
+    );
+  };
+
+  const handleAddBundleToCart = () => {
+    const selectedProducts = frequentlyBoughtProducts.filter((item) =>
+      bundleProductIds.includes(item.id)
+    );
+
+    if (!selectedProducts.length) {
+      return;
+    }
+
+    selectedProducts.forEach((item) => addToCart(item, 1));
+    toast.success(t("cart.added"));
+  };
+
   return (
     <>
       <Breadcrumb name={t("productDetail.breadcrumb")} />
@@ -208,13 +320,29 @@ const ProductDetailPage = () => {
         <div className="container">
           <div className="product-detail-layout">
             <div className="product__detail__pic">
-              <img src={resolveProductImage(product.img)} alt={product.name} />
+              <div className="product__detail__pic-main">
+                <img
+                  src={resolveProductImage(selectedImage || product.img)}
+                  alt={productName}
+                />
+              </div>
               <div className="main">
-                <img src={resolveProductImage(product.img)} alt={product.name} />
+                {galleryImages.map((image, index) => (
+                  <button
+                    type="button"
+                    key={`${image}-${index}`}
+                    className={
+                      image === (selectedImage || product.img) ? "is-active" : ""
+                    }
+                    onClick={() => setSelectedImage(image)}
+                  >
+                    <img src={resolveProductImage(image)} alt={productName} />
+                  </button>
+                ))}
               </div>
             </div>
             <div className="product__detail__text">
-              <h2>{product.name}</h2>
+              <h2>{productName}</h2>
               <div className="seen-icon">
                 <AiOutlineEye />
                 {t("productDetail.viewCount", { count: 10 })}
@@ -231,7 +359,7 @@ const ProductDetailPage = () => {
                 </span>
               </div>
               <h3>{formatter(product.price)}</h3>
-              <p>{product.sort_description}</p>
+              <p>{productShortDescription}</p>
               <Quantity product={product} maxQuantity={product.inventory} />
               <ul>
                 <li>
@@ -267,7 +395,7 @@ const ProductDetailPage = () => {
           </div>
           <div className="product__detail__tab">
             <h4>{t("productDetail.detailInfo")}</h4>
-            <SafeHtml html={product.description} />
+            <SafeHtml html={productDescription} />
           </div>
           <section className="product__reviews">
             <div className="product__reviews__header">
@@ -309,7 +437,7 @@ const ProductDetailPage = () => {
                   <p>{review.comment}</p>
                   <small>
                     {review.created_at
-                      ? new Date(review.created_at).toLocaleDateString("vi-VN")
+                      ? new Date(review.created_at).toLocaleDateString(dateLocale)
                       : ""}
                   </small>
                 </article>
@@ -332,7 +460,9 @@ const ProductDetailPage = () => {
                 <form className="product__reviews__form" onSubmit={handleReviewSubmit}>
                   <h5>{t("reviews.writeReview")}</h5>
                   <div className="product__reviews__rating-input">
-                    {renderStars(reviewRating, true, setReviewRating)}
+                    {renderStars(reviewRating, true, setReviewRating, (value) =>
+                      t("reviews.starRatingLabel", { value })
+                    )}
                   </div>
                   <textarea
                     rows={4}
@@ -346,20 +476,56 @@ const ProductDetailPage = () => {
                 </form>
               ) : (
                 <div className="product__reviews__hint">
-                  {!isLoggedIn
-                    ? t("reviews.loginToReview")
-                    : reviewEligibility.has_reviewed
+                  {!isLoggedIn ? (
+                    <Link
+                      to={`${ROUTERS.USER.LOGIN}?redirect=${encodeURIComponent(
+                        window.location.pathname
+                      )}`}
+                    >
+                      {t("reviews.loginToReview")}
+                    </Link>
+                  ) : reviewEligibility.has_reviewed
                     ? t("reviews.alreadyReviewed")
                     : t("reviews.purchaseRequired")}
                 </div>
               )}
             </div>
           </section>
+          {frequentlyBoughtProducts.length > 0 && (
+            <section className="product__frequently">
+              <div className="product__section-head">
+                <h2>{t("productDetail.frequentlyBoughtTogether")}</h2>
+                <button
+                  type="button"
+                  disabled={bundleProductIds.length === 0}
+                  onClick={handleAddBundleToCart}
+                >
+                  {t("productDetail.addSelectedBundle", {
+                    count: bundleProductIds.length,
+                  })}
+                </button>
+              </div>
+              <div className="product__frequently-list">
+                {frequentlyBoughtProducts.map((item) => (
+                  <label className="product__frequently-item" key={item.id}>
+                    <input
+                      type="checkbox"
+                      checked={bundleProductIds.includes(item.id)}
+                      onChange={() => handleToggleBundleProduct(item.id)}
+                    />
+                    <img src={resolveProductImage(item.img)} alt={translateProductName(item, t)} />
+                    <span>{translateProductName(item, t)}</span>
+                    <b>{formatter(item.price)}</b>
+                  </label>
+                ))}
+              </div>
+            </section>
+          )}
           <div className="section-title">
             <h2>{t("productDetail.relatedProducts")}</h2>
           </div>
           <div className="row">
-            {relatedProducts.map((item) => (
+            {relatedProducts.slice(0, 4).map((item) => (
               <div key={item.id} className="col-lg-3 col-md-4 col-sm-6 col-xs-12">
                 <ProductCard product={item} />
               </div>

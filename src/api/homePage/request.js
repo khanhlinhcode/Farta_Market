@@ -18,3 +18,18 @@ export const getProductsAPI = async (params = {}) => {
     params,
   });
 };
+
+export const getProductSuggestionsAPI = async (q) => {
+  return await axios.request({
+    url: `${END_POINT.PRODUCTS}/suggest`,
+    method: "GET",
+    params: { q },
+  });
+};
+
+export const getRecommendedProductsAPI = async () => {
+  return await axios.request({
+    url: `${END_POINT.PRODUCTS}/recommended`,
+    method: "GET",
+  });
+};

@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCategoriesAPI, getProductsAPI } from "./request";
+import {
+  getCategoriesAPI,
+  getProductsAPI,
+  getRecommendedProductsAPI,
+} from "./request";
 import { optionUseQuery } from "utils/common";
 export const useGetCategoriesUS = (option) => {
   return useQuery({
@@ -19,5 +23,15 @@ export const useGetProductsUS = (params = {}, option = {}) => {
     select: raw ? undefined : (response) => response?.data || [],
     ...optionUseQuery,
     ...queryOptions,
+  });
+};
+
+export const useRecommendedProductsUS = (option = {}) => {
+  return useQuery({
+    queryKey: ["GetRecommendedProductsAPI"],
+    queryFn: () => getRecommendedProductsAPI(),
+    select: (response) => response?.data || [],
+    ...optionUseQuery,
+    ...option,
   });
 };

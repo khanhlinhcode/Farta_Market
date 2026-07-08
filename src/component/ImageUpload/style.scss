@@ -23,3 +23,33 @@
 .image-upload__error {
   color: #d64545 !important;
 }
+
+.image-upload__gallery {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+
+  > div {
+    align-items: center;
+    border: 1px solid #edf2f7;
+    border-radius: 6px;
+    display: grid;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  img {
+    height: 82px;
+    width: 100%;
+  }
+
+  button {
+    background: #fff;
+    border: 1px solid #fecdca;
+    border-radius: 4px;
+    color: #b42318;
+    cursor: pointer;
+    font-size: 12px;
+    min-height: 30px;
+  }
+}

@@ -14,6 +14,7 @@ import useShoppingCart from "hooks/useShoppingCart";
 import useWishlist from "hooks/useWishlist";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+import { translateProductName } from "utils/i18nLabels";
 
 const ProductCard = ({ product }) => {
   const { t } = useTranslation();
@@ -23,6 +24,7 @@ const ProductCard = ({ product }) => {
   const reviewCount = Number(product.review_count || product.reviews_count || 0);
   const avgRating = Number(product.avg_rating || 0);
   const wishlisted = isWishlisted(product.id);
+  const productName = translateProductName(product, t);
 
   const handleAddToCart = () => {
     if (isOutOfStock) {
@@ -102,7 +104,7 @@ const ProductCard = ({ product }) => {
               to={generatePath(ROUTERS.USER.PRODUCT, { id: product.id })}
               data-testid="product-card"
             >
-              {product.name}
+              {productName}
             </Link>
           </h6>
           <div className="featured__item__rating">

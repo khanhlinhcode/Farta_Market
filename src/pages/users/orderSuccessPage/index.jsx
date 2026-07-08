@@ -10,6 +10,10 @@ import useShoppingCart from "hooks/useShoppingCart";
 import "./style.scss";
 
 const getOrderTotal = (order) => {
+  if (order?.grand_total !== undefined && order?.grand_total !== null) {
+    return Number(order.grand_total);
+  }
+
   if (order?.total !== undefined && order?.total !== null) {
     return Number(order.total);
   }

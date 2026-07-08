@@ -5,36 +5,49 @@ import Breadcrumb from "../theme/breadcrumb";
 import { cancelMyOrderAPI, getMyOrdersAPI } from "api/orderPage";
 import { ConfirmModal } from "component";
 import { formatter } from "utils/fomater";
+import { getDateLocale, translateProductName } from "utils/i18nLabels";
 import "./style.scss";
 
 const STATUS_META = {
-  ORDERED: {
+  pending: {
     labelKey: "myOrders.status.pending",
     className: "pending",
   },
-  PENDING_PAYMENT: {
-    labelKey: "myOrders.status.pendingPayment",
-    className: "pending",
+  confirmed: {
+    labelKey: "myOrders.status.confirmed",
+    className: "processing",
   },
-  PREPARING: {
+  processing: {
     labelKey: "myOrders.status.processing",
     className: "processing",
   },
-  DELIVERING: {
+  shipped: {
+    labelKey: "myOrders.status.shipped",
+    className: "delivered",
+  },
+  delivered: {
     labelKey: "myOrders.status.delivered",
     className: "delivered",
   },
-  CANCELLED: {
+  cancelled: {
     labelKey: "myOrders.status.cancelled",
-    className: "cancelled",
-  },
-  PAYMENT_FAILED: {
-    labelKey: "myOrders.status.paymentFailed",
     className: "cancelled",
   },
 };
 
+const TIMELINE_STEPS = [
+  { value: "pending", labelKey: "myOrders.timeline.ordered" },
+  { value: "confirmed", labelKey: "myOrders.timeline.confirmed" },
+  { value: "processing", labelKey: "myOrders.timeline.processing" },
+  { value: "shipped", labelKey: "myOrders.timeline.shipped" },
+  { value: "delivered", labelKey: "myOrders.timeline.delivered" },
+];
+
 const getOrderTotal = (order) => {
+  if (order.grand_total !== undefined && order.grand_total !== null) {
+    return Number(order.grand_total);
+  }
+
   if (order.total !== undefined && order.total !== null) {
     return Number(order.total);
   }
@@ -46,7 +59,8 @@ const getOrderTotal = (order) => {
 };
 
 const MyOrdersPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const dateLocale = getDateLocale(i18n.language);
   const [orders, setOrders] = useState([]);
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
   const [expandedId, setExpandedId] = useState(null);
@@ -127,8 +141,12 @@ const MyOrdersPage = () => {
 
           <div className="my-orders__list">
             {orders.map((order) => {
-              const status = STATUS_META[order.status] || STATUS_META.ORDERED;
+              const status = STATUS_META[order.status] || STATUS_META.pending;
               const isExpanded = expandedId === order.id;
+              const currentStepIndex = TIMELINE_STEPS.findIndex(
+                (step) => step.value === order.status
+              );
+              const isCancelled = order.status === "cancelled";
 
               return (
                 <article className="my-orders__card" key={order.id}>
@@ -141,7 +159,7 @@ const MyOrdersPage = () => {
                       <b>#{order.id}</b>
                       <small>
                         {order.created_at
-                          ? new Date(order.created_at).toLocaleDateString("vi-VN")
+                          ? new Date(order.created_at).toLocaleDateString(dateLocale)
                           : t("common.noData")}
                       </small>
                     </span>
@@ -153,20 +171,66 @@ const MyOrdersPage = () => {
 
                   {isExpanded && (
                     <div className="my-orders__details">
+                      <div
+                        className={`my-orders__timeline ${
+                          isCancelled ? "is-cancelled" : ""
+                        }`}
+                      >
+                        {isCancelled ? (
+                          <div className="my-orders__timeline-cancelled">
+                            {t("myOrders.timeline.cancelled")}
+                          </div>
+                        ) : (
+                          TIMELINE_STEPS.map((step, index) => (
+                            <div
+                              className={`my-orders__timeline-step ${
+                                index <= currentStepIndex ? "is-active" : ""
+                              }`}
+                              key={step.value}
+                            >
+                              <i />
+                              <span>{t(step.labelKey)}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
                       <div className="my-orders__address">
                         <b>{t("order.deliveryAddress")}:</b>{" "}
                         {order.address || t("common.noData")}
                       </div>
                       {(order.details || []).map((detail) => (
                         <div className="my-orders__line" key={detail.id}>
-                          <span>{detail.product_name || detail.product?.name}</span>
+                          <span>
+                            {translateProductName(
+                              detail.product || detail.product_name,
+                              t
+                            )}
+                          </span>
                           <span>
                             {formatter(detail.unit_price)} x {detail.quantity}
                           </span>
                           <b>{formatter(detail.line_total)}</b>
                         </div>
                       ))}
-                      {order.status === "ORDERED" && (
+                      <div className="my-orders__totals">
+                        <span>
+                          {t("checkout.subtotal")}:{" "}
+                          <b>{formatter(order.subtotal ?? order.total ?? 0)}</b>
+                        </span>
+                        <span>
+                          {t("checkout.shippingFee")}:{" "}
+                          <b>
+                            {Number(order.shipping_fee || 0) === 0
+                              ? t("checkout.freeShipping")
+                              : formatter(order.shipping_fee)}
+                          </b>
+                        </span>
+                        <span>
+                          {t("checkout.grandTotal")}:{" "}
+                          <b>{formatter(getOrderTotal(order))}</b>
+                        </span>
+                      </div>
+                      {order.status === "pending" && (
                         <button
                           type="button"
                           className="my-orders__cancel"

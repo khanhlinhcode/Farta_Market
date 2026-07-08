@@ -2,33 +2,36 @@ import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { generatePath, Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   AiFillHeart,
   AiOutlineEye,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
 import Breadcrumb from "../theme/breadcrumb";
-import { getWishlistAPI } from "api/wishlist";
+import { getWishlistAPI, removeWishlistAPI } from "api/wishlist";
 import useShoppingCart from "hooks/useShoppingCart";
-import useWishlist from "hooks/useWishlist";
+import { addToWishlist, removeFromWishlist, setWishlist } from "../../../redux/wishlistSlice";
 import { formatter } from "utils/fomater";
 import { resolveProductImage } from "utils/productImages";
-import { SESSION_KEYS } from "utils/constant";
 import { ROUTERS } from "utils/router";
+import { translateProductName } from "utils/i18nLabels";
+import { selectCustomerUser } from "../../../redux/authSlice";
 import "./style.scss";
 
 const WishlistPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const { addToCart } = useShoppingCart();
-  const { toggleWishlist } = useWishlist();
+  const currentUser = useSelector(selectCustomerUser);
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const isLoggedIn =
-    typeof window !== "undefined" &&
-    Boolean(window.localStorage.getItem(SESSION_KEYS.ADMIN_TOKEN));
+  const isLoggedIn = Boolean(currentUser);
 
   const loadWishlist = async () => {
     if (!isLoggedIn) {
@@ -42,6 +45,11 @@ const WishlistPage = () => {
     try {
       const response = await getWishlistAPI();
       setProducts(response.data || []);
+      dispatch(
+        setWishlist(
+          response.ids || (response.data || []).map((product) => product.id)
+        )
+      );
     } catch (err) {
       setError(err?.response?.data?.message || t("wishlist.loadError"));
       toast.error(t("common.error"));
@@ -53,16 +61,24 @@ const WishlistPage = () => {
   useEffect(() => {
     loadWishlist();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLoggedIn]);
 
   const handleRemove = async (product) => {
-    setProducts((currentProducts) =>
-      currentProducts.filter((item) => item.id !== product.id)
-    );
+    const productId = Number(product.id);
 
-    const success = await toggleWishlist(product);
-    if (!success) {
+    setProducts((currentProducts) =>
+      currentProducts.filter((item) => item.id !== productId)
+    );
+    dispatch(removeFromWishlist(productId));
+
+    try {
+      await removeWishlistAPI(productId);
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+      toast.success(t("wishlist.removed"));
+    } catch (err) {
       setProducts((currentProducts) => [product, ...currentProducts]);
+      dispatch(addToWishlist(productId));
+      toast.error(err?.response?.data?.message || t("common.error"));
     }
   };
 
@@ -113,6 +129,7 @@ const WishlistPage = () => {
               );
               const avgRating = Number(product.avg_rating || 0);
               const isOutOfStock = Number(product.inventory || 0) <= 0;
+              const productName = translateProductName(product, t);
 
               return (
                 <article className="wishlist-card" key={product.id}>
@@ -122,7 +139,7 @@ const WishlistPage = () => {
                   >
                     <img
                       src={resolveProductImage(product.img)}
-                      alt={product.name}
+                      alt={productName}
                     />
                   </Link>
                   <div className="wishlist-card__body">
@@ -133,7 +150,7 @@ const WishlistPage = () => {
                             id: product.id,
                           })}
                         >
-                          {product.name}
+                          {productName}
                         </Link>
                       </h2>
                       <p>

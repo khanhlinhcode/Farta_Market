@@ -14,9 +14,11 @@ export const ROUTERS = {
   },
   ADMIN: {
     LOGIN: `${ADMIN_PATH}/dang-nhap`,
+    DASHBOARD: `${ADMIN_PATH}/dashboard`,
     ORDERS: `${ADMIN_PATH}/dat-hang`,
     PRODUCTS: `${ADMIN_PATH}/san-pham`,
     CATEGORIES: `${ADMIN_PATH}/danh-muc`,
+    COUPONS: `${ADMIN_PATH}/ma-giam-gia`,
     USERS: `${ADMIN_PATH}/nguoi-dung`,
     LOGOUT: `${ADMIN_PATH}/dang-xuat`,
   },

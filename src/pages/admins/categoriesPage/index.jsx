@@ -7,7 +7,9 @@ import {
 } from "api/admin";
 import { ConfirmModal } from "component";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import { isAdmin } from "utils/adminAuth";
+import { selectAdminUser } from "../../../redux/authSlice";
 import { translateCategoryName } from "utils/i18nLabels";
 import "../admin.scss";
 
@@ -20,7 +22,8 @@ const AdminCategoriesPage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [pendingDeleteCategory, setPendingDeleteCategory] = useState(null);
-  const canDelete = isAdmin();
+  const adminUser = useSelector(selectAdminUser);
+  const canDelete = isAdmin(adminUser);
 
   const loadCategories = async () => {
     setIsLoading(true);
