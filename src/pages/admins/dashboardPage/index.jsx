@@ -6,6 +6,7 @@ import {
   getAdminRevenueChartAPI,
 } from "api/admin";
 import { formatter } from "utils/fomater";
+import { AdminState } from "component";
 import { useTranslation } from "react-i18next";
 import "../admin.scss";
 
@@ -113,13 +114,9 @@ const AdminDashboardPage = () => {
           </div>
         </div>
 
-        {error && (
-          <div className="admin-page__message admin-page__message--error">
-            {error}
-          </div>
-        )}
+        {error && <AdminState type="error" message={error} actionLabel={t("common.retry")} onAction={() => loadDashboard()} />}
         {isLoading && (
-          <div className="admin-page__message">{t("admin.common.loadingData")}</div>
+          <AdminState type="loading" message={t("admin.common.loadingData")} />
         )}
 
         <section className="admin-page__stats">

@@ -2,19 +2,41 @@
 @use "style/pages/all" as *;
 .featured__item {
   margin-bottom: 50px;
+  border-radius: 8px;
+  transition: transform 0.18s ease, filter 0.18s ease;
 
   &:hover {
+    filter: drop-shadow(0 18px 34px rgba(0, 136, 116, 0.1));
+    transform: translateY(-3px);
+
     .featured__item__pic__hover {
       top: 80% !important;
+    }
+
+    .featured__item__pic::after {
+      opacity: 1;
     }
   }
 
   .featured__item__pic {
+    background-color: #f7faf9;
     height: 270px;
     position: relative;
     overflow: hidden;
     background-position: center;
     background-size: cover;
+    border: 1px solid rgba(230, 236, 234, 0.82);
+    border-radius: 8px;
+
+    &::after {
+      background: var(--gradient-product-overlay);
+      content: "";
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      transition: opacity 0.2s ease;
+    }
 
     .featured__item__pic__hover {
       position: absolute;
@@ -28,6 +50,7 @@
       gap: 10px;
       margin: 0;
       padding: 0;
+      z-index: 2;
 
       li {
         list-style: none;
@@ -36,15 +59,17 @@
 
         .featured__item__action {
           align-items: center;
-          background: #ffffff;
-          border: 1px solid #ebebeb;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(230, 236, 234, 0.92);
           border-radius: 50%;
           color: #565555;
           display: inline-flex;
           height: 42px;
           justify-content: center;
           padding: 0;
-          transition: all, 0.3s;
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+          transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
           cursor: pointer !important;
           width: 42px;
 
@@ -57,10 +82,10 @@
           }
 
           &:hover:not(:disabled) {
-            background: #7fad39;
-            border-color: #7fad39;
+            background: var(--gradient-primary);
+            border-color: transparent;
             color: #ffffff;
-            transform: rotate(360deg);
+            transform: translateY(-2px) scale(1.04);
           }
 
           &.featured__item__wishlist-button.is-active {
@@ -88,7 +113,9 @@
     }
 
     .featured__item__stock {
-      background: rgba(0, 136, 116, 0.92);
+      background: var(--gradient-primary);
+      border-radius: 4px;
+      box-shadow: 0 10px 20px rgba(0, 136, 116, 0.16);
       color: #ffffff;
       font-size: 12px;
       font-weight: 700;
@@ -98,7 +125,7 @@
       top: 10px;
 
       &.featured__item__stock--out {
-        background: rgba(214, 69, 69, 0.92);
+        background: var(--gradient-danger);
       }
     }
   }

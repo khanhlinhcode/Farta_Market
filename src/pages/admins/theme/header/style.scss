@@ -2,12 +2,15 @@
 @use "style/pages/all" as *;
 
 .admin__header {
-  background: white;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  background: var(--gradient-glass);
   padding: 0;
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1px solid #edf2f7;
+  border-bottom: 1px solid rgba(230, 236, 234, 0.72);
+  box-shadow: var(--shadow-soft);
 
   &__nav {
     display: flex;
@@ -26,17 +29,18 @@
       font-weight: 500;
       font-size: 15px;
       transition: all 0.2s ease;
-      border-radius: 6px;
+      border-radius: var(--radius-control);
       cursor: pointer;
       white-space: nowrap;
 
       &:hover {
-        background: #3182ce14;
+        background: var(--gradient-primary-soft);
         color: map.get($theme-colors, "main");
       }
       &--active {
-        background: #3182ce14;
-        color: map.get($theme-colors, "main");
+        background: var(--gradient-primary);
+        box-shadow: 0 12px 24px rgba(0, 136, 116, 0.16);
+        color: #ffffff;
       }
     }
     &-icon {

@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { clearAdminSession, isAdmin } from "utils/adminAuth";
 import {
-  clearAdminUser,
+  clearAuth,
   selectAdminUser,
 } from "../../../../redux/authSlice";
 
@@ -32,7 +32,7 @@ const HeaderAD = ({ children, ...props }) => {
       // Local token is still cleared so this browser exits the admin area.
     } finally {
       clearAdminSession();
-      dispatch(clearAdminUser());
+      dispatch(clearAuth());
       navigate(ROUTERS.ADMIN.LOGIN, { replace: true });
     }
   };

@@ -4,7 +4,7 @@ import {
   getAdminOrdersAPI,
   updateAdminOrderStatusAPI,
 } from "api/admin";
-import { ConfirmModal } from "component";
+import { AdminState, ConfirmModal } from "component";
 import { formatter } from "utils/fomater";
 import { useTranslation } from "react-i18next";
 import "../admin.scss";
@@ -424,14 +424,14 @@ const AdminOrdersPage = () => {
                 {!orders.length && !isLoading && (
                   <tr>
                     <td colSpan={7} className="admin-page__empty">
-                      {t("admin.orders.empty")}
+                      <AdminState message={t("admin.orders.empty")} />
                     </td>
                   </tr>
                 )}
                 {isLoading && (
                   <tr>
                     <td colSpan={7} className="admin-page__empty">
-                      {t("admin.common.loadingData")}
+                      <AdminState type="loading" message={t("admin.common.loadingData")} />
                     </td>
                   </tr>
                 )}

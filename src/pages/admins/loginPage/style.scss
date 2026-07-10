@@ -2,19 +2,29 @@
 @use "style/pages/all" as *;
 .login {
   input {
-    width: calc(100% - 10px);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    box-sizing: border-box;
+    height: 46px;
+    outline: none;
+    padding: 0 12px;
+    width: 100%;
+
+    &:focus {
+      border-color: map.get($theme-colors, "main");
+    }
   }
   min-height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f8f9fa;
+  background: var(--gradient-admin-bg);
 
   &__container {
-    background: #fff;
+    background: var(--color-surface);
     padding: 32px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-soft);
     width: min(420px, calc(100% - 32px));
   }
   &__title {
@@ -38,18 +48,51 @@
     font-weight: 500;
     color: map.get($theme-colors, "nomal-text");
   }
+  &__password-field {
+    position: relative;
+
+    input {
+      padding-right: 46px;
+    }
+  }
+  &__password-toggle {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    color: var(--color-muted);
+    cursor: pointer;
+    display: inline-flex;
+    height: 34px;
+    justify-content: center;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+
+    &:hover,
+    &:focus {
+      color: map.get($theme-colors, "main");
+    }
+
+    &:focus-visible {
+      outline: 2px solid map.get($theme-colors, "main");
+      outline-offset: 2px;
+    }
+  }
   &__button {
     height: 46px;
     font-size: 14px;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-surface);
     background: map.get($theme-colors, "main");
     border-radius: 4px;
     cursor: pointer;
     border: none;
   }
   &__error {
-    color: #c0392b;
+    color: var(--color-danger);
     font-size: 13px;
     line-height: 20px;
   }

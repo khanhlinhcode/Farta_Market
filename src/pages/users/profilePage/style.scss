@@ -273,7 +273,7 @@
 
       &:last-child {
         border-color: #fecdca;
-        color: #b42318;
+        color: var(--color-danger-deep);
       }
     }
   }
@@ -375,7 +375,7 @@
     &.is-error {
       background: #fef3f2;
       border-color: #fecdca;
-      color: #b42318;
+      color: var(--color-danger-deep);
     }
   }
 }

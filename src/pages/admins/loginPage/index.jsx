@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 import { loginAdminAPI } from "api/admin";
 import { useTranslation } from "react-i18next";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import {
   clearAdminSession,
@@ -27,6 +28,7 @@ const LoginAdPage = () => {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     clearAdminSession();
@@ -87,14 +89,31 @@ const LoginAdPage = () => {
             <label htmlFor="password" className="login__label">
               {t("admin.login.password")}
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
+            <div className="login__password-field">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                className="login__password-toggle"
+                aria-label={
+                  showPassword ? t("auth.hidePassword") : t("auth.showPassword")
+                }
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((current) => !current)}
+              >
+                {showPassword ? (
+                  <FiEyeOff aria-hidden="true" />
+                ) : (
+                  <FiEye aria-hidden="true" />
+                )}
+              </button>
+            </div>
           </div>
           {error && <p className="login__error">{error}</p>}
           <button type="submit" className="login__button">

@@ -8,7 +8,7 @@ import {
   getAdminUsersAPI,
   updateAdminUserRoleAPI,
 } from "api/admin";
-import { ConfirmModal } from "component";
+import { AdminState, ConfirmModal } from "component";
 import { formatter } from "utils/fomater";
 import { isAdmin } from "utils/adminAuth";
 import { selectAdminUser } from "../../../redux/authSlice";
@@ -290,14 +290,14 @@ const AdminUsersPage = () => {
                 {!users.length && !isLoading && (
                   <tr>
                     <td colSpan={8} className="admin-page__empty">
-                      {t("admin.users.empty")}
+                      <AdminState message={t("admin.users.empty")} />
                     </td>
                   </tr>
                 )}
                 {isLoading && (
                   <tr>
                     <td colSpan={8} className="admin-page__empty">
-                      {t("admin.common.loadingData")}
+                      <AdminState type="loading" message={t("admin.common.loadingData")} />
                     </td>
                   </tr>
                 )}

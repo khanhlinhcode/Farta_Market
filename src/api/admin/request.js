@@ -21,7 +21,7 @@ export const logoutAdminAPI = async () => {
   await getCsrfCookieAPI();
 
   return await axios({
-    url: "/admin/logout",
+    url: "/logout",
     method: "POST",
   });
 };

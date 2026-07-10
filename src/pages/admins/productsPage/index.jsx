@@ -6,7 +6,7 @@ import {
   getAdminProductsAPI,
   updateAdminProductAPI,
 } from "api/admin";
-import { ConfirmModal, ImageUpload } from "component";
+import { AdminState, ConfirmModal, ImageUpload } from "component";
 import { formatter } from "utils/fomater";
 import { PRODUCT_IMAGE_OPTIONS, resolveProductImage } from "utils/productImages";
 import { useTranslation } from "react-i18next";
@@ -435,14 +435,14 @@ const AdminProductsPage = () => {
                   {!products.length && !isLoading && (
                     <tr>
                       <td colSpan={7} className="admin-page__empty">
-                        {t("admin.products.empty")}
+                        <AdminState message={t("admin.products.empty")} />
                       </td>
                     </tr>
                   )}
                   {isLoading && (
                     <tr>
                       <td colSpan={7} className="admin-page__empty">
-                        {t("admin.common.loadingData")}
+                        <AdminState type="loading" message={t("admin.common.loadingData")} />
                       </td>
                     </tr>
                   )}

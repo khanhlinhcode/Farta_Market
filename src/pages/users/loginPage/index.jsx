@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { loginUserAPI, registerUserAPI } from "api/auth";
 import { syncGuestWishlistAPI } from "api/wishlist";
 import { SESSION_KEYS } from "utils/constant";
@@ -25,12 +26,19 @@ const UserLoginPage = () => {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (event) => {
     setForm((current) => ({
       ...current,
       [event.target.name]: event.target.value,
     }));
+  };
+
+  const handleModeChange = (nextMode) => {
+    setMode(nextMode);
+    setError("");
+    toast.remove();
   };
 
   const handleSubmit = async (event) => {
@@ -85,14 +93,16 @@ const UserLoginPage = () => {
           <button
             type="button"
             className={mode === "login" ? "active" : ""}
-            onClick={() => setMode("login")}
+            aria-pressed={mode === "login"}
+            onClick={() => handleModeChange("login")}
           >
             {t("auth.loginTitle")}
           </button>
           <button
             type="button"
             className={mode === "register" ? "active" : ""}
-            onClick={() => setMode("register")}
+            aria-pressed={mode === "register"}
+            onClick={() => handleModeChange("register")}
           >
             {t("auth.registerTitle")}
           </button>
@@ -121,32 +131,57 @@ const UserLoginPage = () => {
               required
             />
           </label>
-          <label>
-            <span>{t("auth.password")}</span>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
+          <div className="user-login__field">
+            <label htmlFor="user-login-password">
+              <span>{t("auth.password")}</span>
+            </label>
+            <div className="user-login__password-field">
+              <input
+                id="user-login-password"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                className="user-login__password-toggle"
+                aria-label={
+                  showPassword ? t("auth.hidePassword") : t("auth.showPassword")
+                }
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((current) => !current)}
+              >
+                {showPassword ? (
+                  <FiEyeOff aria-hidden="true" />
+                ) : (
+                  <FiEye aria-hidden="true" />
+                )}
+              </button>
+            </div>
             {mode === "register" && (
               <small className="user-login__hint">
                 {t("auth.passwordHint")}
               </small>
             )}
-          </label>
+          </div>
           {mode === "register" && (
-            <label>
-              <span>{t("auth.passwordConfirmation")}</span>
-              <input
-                type="password"
-                name="password_confirmation"
-                value={form.password_confirmation}
-                onChange={handleChange}
-                required
-              />
-            </label>
+            <div className="user-login__field">
+              <label htmlFor="user-login-password-confirmation">
+                <span>{t("auth.passwordConfirmation")}</span>
+              </label>
+              <div className="user-login__password-field">
+                <input
+                  id="user-login-password-confirmation"
+                  type={showPassword ? "text" : "password"}
+                  name="password_confirmation"
+                  value={form.password_confirmation}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
           )}
 
           {error && <p className="user-login__error">{error}</p>}
@@ -160,9 +195,14 @@ const UserLoginPage = () => {
           </button>
         </form>
 
-        <Link className="user-login__back" to={ROUTERS.USER.PRODUCTS}>
-          {t("auth.continueShopping")}
-        </Link>
+        <div className="user-login__links">
+          <Link className="user-login__back" to={ROUTERS.USER.PRODUCTS}>
+            {t("auth.continueShopping")}
+          </Link>
+          <Link className="user-login__admin-link" to={ROUTERS.ADMIN.LOGIN}>
+            {t("auth.adminLogin")}
+          </Link>
+        </div>
       </section>
     </main>
   );

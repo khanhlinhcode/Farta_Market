@@ -38,6 +38,38 @@ const AdminCategoriesPage = React.lazy(() =>
 const AdminCouponsPage = React.lazy(() => import("pages/admins/couponsPage"));
 const AdminUsersPage = React.lazy(() => import("pages/admins/usersPage"));
 
+class RouteErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="route-error-state">
+          <strong>{this.props.title}</strong>
+          <button type="button" onClick={() => window.location.reload()}>
+            {this.props.retryLabel}
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 const RequireRole = ({ allowedRoles, children }) => {
   const adminUser = useSelector(selectAdminUser);
   const isBootstrapped = useSelector(selectAuthBootstrapped);
@@ -62,7 +94,7 @@ const RequireAdminOrStaff = ({ children }) => (
     {children}
   </RequireRole>
 );
-const renderUserRouter = (fallback) => {
+const renderUserRouter = (fallback, errorTitle, retryLabel, resetKey) => {
   const userRouters = [
     {
       path: ROUTERS.USER.HOME,
@@ -108,18 +140,20 @@ const renderUserRouter = (fallback) => {
 
   return (
     <MasterLayout>
-      <Suspense fallback={fallback}>
-        <Routes>
-          {userRouters.map((item, key) => (
-            <Route key={key} path={item.path} element={item.component} />
-          ))}
-        </Routes>
-      </Suspense>
+      <RouteErrorBoundary title={errorTitle} retryLabel={retryLabel} resetKey={resetKey}>
+        <Suspense fallback={fallback}>
+          <Routes>
+            {userRouters.map((item, key) => (
+              <Route key={key} path={item.path} element={item.component} />
+            ))}
+          </Routes>
+        </Suspense>
+      </RouteErrorBoundary>
     </MasterLayout>
   );
 };
 
-const renderAdminRouter = (fallback) => {
+const renderAdminRouter = (fallback, errorTitle, retryLabel, resetKey) => {
   const adminRouters = [
     {
       path: ROUTERS.ADMIN.LOGIN,
@@ -176,13 +210,15 @@ const renderAdminRouter = (fallback) => {
   ];
   return (
     <MasterAdLayout>
-      <Suspense fallback={fallback}>
-        <Routes>
-          {adminRouters.map((item, key) => (
-            <Route key={key} path={item.path} element={item.component} />
-          ))}
-        </Routes>
-      </Suspense>
+      <RouteErrorBoundary title={errorTitle} retryLabel={retryLabel} resetKey={resetKey}>
+        <Suspense fallback={fallback}>
+          <Routes>
+            {adminRouters.map((item, key) => (
+              <Route key={key} path={item.path} element={item.component} />
+            ))}
+          </Routes>
+        </Suspense>
+      </RouteErrorBoundary>
     </MasterAdLayout>
   );
 };
@@ -191,7 +227,11 @@ const RouterCustom = () => {
   const location = useLocation();
   const isAdminRouters = location.pathname.startsWith(ADMIN_PATH);
   const fallback = t("common.loading");
+  const errorTitle = t("common.error");
+  const retryLabel = t("common.retry");
 
-  return isAdminRouters ? renderAdminRouter(fallback) : renderUserRouter(fallback);
+  return isAdminRouters
+    ? renderAdminRouter(fallback, errorTitle, retryLabel, location.pathname)
+    : renderUserRouter(fallback, errorTitle, retryLabel, location.pathname);
 };
 export default RouterCustom;
