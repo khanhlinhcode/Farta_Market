@@ -217,6 +217,8 @@
     "registerTitle": "Create account",
     "name": "Full name",
     "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "passwordHint": "Password must be at least 8 characters and include uppercase, lowercase, and a number.",
     "passwordConfirmation": "Confirm password",
     "loginButton": "Login",
@@ -225,7 +227,8 @@
     "loginSuccess": "Logged in successfully.",
     "registerSuccess": "Account created successfully.",
     "error": "Unable to process your request, please check again.",
-    "continueShopping": "Continue shopping"
+    "continueShopping": "Continue shopping",
+    "adminLogin": "Admin login"
   },
   "profile": {
     "title": "Profile",

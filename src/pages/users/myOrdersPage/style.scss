@@ -45,7 +45,7 @@
 
     &.is-error {
       background: #fef3f2;
-      color: #b42318;
+      color: var(--color-danger-deep);
     }
   }
 
@@ -102,17 +102,17 @@
 
     &.is-processing {
       background: #e8f5ff;
-      color: #075985;
+      color: var(--color-info);
     }
 
     &.is-cancelled {
       background: #fee4e2;
-      color: #b42318;
+      color: var(--color-danger-deep);
     }
 
     &.is-delivered {
       background: #dcfae6;
-      color: #027a48;
+      color: var(--color-success);
     }
   }
 
@@ -173,7 +173,7 @@
     background: #fef3f2;
     border: 1px solid #fecdca;
     border-radius: 6px;
-    color: #b42318;
+    color: var(--color-danger-deep);
     font-weight: 800;
     padding: 12px;
     text-align: center;
@@ -216,7 +216,7 @@
     background: #ffffff;
     border: 1px solid #fecdca;
     border-radius: 6px;
-    color: #b42318;
+    color: var(--color-danger-deep);
     cursor: pointer;
     font-weight: 800;
     justify-self: start;

@@ -18,10 +18,20 @@
       cursor: pointer;
       overflow: hidden;
       text-decoration: none;
+      border: 1px solid rgba(230, 236, 234, 0.85);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.04);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
 
+      &::after {
+        background: var(--gradient-image-fade);
+        content: "";
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+      }
+
       &:hover {
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-apple-hover);
         transform: translateY(-2px);
       }
 
@@ -43,9 +53,10 @@
         padding: 12px 0 8px;
         width: 270px;
         cursor: pointer;
+        z-index: 1;
 
         &:hover {
-          background: rgb(237, 237, 237);
+          background: var(--gradient-primary-soft);
           border-radius: 40%;
         }
       }
@@ -74,7 +85,8 @@
       right: 0;
       height: 4px;
       width: 80px;
-      background: map.get($theme-colors, "main");
+      background: var(--gradient-primary);
+      border-radius: 999px;
       content: "";
       margin: 0 auto;
     }
@@ -118,17 +130,21 @@
   }
 
   button {
-    background: map.get($theme-colors, "main");
+    background: var(--gradient-primary);
     border: 0;
+    border-radius: 6px;
     color: #fff;
     cursor: pointer;
     font-size: 15px;
     font-weight: 600;
     padding: 10px 22px;
-    transition: opacity 0.15s ease;
+    box-shadow: 0 12px 24px rgba(0, 136, 116, 0.18);
+    transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 
     &:hover {
       opacity: 0.88;
+      box-shadow: 0 16px 30px rgba(0, 136, 116, 0.24);
+      transform: translateY(-1px);
     }
   }
 }
@@ -142,10 +158,21 @@
     display: block;
     flex: 1;
     overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.04);
+    position: relative;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
+    &::after {
+      background: var(--gradient-card-accent);
+      content: "";
+      inset: 0;
+      pointer-events: none;
+      position: absolute;
+    }
+
     &:hover {
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-apple-hover);
       transform: translateY(-2px);
     }
 

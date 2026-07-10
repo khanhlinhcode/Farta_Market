@@ -15,9 +15,12 @@
 }
 
 .search-bar__dropdown {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
   border: 1px solid #e6ecea;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.14);
+  border-radius: 8px;
+  box-shadow: var(--shadow-apple);
+  overflow: hidden;
   left: 0;
   position: absolute;
   right: 0;
@@ -27,7 +30,7 @@
 
 .search-bar__dropdown button {
   align-items: center;
-  background: #ffffff;
+  background: transparent;
   border: 0;
   border-bottom: 1px solid #edf2f7;
   cursor: pointer;
@@ -40,11 +43,11 @@
 
   &:hover,
   &.is-active {
-    background: #f3fbf8;
+    background: var(--gradient-primary-soft);
   }
 
   img {
-    background: #f4f7fb;
+    background: var(--gradient-card);
     border-radius: 6px;
     height: 46px;
     object-fit: cover;

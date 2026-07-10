@@ -3,7 +3,9 @@
 @use "style/pages/all" as *;
 
 .header__top {
-  background: var(--color-surface-soft);
+  background: rgba(247, 250, 249, 0.82);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(230, 236, 234, 0.7);
   font-size: 16px;
 }
 .header__top_left {
@@ -89,7 +91,7 @@
 
 .header-account-chip {
   align-items: center;
-  background: var(--color-surface);
+  background: var(--gradient-glass);
   border: 1px solid var(--color-border);
   border-radius: 999px;
   box-shadow: var(--shadow-soft);
@@ -103,7 +105,7 @@
 
   &__icon {
     align-items: center;
-    background: var(--color-surface-soft);
+    background: var(--gradient-primary-soft);
     border-radius: 50%;
     color: map.get($theme-colors, "main");
     display: inline-flex;
@@ -162,6 +164,10 @@
   }
 
   h1 {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     cursor: pointer;
     font-size: 32px;
     font-weight: 800;
@@ -194,10 +200,29 @@
         transition: all 0.3s;
         padding: 8px 0;
         display: block;
+        position: relative;
+
+        &::after {
+          background: var(--gradient-primary);
+          border-radius: 999px;
+          bottom: 0;
+          content: "";
+          height: 2px;
+          left: 0;
+          position: absolute;
+          transform: scaleX(0);
+          transform-origin: left;
+          transition: transform 0.2s ease;
+          width: 100%;
+        }
       }
 
       &:hover > a {
         color: map.get($theme-colors, "main");
+
+        &::after {
+          transform: scaleX(1);
+        }
       }
     }
 
@@ -208,10 +233,16 @@
 
     .active > a {
       color: map.get($theme-colors, "main");
+
+      &::after {
+        transform: scaleX(1);
+      }
     }
 
     .header__menu__dropdown {
-      background: #222222;
+      background: rgba(28, 28, 28, 0.94);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       display: block;
       position: absolute;
       width: 180px;
@@ -220,7 +251,7 @@
       transition: all 0.3s;
       opacity: 0;
       visibility: hidden;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+      box-shadow: var(--shadow-apple);
 
       li {
         a {
@@ -229,6 +260,10 @@
           font-size: 15px;
           font-weight: 500;
           padding: 9px 16px;
+
+          &::after {
+            display: none;
+          }
         }
         :hover {
           color: map.get($theme-colors, "main");
@@ -269,16 +304,19 @@
   padding: 6px 12px;
   border: 1px solid var(--color-border);
   border-radius: 99px;
-  background: transparent;
+  background: var(--gradient-glass);
   color: inherit;
   font-size: 13px;
   line-height: 1;
   text-decoration: none;
-  transition: background 0.15s;
+  box-shadow: 0 10px 20px rgba(0, 136, 116, 0.06);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
 
   &:hover {
-    background: var(--color-surface-soft);
+    background: var(--gradient-primary-soft);
     color: inherit;
+    box-shadow: 0 14px 28px rgba(0, 136, 116, 0.12);
+    transform: translateY(-1px);
   }
 
   svg {
@@ -298,7 +336,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: map.get($theme-colors, "main");
+  background: var(--gradient-primary);
   color: #ffffff;
   font-size: 11px;
   font-weight: 500;
@@ -323,7 +361,7 @@
 .hero__categories {
   position: relative;
   .hero__categories__all {
-    background: map.get($theme-colors, "main");
+    background: var(--gradient-primary);
     padding: 15px 25px 15px 40px;
     display: flex;
     align-items: center;
@@ -332,6 +370,7 @@
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 0;
+    box-shadow: 0 14px 28px rgba(0, 136, 116, 0.16);
 
     svg,
     span {
@@ -344,10 +383,11 @@
     }
   }
   ul {
-    border: 1px solid #ebebeb;
+    border: 1px solid rgba(230, 236, 234, 0.86);
     position: absolute;
     width: 99%;
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
     opacity: 1;
     transition: all 0.3s;
 
@@ -363,7 +403,7 @@
         padding-left: 40px;
       }
       &:hover {
-        background: #f7ffff;
+        background: var(--gradient-primary-soft);
 
         a {
           color: map.get($theme-colors, "main");
@@ -389,12 +429,12 @@
       align-items: center;
     }
     input {
-      border: none;
       height: 48px;
       font-size: 16px;
       color: #b2b2b2;
       padding-left: 20px;
-      border: 1px solid #ebebeb;
+      border: 1px solid rgba(230, 236, 234, 0.95);
+      background: var(--gradient-glass);
       width: 70%;
 
       :focus {
@@ -409,10 +449,17 @@
       text-transform: uppercase;
       display: inline-block;
       padding: 16px 30px 17px;
-      background: map.get($theme-colors, "main");
+      background: var(--gradient-primary);
       border: none;
       height: 100%;
       cursor: pointer;
+      box-shadow: 0 12px 24px rgba(0, 136, 116, 0.16);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+      &:hover {
+        box-shadow: 0 16px 30px rgba(0, 136, 116, 0.22);
+        transform: translateY(-1px);
+      }
     }
   }
   .hero__search__phone {
@@ -422,7 +469,7 @@
     .hero__search__phone__icon {
       font-size: 25px;
       padding: 10px;
-      background: #f5f5f5;
+      background: var(--gradient-primary-soft);
       line-height: 50px;
       text-align: center;
       border-radius: 50%;
@@ -459,6 +506,9 @@
     display: flex;
     align-items: center;
     width: 100%;
+    border-radius: 8px;
+    box-shadow: var(--shadow-apple);
+    overflow: hidden;
     //padding-left: 75px;
 
     .hero__text {
@@ -495,7 +545,8 @@
         color: #ffffff;
         text-transform: uppercase;
         font-weight: 700;
-        background: map.get($theme-colors, "main");
+        background: var(--gradient-primary);
+        border-radius: 6px;
         letter-spacing: 0;
         text-decoration: none;
         cursor: pointer;
@@ -503,8 +554,9 @@
           transform 0.15s ease;
 
         &:hover {
-          background: #007a68;
-          box-shadow: 0 8px 18px rgba(0, 136, 116, 0.2);
+          background: var(--gradient-primary-hover);
+          box-shadow: 0 12px 24px rgba(0, 136, 116, 0.24);
+          transform: translateY(-1px);
         }
 
         &:active {
@@ -567,6 +619,7 @@
     flex: 1 1 auto;
     max-width: calc(100% - 58px);
     min-width: 0;
+    overflow: visible;
   }
 
   .header__main__nav {
@@ -574,8 +627,8 @@
   }
 
   .header__main__actions {
-    flex: 0 0 58px;
-    max-width: 58px;
+    flex: 0 0 44px;
+    max-width: 44px;
   }
 
   .hero__search {
@@ -590,9 +643,10 @@
 
     h1 {
       display: block;
-      font-size: clamp(25px, 7vw, 32px);
+      font-size: clamp(22px, 6.2vw, 32px);
       line-height: 1.05;
       max-width: 100%;
+      min-width: max-content;
       overflow-wrap: normal;
       white-space: nowrap;
       word-break: keep-all;
@@ -680,20 +734,27 @@
   }
 
   .hero__item {
-    background-position: center;
+    background-position: 68% center;
     background-size: cover;
-    border-radius: 0;
+    border-radius: var(--radius-card);
     height: 320px;
     margin-left: unset !important;
     max-width: 100%;
     overflow: hidden;
 
     .hero__text {
-      max-width: 68%;
-      padding-left: 22px;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.74);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-soft);
+      margin-left: 14px;
+      max-width: min(230px, calc(100% - 28px));
+      padding: 16px;
 
       h2 {
-        font-size: 30px;
+        font-size: 28px;
         line-height: 1.15;
       }
 
@@ -707,7 +768,7 @@
 
 @media (max-width: 420px) {
   .header__logo h1 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .hero__search__form {
@@ -728,15 +789,16 @@
     height: 300px;
 
     .hero__text {
-      max-width: 72%;
-      padding-left: 18px;
+      margin-left: 12px;
+      max-width: min(220px, calc(100% - 24px));
+      padding: 14px;
 
       span {
         font-size: 12px;
       }
 
       h2 {
-        font-size: 26px;
+        font-size: 25px;
       }
     }
   }

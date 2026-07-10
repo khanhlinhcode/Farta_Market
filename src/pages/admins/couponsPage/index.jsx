@@ -6,7 +6,7 @@ import {
   getAdminCouponsAPI,
   updateAdminCouponAPI,
 } from "api/admin";
-import { ConfirmModal } from "component";
+import { AdminState, ConfirmModal } from "component";
 import { formatter } from "utils/fomater";
 import { useTranslation } from "react-i18next";
 import "../admin.scss";
@@ -324,14 +324,18 @@ const AdminCouponsPage = () => {
                 {!isLoading && coupons.length === 0 && (
                   <tr>
                     <td colSpan={7} className="admin-page__empty">
-                      {t("admin.coupons.empty")}
+                      <AdminState message={t("admin.coupons.empty")} />
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
           </div>
-          {isLoading && <div className="admin-page__empty">{t("common.loading")}</div>}
+          {isLoading && (
+            <div className="admin-page__empty">
+              <AdminState type="loading" message={t("common.loading")} />
+            </div>
+          )}
           <div className="admin-page__pagination">
             <button
               type="button"
@@ -401,7 +405,7 @@ const AdminCouponsPage = () => {
                   {(!stats.users || stats.users.length === 0) && (
                     <tr>
                       <td colSpan={4} className="admin-page__empty">
-                        {t("admin.coupons.noUsage")}
+                        <AdminState message={t("admin.coupons.noUsage")} />
                       </td>
                     </tr>
                   )}

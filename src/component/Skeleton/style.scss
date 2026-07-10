@@ -5,12 +5,16 @@
 
 .product-card-skeleton__image {
   aspect-ratio: 1 / 1;
-  background: #e8eceb;
+  background: var(--gradient-skeleton);
+  background-size: 220% 100%;
+  border-radius: 8px;
   width: 100%;
 }
 
 .product-card-skeleton__line {
-  background: #e8eceb;
+  background: var(--gradient-skeleton);
+  background-size: 220% 100%;
+  border-radius: 999px;
   height: 16px;
   margin-left: auto;
   margin-right: auto;
@@ -27,17 +31,17 @@
 }
 
 .skeleton-pulse {
-  animation: skeleton-pulse 1.3s ease-in-out infinite;
+  animation: skeleton-shimmer 1.45s ease-in-out infinite;
 }
 
-@keyframes skeleton-pulse {
+@keyframes skeleton-shimmer {
   0%,
   100% {
-    opacity: 0.55;
+    background-position: 0% 50%;
   }
 
   50% {
-    opacity: 1;
+    background-position: 100% 50%;
   }
 }
 

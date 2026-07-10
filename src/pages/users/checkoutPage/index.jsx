@@ -19,6 +19,7 @@ import toast from "react-hot-toast";
 import { translateProductName } from "utils/i18nLabels";
 import { getAddressesAPI, getProfileAPI } from "api/profile";
 import { selectCustomerUser } from "../../../redux/authSlice";
+import { Button } from "component";
 
 const CheckoutPage = () => {
   const { t } = useTranslation();
@@ -528,8 +529,9 @@ const CheckoutPage = () => {
                   </label>
                 </div>
                 {orderError && <span className="error">{orderError}</span>}
-                <button
+                <Button
                   type="submit"
+                  variant="primary"
                   className="button-submit"
                   data-testid="place-order"
                   disabled={isPending}
@@ -542,7 +544,7 @@ const CheckoutPage = () => {
                       ? t("checkout.payWithVnpay")
                       : t("checkout.placeOrder")}
                   </span>
-                </button>
+                </Button>
               </div>
             </div>
           </div>

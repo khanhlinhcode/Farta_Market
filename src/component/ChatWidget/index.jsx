@@ -5,9 +5,10 @@ import axios from "api/axios";
 import { getApiBaseUrl } from "../../config/api";
 import useShoppingCart from "hooks/useShoppingCart";
 import toast from "react-hot-toast";
+import Button from "../Button";
 import "./style.scss";
 
-const CHAT_TIMEOUT_MS = 30000;
+const CHAT_TIMEOUT_MS = 18000;
 const HEALTH_TIMEOUT_MS = 5000;
 
 const ChatWidget = () => {
@@ -305,14 +306,16 @@ const ChatWidget = () => {
               onKeyDown={handleInputKeyDown}
               aria-label={t("chat.placeholder")}
             />
-            <button
+            <Button
               type="button"
+              className="chat-widget__send"
+              iconOnly
               onClick={sendMessage}
               disabled={!input.trim() || loading}
               aria-label={t("chat.send")}
             >
               <FiSend />
-            </button>
+            </Button>
           </footer>
         </section>
       )}

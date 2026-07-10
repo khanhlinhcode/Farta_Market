@@ -92,7 +92,7 @@ describe("ChatWidget", () => {
   it("aborts a slow chat request and allows the UI to recover", async () => {
     const nativeSetTimeout = window.setTimeout.bind(window);
     vi.spyOn(window, "setTimeout").mockImplementation((callback, delay, ...args) => {
-      if (delay === 30000) {
+      if (delay === 18000) {
         return nativeSetTimeout(callback, 0, ...args);
       }
 

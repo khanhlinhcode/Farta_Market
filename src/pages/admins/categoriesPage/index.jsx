@@ -5,7 +5,7 @@ import {
   getAdminCategoriesAPI,
   updateAdminCategoryAPI,
 } from "api/admin";
-import { ConfirmModal } from "component";
+import { AdminState, ConfirmModal } from "component";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { isAdmin } from "utils/adminAuth";
@@ -185,14 +185,14 @@ const AdminCategoriesPage = () => {
                   {!categories.length && !isLoading && (
                     <tr>
                       <td colSpan={4} className="admin-page__empty">
-                        {t("admin.categories.empty")}
+                        <AdminState message={t("admin.categories.empty")} />
                       </td>
                     </tr>
                   )}
                   {isLoading && (
                     <tr>
                       <td colSpan={4} className="admin-page__empty">
-                        {t("admin.common.loadingData")}
+                        <AdminState type="loading" message={t("admin.common.loadingData")} />
                       </td>
                     </tr>
                   )}

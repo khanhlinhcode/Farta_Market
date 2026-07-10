@@ -3,24 +3,24 @@
 
 .user-login {
   align-items: center;
-  background: #f7faf9;
+  background: var(--color-surface-soft);
   display: flex;
   justify-content: center;
   min-height: 70vh;
   padding: 48px 16px;
 
   &__card {
-    background: #fff;
-    border: 1px solid #e3eeeb;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: 10px;
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    box-shadow: var(--shadow-apple);
     max-width: 460px;
     padding: 28px;
     width: 100%;
   }
 
   &__tabs {
-    background: #eef7f4;
+    background: color-mix(in srgb, var(--color-primary) 7%, var(--color-surface) 93%);
     border-radius: 999px;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -32,7 +32,7 @@
       background: transparent;
       border: 0;
       border-radius: 999px;
-      color: #334155;
+      color: var(--color-heading);
       cursor: pointer;
       font-size: 15px;
       font-weight: 700;
@@ -40,7 +40,7 @@
 
       &.active {
         background: map.get($theme-colors, "main");
-        color: #fff;
+        color: var(--color-surface);
       }
     }
   }
@@ -49,7 +49,8 @@
     display: grid;
     gap: 16px;
 
-    label {
+    label,
+    .user-login__field {
       display: grid;
       gap: 8px;
     }
@@ -60,7 +61,7 @@
     }
 
     input {
-      border: 1px solid #dbe7e4;
+      border: 1px solid var(--color-border);
       border-radius: 6px;
       box-sizing: border-box;
       height: 46px;
@@ -74,11 +75,46 @@
     }
   }
 
+  &__password-field {
+    position: relative;
+
+    input {
+      padding-right: 48px;
+    }
+  }
+
+  &__password-toggle {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    color: var(--color-muted);
+    cursor: pointer;
+    display: inline-flex;
+    height: 34px;
+    justify-content: center;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+
+    &:hover,
+    &:focus {
+      color: map.get($theme-colors, "main");
+    }
+
+    &:focus-visible {
+      outline: 2px solid map.get($theme-colors, "main");
+      outline-offset: 2px;
+    }
+  }
+
   &__submit {
     background: map.get($theme-colors, "main");
     border: 0;
     border-radius: 6px;
-    color: #fff;
+    color: var(--color-surface);
     cursor: pointer;
     font-size: 15px;
     font-weight: 800;
@@ -91,22 +127,56 @@
   }
 
   &__error {
-    color: #c0392b;
+    color: var(--color-danger);
     font-size: 14px;
     line-height: 1.5;
     margin: 0;
   }
 
   &__hint {
-    color: #64748b;
+    color: var(--color-muted);
     font-size: 13px;
     line-height: 1.45;
   }
 
-  &__back {
+  &__links {
+    align-items: center;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-top: 18px;
+  }
+
+  &__back,
+  &__admin-link {
     color: map.get($theme-colors, "main");
     display: inline-flex;
     font-weight: 700;
-    margin-top: 18px;
+    line-height: 1.4;
+  }
+
+  &__admin-link {
+    color: var(--color-muted);
+    font-size: 14px;
+    justify-content: flex-end;
+    text-align: right;
+
+    &:hover,
+    &:focus {
+      color: map.get($theme-colors, "main");
+    }
+  }
+
+  @media (max-width: 480px) {
+    &__links {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    &__admin-link {
+      justify-content: flex-start;
+      text-align: left;
+    }
   }
 }

@@ -2,7 +2,7 @@ import { memo } from "react";
 import Breadcrumb from "../theme/breadcrumb";
 import "./style.scss";
 import { formatter } from "utils/fomater";
-import { ConfirmModal, Quantity } from "component";
+import { Button, ConfirmModal, Quantity } from "component";
 import { AiOutlineClose } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { ROUTERS } from "utils/router";
@@ -87,14 +87,15 @@ const ShoppingCartPage = () => {
                     {t("cart.lineTotal")}: <span>{formatter(cart.totalPrice)}</span>
                   </li>
                 </ul>
-                <button
+                <Button
                   type="button"
+                  variant="primary"
                   className="button-submit"
                   data-testid="checkout-btn"
                   onClick={() => navigate(ROUTERS.USER.CHECKOUT)}
                 >
                   {t("cart.checkout")}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
