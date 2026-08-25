@@ -2,14 +2,16 @@ import { memo, useEffect, useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Breadcrumb from "../theme/breadcrumb";
-import { SESSION_KEYS } from "utils/constant";
-import { getSessionItem } from "utils/session";
 import { formatter } from "utils/fomater";
 import { ROUTERS } from "utils/router";
 import useShoppingCart from "hooks/useShoppingCart";
 import "./style.scss";
 
 const getOrderTotal = (order) => {
+  if (!order) {
+    return null;
+  }
+
   if (order?.grand_total !== undefined && order?.grand_total !== null) {
     return Number(order.grand_total);
   }
@@ -18,7 +20,7 @@ const getOrderTotal = (order) => {
     return Number(order.total);
   }
 
-  return (order?.details || []).reduce(
+  return (order.details || []).reduce(
     (sum, detail) => sum + Number(detail.line_total || 0),
     0
   );
@@ -29,19 +31,14 @@ const OrderSuccessPage = () => {
   const location = useLocation();
   const { clearCart } = useShoppingCart();
   const [searchParams] = useSearchParams();
-  const order = useMemo(
-    () =>
-      location.state?.order ||
-      getSessionItem(SESSION_KEYS.LAST_ORDER_SUCCESS, null),
-    [location.state]
-  );
+  const order = useMemo(() => location.state?.order || null, [location.state]);
   const orderId = order?.id || searchParams.get("orderId") || "";
   const paymentMethod =
     searchParams.get("payment") === "vnpay"
       ? "vnpay"
       : order?.payment_method || "cod";
-  const paymentStatus =
-    order?.payment_status || (paymentMethod === "vnpay" ? "paid" : "pending");
+  const paymentStatus = order?.payment_status || "pending";
+  const orderTotal = getOrderTotal(order);
 
   useEffect(() => {
     if (orderId) {
@@ -69,7 +66,7 @@ const OrderSuccessPage = () => {
               </div>
               <div>
                 <span>{t("order.total")}</span>
-                <strong>{formatter(getOrderTotal(order))}</strong>
+                <strong>{orderTotal === null ? t("common.noData") : formatter(orderTotal)}</strong>
               </div>
               <div>
                 <span>{t("order.deliveryAddress")}</span>
