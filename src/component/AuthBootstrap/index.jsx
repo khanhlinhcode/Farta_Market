@@ -7,6 +7,8 @@ import {
   setAuthenticatedUser,
 } from "../../redux/authSlice";
 import { clearAdminSession } from "utils/adminAuth";
+import { SESSION_KEYS } from "utils/constant";
+import { removeSessionItem } from "utils/session";
 import { clearUserSession } from "utils/userAuth";
 
 const AuthBootstrap = () => {
@@ -17,6 +19,7 @@ const AuthBootstrap = () => {
 
     clearUserSession();
     clearAdminSession();
+    removeSessionItem(SESSION_KEYS.LAST_ORDER_SUCCESS);
 
     const bootstrap = async () => {
       try {
