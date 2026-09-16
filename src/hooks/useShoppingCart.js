@@ -1,84 +1,87 @@
-import { useDispatch } from "react-redux";
-import { calculateCart, emptyCart, setCart } from "../redux/commonSlide";
-import { SESSION_KEYS } from "../utils/constant";
+import { useCallback, useEffect } from "react";
+import { useDispatch, useStore } from "react-redux";
+import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
+import { calculateCart, emptyCart, normalizeCart, setCart } from "../redux/cartSlice";
+import { getCartLineLimit, SESSION_KEYS } from "../utils/constant";
 import { getSessionItem, removeSessionItem, setSessionItem } from "utils/session";
 
 const useShoppingCart = () => {
   const dispatch = useDispatch();
-  const getCart = () => getSessionItem(SESSION_KEYS.CART, emptyCart);
+  const store = useStore();
+  const { t } = useTranslation();
 
-  const persistCart = (products) => {
-    const newCart = calculateCart(products);
-    setSessionItem(SESSION_KEYS.CART, newCart);
-    dispatch(setCart(newCart));
+  const persistCart = useCallback((products) => {
+    const cart = calculateCart(products);
+    setSessionItem(SESSION_KEYS.CART, cart);
+    dispatch(setCart(cart));
+    return cart;
+  }, [dispatch]);
 
-    return newCart;
-  };
-
-  const addToCart = (product, quantity) => {
-    if (!product || quantity < 1) {
-      return getCart();
+  const getCart = useCallback(() => {
+    const stored = getSessionItem(SESSION_KEYS.CART, emptyCart);
+    const cart = normalizeCart(stored);
+    if (JSON.stringify(stored) !== JSON.stringify(cart)) {
+      persistCart(cart.products);
+      toast(t("cart.adjusted"));
     }
+    return cart;
+  }, [persistCart, t]);
 
-    const maxInventory = Number(product.inventory || 0);
-    if (maxInventory <= 0) {
-      return getCart();
-    }
-
+  useEffect(() => {
     const cart = getCart();
+    if (JSON.stringify(store.getState().commonSlide.cart) !== JSON.stringify(cart)) {
+      dispatch(setCart(cart));
+    }
+  }, [dispatch, getCart, store]);
+
+  const addToCart = (product, quantity, { notify = true } = {}) => {
+    const cart = getCart();
+    const maxInventory = getCartLineLimit(product?.inventory);
+    const id = Number(product?.id);
+    const valid = product && Number.isInteger(id) && id > 0 &&
+      Number.isInteger(quantity) && quantity > 0 && Number.isFinite(Number(product.price)) && Number(product.price) >= 0;
     const products = [...cart.products];
-    const producstIndex = products?.findIndex(
-      (c) => c.product.id === product.id
-    );
+    const index = products.findIndex((item) => item.product.id === id);
+    const currentQuantity = index >= 0 ? products[index].quantity : 0;
+    const totalQuantity = valid ? Math.min(currentQuantity + quantity, maxInventory) : currentQuantity;
+    const addedCount = valid ? Math.max(0, totalQuantity - currentQuantity) : 0;
+    let newCart = cart;
 
-    if (producstIndex >= 0) {
-      const currentQuantity = Number(products[producstIndex].quantity || 0);
-      products[producstIndex] = {
-        ...products[producstIndex],
-        product,
-        quantity: Math.min(currentQuantity + quantity, maxInventory),
-      };
-    } else {
-      products.push({
-        product,
-        quantity: Math.min(quantity, maxInventory),
-      });
+    if (valid && maxInventory > 0) {
+      const line = { product: { ...product, id }, quantity: totalQuantity };
+      if (index >= 0) products[index] = line;
+      else products.push(line);
+      newCart = persistCart(products);
+    } else if (valid && index >= 0) {
+      newCart = persistCart(products.filter((item) => item.product.id !== id));
     }
 
-    return persistCart(products);
+    if (notify) {
+      if (addedCount === 0) toast.error(t("cart.nothingAdded"));
+      else toast.success(t(addedCount < quantity ? "cart.partiallyAdded" : "cart.addedCount", {
+        count: addedCount, requested: quantity,
+      }));
+    }
+    return { cart: newCart, addedCount, totalQuantity, maxInventory };
   };
 
-  const removeCart = (id) => {
-    const cart = getCart();
-    const products = cart.products.filter(({ product }) => product.id !== id);
-
-    return persistCart(products);
-  };
+  const removeCart = (id) => persistCart(getCart().products.filter(({ product }) => product.id !== Number(id)));
 
   const updateCartQuantity = (id, quantity) => {
     const cart = getCart();
-    const products = cart.products.map((item) =>
-      item.product.id === id
-        ? {
-            ...item,
-            quantity: Math.min(
-              Math.max(1, Number(quantity) || 1),
-              Number(item.product.inventory || 1)
-            ),
-          }
-        : item
-    );
-
-    return persistCart(products);
+    if (!Number.isInteger(quantity) || quantity < 1) return cart;
+    return persistCart(cart.products.map((item) => item.product.id === Number(id)
+      ? { ...item, quantity: Math.min(quantity, getCartLineLimit(item.product.inventory)) }
+      : item));
   };
 
   const clearCart = () => {
     removeSessionItem(SESSION_KEYS.CART);
     dispatch(setCart(emptyCart));
-
     return emptyCart;
   };
 
-  return { addToCart, removeCart, updateCartQuantity, clearCart, emptyCart };
+  return { addToCart, removeCart, updateCartQuantity, clearCart, getCart, emptyCart };
 };
 export default useShoppingCart;

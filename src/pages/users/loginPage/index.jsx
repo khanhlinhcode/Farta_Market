@@ -199,9 +199,7 @@ const UserLoginPage = () => {
           <Link className="user-login__back" to={ROUTERS.USER.PRODUCTS}>
             {t("auth.continueShopping")}
           </Link>
-          <Link className="user-login__admin-link" to={ROUTERS.ADMIN.LOGIN}>
-            {t("auth.adminLogin")}
-          </Link>
+
         </div>
       </section>
     </main>
@@ -209,7 +207,7 @@ const UserLoginPage = () => {
 };
 
 const getSafeRedirectPath = (path) => {
-  if (!path || !path.startsWith("/") || path.startsWith("//")) {
+  if (!path || !path.startsWith("/") || path.startsWith("//") || path.includes("\\")) {
     return "";
   }
 

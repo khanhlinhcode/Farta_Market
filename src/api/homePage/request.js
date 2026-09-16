@@ -3,6 +3,7 @@ import axios from "api/axios";
 const END_POINT = {
   CATEGORIES: "categories",
   PRODUCTS: "products",
+  SITE_CONTENT: "site-content",
 };
 
 export const getCategoriesAPI = async () => {
@@ -30,6 +31,13 @@ export const getProductSuggestionsAPI = async (q) => {
 export const getRecommendedProductsAPI = async () => {
   return await axios.request({
     url: `${END_POINT.PRODUCTS}/recommended`,
+    method: "GET",
+  });
+};
+
+export const getSiteContentAPI = async () => {
+  return await axios.request({
+    url: END_POINT.SITE_CONTENT,
     method: "GET",
   });
 };

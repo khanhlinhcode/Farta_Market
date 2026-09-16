@@ -147,24 +147,11 @@
     margin-top: 18px;
   }
 
-  &__back,
-  &__admin-link {
+  &__back {
     color: map.get($theme-colors, "main");
     display: inline-flex;
     font-weight: 700;
     line-height: 1.4;
-  }
-
-  &__admin-link {
-    color: var(--color-muted);
-    font-size: 14px;
-    justify-content: flex-end;
-    text-align: right;
-
-    &:hover,
-    &:focus {
-      color: map.get($theme-colors, "main");
-    }
   }
 
   @media (max-width: 480px) {
@@ -174,9 +161,5 @@
       gap: 10px;
     }
 
-    &__admin-link {
-      justify-content: flex-start;
-      text-align: left;
-    }
   }
 }

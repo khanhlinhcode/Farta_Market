@@ -9,6 +9,7 @@
 # testing
 /coverage
 test-results/
+playwright-report/
 stats.html
 
 # production
@@ -32,6 +33,7 @@ stats.html
 .codex/
 .cursor/
 .agent/
+.impeccable/
 
 npm-debug.log*
 yarn-debug.log*

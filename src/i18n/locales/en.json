@@ -227,8 +227,7 @@
     "loginSuccess": "Logged in successfully.",
     "registerSuccess": "Account created successfully.",
     "error": "Unable to process your request, please check again.",
-    "continueShopping": "Continue shopping",
-    "adminLogin": "Admin login"
+    "continueShopping": "Continue shopping"
   },
   "profile": {
     "title": "Profile",
@@ -294,6 +293,10 @@
     "starRatingLabel": "Select {{value}} star rating"
   },
   "cart": {
+    "adjusted": "Your cart was adjusted to stock availability and the limit of 100 items per line.",
+    "nothingAdded": "No items added: your cart reached its limit or the product is unavailable.",
+    "addedCount": "Added {{count}} item(s) to your cart.",
+    "partiallyAdded": "Added {{count}} of the {{requested}} requested item(s) to your cart.",
     "title": "Cart",
     "name": "Name",
     "product": "Product",
@@ -315,6 +318,9 @@
     "removed": "Removed from cart"
   },
   "order": {
+    "verificationTitle": "Check your order",
+    "verificationChecking": "Verifying your order with the store.",
+    "verificationFailed": "The order or payment could not be verified. Please check your orders.",
     "success": "Order placed successfully! We will contact you soon.",
     "successTitle": "Order placed successfully",
     "successMessage": "Thank you for shopping at Farta Market. We will confirm and deliver your order as soon as possible.",
@@ -672,6 +678,10 @@
     "cancel": "Cancel"
   },
   "chat": {
+    "cartAdded": "Added {{count}} {{name}} to your cart.",
+    "cartPartial": "Added {{count}} {{name}} to your cart (the cart reached its limit of {{limit}} items).",
+    "cartLimit": "{{name}} in your cart has reached the available quantity limit ({{limit}}).",
+    "busy": "A request is already being processed. Please try again.",
     "title": "Farta Assistant",
     "welcome": "Hi! I can help you find products or answer any questions 🛒",
     "placeholder": "Type your question...",

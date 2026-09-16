@@ -15,20 +15,21 @@ import banner2Img from "assets/users/images/banner/banner2.png";
 import ProductCard from "component/ProductCard";
 import ProductCardSkeleton from "component/Skeleton";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
-import { featProducts } from "utils/common";
 import "./style.scss";
 import {
   useGetCategoriesUS,
   useGetProductsUS,
+  useGetSiteContentUS,
   useRecommendedProductsUS,
 } from "api/homePage";
 import { Link } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 import { useTranslation } from "react-i18next";
 import { translateCategoryName } from "utils/i18nLabels";
+import { isExternalUrl, localizedValue } from "utils/siteContent";
 
 const HomPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const responsive = {
     desktop: {
       breakpoint: { max: 4000, min: 1024 },
@@ -45,7 +46,7 @@ const HomPage = () => {
   };
 
   const categoryImages = [cat1Img, cat2Img, cat3Img, cat4Img, cat5Img];
-  const bannerItems = [
+  const fallbackBanners = [
     {
       img: bannerImg,
       label: t("home.banners.inStock"),
@@ -71,6 +72,17 @@ const HomPage = () => {
     refetch: refetchProducts,
   } = useGetProductsUS();
   const { data: recommendedProducts = [] } = useRecommendedProductsUS();
+  const { data: siteContent } = useGetSiteContentUS();
+  const settings = siteContent?.settings || {};
+  const cmsBanners = (siteContent?.banners || [])
+    .filter((banner) => banner.placement === "home_promo")
+    .map((banner) => ({
+      id: banner.id,
+      img: banner.image_url,
+      label: localizedValue(banner, "alt_text", i18n.resolvedLanguage, t("home.banners.inStock")),
+      path: banner.link_url || ROUTERS.USER.PRODUCTS,
+    }));
+  const bannerItems = cmsBanners.length ? cmsBanners : fallbackBanners;
   const isLoading = isCategoriesLoading || isProductsLoading;
   const isError = isCategoriesError || isProductsError;
   const refetchHomeData = () => {
@@ -81,12 +93,12 @@ const HomPage = () => {
     .filter((category) => Number(category.products_count || 0) > 0)
     .map((category, index) => ({
       id: category.id,
-      bgImg: categoryImages[index % categoryImages.length],
+      bgImg: category.image_url || categoryImages[index % categoryImages.length],
       name: translateCategoryName(category.name, t),
       path: `${ROUTERS.USER.PRODUCTS}?category_id=${category.id}`,
     }));
 
-  const renderFeaturedProducts = (data) => {
+  const renderFeaturedProducts = () => {
     const tabList = [];
     const tabPanels = [];
 
@@ -95,19 +107,6 @@ const HomPage = () => {
         <Tab key={category.id}>{translateCategoryName(category.name, t)}</Tab>
       ))
     );
-
-    //   Object.keys(data).forEach((key, index) => {
-    //     tabList.push(<Tab key={index}>{data[key].title}</Tab>);
-    //     const tabPanel = [];
-    //     data[key].product.forEach((item, j) =>
-    //       tabPanel.push(
-    //         <div className="col-lg-3 col-md-4 col-sm-6 col-xs-12" key={j}>
-    //           <ProductCard name={item.name} img={item.img} price={item.price} />
-    //         </div>
-    //       )
-    //     );
-    //     tabPanels.push(tabPanel);
-    //   });
 
     categories?.forEach((category) => {
       tabPanels.push(
@@ -188,9 +187,9 @@ const HomPage = () => {
       <div className="container">
           <div className="featured">
           <div className="section-title">
-            <h2>{t("home.featuredProducts")}</h2>
+            <h2>{localizedValue(settings, "featured_title", i18n.resolvedLanguage, t("home.featuredProducts"))}</h2>
           </div>
-          {renderFeaturedProducts(featProducts)}
+          {renderFeaturedProducts()}
         </div>
       </div>
       {/* Featured End */}
@@ -198,7 +197,7 @@ const HomPage = () => {
         <div className="container">
           <div className="featured featured--recommended">
             <div className="section-title">
-              <h2>{t("home.recommendedProducts")}</h2>
+              <h2>{localizedValue(settings, "recommended_title", i18n.resolvedLanguage, t("home.recommendedProducts"))}</h2>
             </div>
             <div className="row">
               {recommendedProducts.slice(0, 4).map((product) => (
@@ -216,11 +215,17 @@ const HomPage = () => {
       {/* banner Begin */}
       <div className="container">
         <div className="banner">
-          {bannerItems.map((item) => (
-            <Link className="banner__pic" to={item.path} key={item.path}>
-              <img src={item.img} alt={item.label} />
-            </Link>
-          ))}
+          {bannerItems.map((item, index) =>
+            isExternalUrl(item.path) ? (
+              <a className="banner__pic" href={item.path} key={item.id || `${item.path}-${index}`} target="_blank" rel="noreferrer">
+                <img src={item.img} alt={item.label} />
+              </a>
+            ) : (
+              <Link className="banner__pic" to={item.path} key={item.id || `${item.path}-${index}`}>
+                <img src={item.img} alt={item.label} />
+              </Link>
+            )
+          )}
         </div>
       </div>
       {/* banner End */}

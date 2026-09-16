@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import Breadcrumb from "../theme/breadcrumb";
 import { cancelMyOrderAPI, getMyOrdersAPI } from "api/orderPage";
 import { ConfirmModal } from "component";
-import { formatter } from "utils/fomater";
+import { formatter } from "utils/formatter";
 import { getDateLocale, translateProductName } from "utils/i18nLabels";
 import "./style.scss";
 

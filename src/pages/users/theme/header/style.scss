@@ -3,9 +3,7 @@
 @use "style/pages/all" as *;
 
 .header__top {
-  background: rgba(247, 250, 249, 0.82);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(230, 236, 234, 0.7);
+  background: var(--color-surface-soft);
   font-size: 16px;
 }
 .header__top_left {
@@ -91,7 +89,7 @@
 
 .header-account-chip {
   align-items: center;
-  background: var(--gradient-glass);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 999px;
   box-shadow: var(--shadow-soft);
@@ -105,7 +103,7 @@
 
   &__icon {
     align-items: center;
-    background: var(--gradient-primary-soft);
+    background: var(--color-surface-soft);
     border-radius: 50%;
     color: map.get($theme-colors, "main");
     display: inline-flex;
@@ -164,10 +162,6 @@
   }
 
   h1 {
-    background: var(--gradient-brand);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
     cursor: pointer;
     font-size: 32px;
     font-weight: 800;
@@ -200,29 +194,10 @@
         transition: all 0.3s;
         padding: 8px 0;
         display: block;
-        position: relative;
-
-        &::after {
-          background: var(--gradient-primary);
-          border-radius: 999px;
-          bottom: 0;
-          content: "";
-          height: 2px;
-          left: 0;
-          position: absolute;
-          transform: scaleX(0);
-          transform-origin: left;
-          transition: transform 0.2s ease;
-          width: 100%;
-        }
       }
 
       &:hover > a {
         color: map.get($theme-colors, "main");
-
-        &::after {
-          transform: scaleX(1);
-        }
       }
     }
 
@@ -233,16 +208,10 @@
 
     .active > a {
       color: map.get($theme-colors, "main");
-
-      &::after {
-        transform: scaleX(1);
-      }
     }
 
     .header__menu__dropdown {
-      background: rgba(28, 28, 28, 0.94);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #222222;
       display: block;
       position: absolute;
       width: 180px;
@@ -251,7 +220,7 @@
       transition: all 0.3s;
       opacity: 0;
       visibility: hidden;
-      box-shadow: var(--shadow-apple);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 
       li {
         a {
@@ -260,10 +229,6 @@
           font-size: 15px;
           font-weight: 500;
           padding: 9px 16px;
-
-          &::after {
-            display: none;
-          }
         }
         :hover {
           color: map.get($theme-colors, "main");
@@ -304,19 +269,16 @@
   padding: 6px 12px;
   border: 1px solid var(--color-border);
   border-radius: 99px;
-  background: var(--gradient-glass);
+  background: transparent;
   color: inherit;
   font-size: 13px;
   line-height: 1;
   text-decoration: none;
-  box-shadow: 0 10px 20px rgba(0, 136, 116, 0.06);
-  transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+  transition: background 0.15s;
 
   &:hover {
-    background: var(--gradient-primary-soft);
+    background: var(--color-surface-soft);
     color: inherit;
-    box-shadow: 0 14px 28px rgba(0, 136, 116, 0.12);
-    transform: translateY(-1px);
   }
 
   svg {
@@ -336,7 +298,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--gradient-primary);
+  background: map.get($theme-colors, "main");
   color: #ffffff;
   font-size: 11px;
   font-weight: 500;
@@ -361,7 +323,7 @@
 .hero__categories {
   position: relative;
   .hero__categories__all {
-    background: var(--gradient-primary);
+    background: map.get($theme-colors, "main");
     padding: 15px 25px 15px 40px;
     display: flex;
     align-items: center;
@@ -370,7 +332,6 @@
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 0;
-    box-shadow: 0 14px 28px rgba(0, 136, 116, 0.16);
 
     svg,
     span {
@@ -383,11 +344,10 @@
     }
   }
   ul {
-    border: 1px solid rgba(230, 236, 234, 0.86);
+    border: 1px solid #ebebeb;
     position: absolute;
     width: 99%;
-    background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(16px);
+    background: #ffffff;
     opacity: 1;
     transition: all 0.3s;
 
@@ -403,7 +363,7 @@
         padding-left: 40px;
       }
       &:hover {
-        background: var(--gradient-primary-soft);
+        background: #f7ffff;
 
         a {
           color: map.get($theme-colors, "main");
@@ -429,12 +389,12 @@
       align-items: center;
     }
     input {
+      border: none;
       height: 48px;
       font-size: 16px;
       color: #b2b2b2;
       padding-left: 20px;
-      border: 1px solid rgba(230, 236, 234, 0.95);
-      background: var(--gradient-glass);
+      border: 1px solid #ebebeb;
       width: 70%;
 
       :focus {
@@ -449,17 +409,10 @@
       text-transform: uppercase;
       display: inline-block;
       padding: 16px 30px 17px;
-      background: var(--gradient-primary);
+      background: map.get($theme-colors, "main");
       border: none;
       height: 100%;
       cursor: pointer;
-      box-shadow: 0 12px 24px rgba(0, 136, 116, 0.16);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-      &:hover {
-        box-shadow: 0 16px 30px rgba(0, 136, 116, 0.22);
-        transform: translateY(-1px);
-      }
     }
   }
   .hero__search__phone {
@@ -469,7 +422,7 @@
     .hero__search__phone__icon {
       font-size: 25px;
       padding: 10px;
-      background: var(--gradient-primary-soft);
+      background: #f5f5f5;
       line-height: 50px;
       text-align: center;
       border-radius: 50%;
@@ -506,9 +459,6 @@
     display: flex;
     align-items: center;
     width: 100%;
-    border-radius: 8px;
-    box-shadow: var(--shadow-apple);
-    overflow: hidden;
     //padding-left: 75px;
 
     .hero__text {
@@ -545,8 +495,7 @@
         color: #ffffff;
         text-transform: uppercase;
         font-weight: 700;
-        background: var(--gradient-primary);
-        border-radius: 6px;
+        background: map.get($theme-colors, "main");
         letter-spacing: 0;
         text-decoration: none;
         cursor: pointer;
@@ -554,9 +503,8 @@
           transform 0.15s ease;
 
         &:hover {
-          background: var(--gradient-primary-hover);
-          box-shadow: 0 12px 24px rgba(0, 136, 116, 0.24);
-          transform: translateY(-1px);
+          background: #007a68;
+          box-shadow: 0 8px 18px rgba(0, 136, 116, 0.2);
         }
 
         &:active {
@@ -592,12 +540,6 @@
 @media (max-width: 768px) {
   @include header.header-small-device;
 
-  .container {
-    padding-left: 15px;
-    padding-right: 15px;
-    width: 100% !important;
-  }
-
   .container,
   .row,
   .header__main,
@@ -610,16 +552,12 @@
   .header__main {
     align-items: center;
     flex-wrap: nowrap;
-    justify-content: space-between;
-    min-height: 76px;
-    padding: 0;
+    padding: 0 15px;
   }
 
   .header__main__logo {
     flex: 1 1 auto;
-    max-width: calc(100% - 58px);
-    min-width: 0;
-    overflow: visible;
+    max-width: calc(100% - 52px);
   }
 
   .header__main__nav {
@@ -627,91 +565,31 @@
   }
 
   .header__main__actions {
-    flex: 0 0 44px;
-    max-width: 44px;
+    flex: 0 0 52px;
+    max-width: 52px;
   }
 
   .hero__search {
     display: grid;
-    gap: 14px;
   }
 
   .header__logo {
     max-width: 100%;
     width: auto;
-    padding: 10px 0;
 
     h1 {
-      display: block;
-      font-size: clamp(22px, 6.2vw, 32px);
-      line-height: 1.05;
-      max-width: 100%;
-      min-width: max-content;
-      overflow-wrap: normal;
-      white-space: nowrap;
-      word-break: keep-all;
+      font-size: 28px;
+      overflow-wrap: anywhere;
     }
-  }
-
-  .humberger__open {
-    min-height: 48px;
-
-    svg {
-      cursor: pointer;
-      font-size: 32px;
-    }
-  }
-
-  .hero__categories {
-    margin-bottom: 14px;
-    padding-left: 0;
-    padding-right: 0;
-
-    .hero__categories__all {
-      justify-content: flex-start;
-      min-height: 52px;
-      padding: 14px 18px;
-
-      p {
-        font-size: 16px;
-        line-height: 1.2;
-      }
-    }
-
-    ul {
-      border-top: 0;
-      box-shadow: none;
-      display: block;
-      position: static;
-      width: 100%;
-
-      &.hidden {
-        display: none;
-        opacity: 0;
-      }
-
-      li a {
-        line-height: 42px;
-        padding-left: 18px;
-      }
-    }
-  }
-
-  .hero__search_container {
-    padding-left: 0;
-    padding-right: 0;
   }
 
   .hero__search__form {
-    float: none !important;
     height: auto;
-    margin-bottom: 0;
+    margin-bottom: 20px;
     max-width: 100%;
-    padding-left: 0 !important;
     width: 100% !important;
 
     form {
-      display: flex;
       width: 100%;
     }
 
@@ -723,82 +601,28 @@
 
     button {
       flex: 0 0 auto;
-      min-width: 106px;
       padding-left: 18px;
       padding-right: 18px;
     }
   }
 
   .hero__search__phone {
-    display: none !important;
+    margin-bottom: 30px;
   }
 
   .hero__item {
-    background-position: 68% center;
-    background-size: cover;
-    border-radius: var(--radius-card);
-    height: 320px;
+    background-position: 60% center;
+    height: 360px;
     margin-left: unset !important;
     max-width: 100%;
-    overflow: hidden;
 
     .hero__text {
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
-      background: rgba(255, 255, 255, 0.72);
-      border: 1px solid rgba(255, 255, 255, 0.74);
-      border-radius: var(--radius-card);
-      box-shadow: var(--shadow-soft);
-      margin-left: 14px;
-      max-width: min(230px, calc(100% - 28px));
-      padding: 16px;
+      max-width: 75%;
+      padding-left: 24px;
 
       h2 {
-        font-size: 28px;
-        line-height: 1.15;
-      }
-
-      p {
-        font-size: 14px;
-        line-height: 22px;
-      }
-    }
-  }
-}
-
-@media (max-width: 420px) {
-  .header__logo h1 {
-    font-size: 22px;
-  }
-
-  .hero__search__form {
-    input {
-      font-size: 14px;
-      padding-left: 12px;
-    }
-
-    button {
-      font-size: 13px;
-      min-width: 96px;
-      padding-left: 12px;
-      padding-right: 12px;
-    }
-  }
-
-  .hero__item {
-    height: 300px;
-
-    .hero__text {
-      margin-left: 12px;
-      max-width: min(220px, calc(100% - 24px));
-      padding: 14px;
-
-      span {
-        font-size: 12px;
-      }
-
-      h2 {
-        font-size: 25px;
+        font-size: 32px;
+        line-height: 38px;
       }
     }
   }

@@ -1,3 +1,4 @@
+import placeholder from "../assets/product-placeholder.svg";
 import feature1Img from "assets/users/images/featured/feature-1.png";
 import feature2Img from "assets/users/images/featured/feature-2.png";
 import feature3Img from "assets/users/images/featured/feature-3.png";
@@ -30,5 +31,5 @@ const productImageMap = {
 };
 
 export const resolveProductImage = (path) => {
-  return productImageMap[path] || path;
+  return productImageMap[path] || path || placeholder;
 };

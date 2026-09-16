@@ -8,7 +8,7 @@ import {
   AiOutlineLinkedin,
   AiOutlineTwitter,
 } from "react-icons/ai";
-import { formatter } from "utils/fomater";
+import { formatter } from "utils/formatter";
 import { ProductCard, Quantity, SafeHtml } from "component";
 import {
   useFrequentlyBoughtWithUS,
@@ -124,6 +124,8 @@ const ProductDetailPage = () => {
       setSelectedImage((current) =>
         current && galleryImages.includes(current) ? current : galleryImages[0]
       );
+    } else {
+      setSelectedImage("");
     }
   }, [galleryImages]);
 
@@ -303,8 +305,11 @@ const ProductDetailPage = () => {
       return;
     }
 
-    selectedProducts.forEach((item) => addToCart(item, 1));
-    toast.success(t("cart.added"));
+    const added = selectedProducts.reduce((sum, item) => sum + addToCart(item, 1, { notify: false }).addedCount, 0);
+    if (added === 0) toast.error(t("cart.nothingAdded"));
+    else toast.success(t(added < selectedProducts.length ? "cart.partiallyAdded" : "cart.addedCount", {
+      count: added, requested: selectedProducts.length,
+    }));
   };
 
   return (

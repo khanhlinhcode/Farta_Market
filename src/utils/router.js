@@ -1,4 +1,3 @@
-export const ADMIN_PATH = "/quan-tri";
 export const ROUTERS = {
   USER: {
     HOME: "/",
@@ -11,15 +10,5 @@ export const ROUTERS = {
       MY_ORDERS: "/don-hang-cua-toi",
       WISHLIST: "/yeu-thich",
       LOGIN: "/dang-nhap",
-  },
-  ADMIN: {
-    LOGIN: `${ADMIN_PATH}/dang-nhap`,
-    DASHBOARD: `${ADMIN_PATH}/dashboard`,
-    ORDERS: `${ADMIN_PATH}/dat-hang`,
-    PRODUCTS: `${ADMIN_PATH}/san-pham`,
-    CATEGORIES: `${ADMIN_PATH}/danh-muc`,
-    COUPONS: `${ADMIN_PATH}/ma-giam-gia`,
-    USERS: `${ADMIN_PATH}/nguoi-dung`,
-    LOGOUT: `${ADMIN_PATH}/dang-xuat`,
   },
 };

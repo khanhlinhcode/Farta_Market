@@ -11,7 +11,7 @@ import {
   AiOutlineLinkedin,
   AiOutlineTwitter,
 } from "react-icons/ai";
-import { formatter } from "utils/fomater";
+import { formatter } from "utils/formatter";
 import { ProductCard, Quantity, SafeHtml } from "component";
 import { featProducts } from "utils/common";
 import { useProductDetailUS } from "api/productDetailPage";

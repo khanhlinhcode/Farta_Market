@@ -9,40 +9,55 @@ import {
 } from "react-icons/ai";
 import { useTranslation } from "react-i18next";
 import { ROUTERS } from "utils/router";
+import { useGetSiteContentUS } from "api/homePage";
+import { localizedValue } from "utils/siteContent";
 
 const socialLinks = [
   {
     label: "Facebook",
     href: "https://www.facebook.com",
+    field: "facebook_url",
     Icon: AiOutlineFacebook,
   },
   {
     label: "Instagram",
     href: "https://www.instagram.com",
+    field: "instagram_url",
     Icon: AiOutlineInstagram,
   },
   {
     label: "LinkedIn",
     href: "https://www.linkedin.com",
+    field: "linkedin_url",
     Icon: AiOutlineLinkedin,
   },
   {
     label: "Twitter",
     href: "https://www.twitter.com",
+    field: "twitter_url",
     Icon: AiFillTwitterSquare,
   },
 ];
 
 const Footer = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState("");
   const [subscribeMessage, setSubscribeMessage] = useState("");
 
   const profilePath = ROUTERS.USER.PROFILE.startsWith("/")
     ? ROUTERS.USER.PROFILE
     : `/${ROUTERS.USER.PROFILE}`;
-  const mapsUrl =
-    "https://www.google.com/maps/search/?api=1&query=213%20Tr%C6%B0%C6%A1ng%20%C4%90%C3%ACnh%20Ngh%E1%BB%87";
+  const { data: siteContent } = useGetSiteContentUS();
+  const settings = siteContent?.settings || {};
+  const address = localizedValue(settings, "address", i18n.resolvedLanguage, t("footer.addressValue"));
+  const phone = settings.contact_phone || "0977232232";
+  const contactEmail = settings.contact_email || "FartaMarket@gmail.com";
+  const brandName = settings.brand_name || t("brand.name");
+  const footerDescription = localizedValue(settings, "footer_description", i18n.resolvedLanguage);
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  const configuredSocialLinks = socialLinks
+    .map((item) => ({ ...item, href: siteContent ? settings[item.field] : item.href }))
+    .filter((item) => item.href);
 
   const handleSubscribe = (event) => {
     event.preventDefault();
@@ -66,28 +81,29 @@ const Footer = () => {
           <div className="col-lg-3 col-md-6 col-sm-6 col-xs-12">
             <div className="footer__about">
               <Link className="footer__about__logo" to={ROUTERS.USER.HOME}>
-                {t("brand.name")}
+                {brandName}
               </Link>
+              {footerDescription && <p>{footerDescription}</p>}
               <ul>
                 <li>
                   {t("footer.addressLabel")}:{" "}
                   <a href={mapsUrl} target="_blank" rel="noreferrer">
-                    {t("footer.addressValue")}
+                    {address}
                   </a>
                 </li>
                 <li>
                   {t("footer.phoneLabel")}:{" "}
-                  <a href="tel:0977232232">0977-232-232</a>
+                  <a href={`tel:${phone}`}>{phone}</a>
                 </li>
                 <li>
                   {t("footer.emailLabel")}:{" "}
-                  <a href="mailto:FartaMarket@gmail.com">
-                    FartaMarket@gmail.com
+                  <a href={`mailto:${contactEmail}`}>
+                    {contactEmail}
                   </a>
                 </li>
               </ul>
               <div className="footer__social" aria-label={t("footer.socialLinks")}>
-                {socialLinks.map(({ label, href, Icon }) => (
+                {configuredSocialLinks.map(({ label, href, Icon }) => (
                   <a
                     href={href}
                     key={label}
@@ -106,7 +122,7 @@ const Footer = () => {
               <h6>{t("footer.shop")}</h6>
               <ul>
                 <li>
-                  <a href="tel:0977232232">{t("footer.contact")}</a>
+                  <a href={`tel:${phone}`}>{t("footer.contact")}</a>
                 </li>
                 <li>
                   <Link to={ROUTERS.USER.HOME}>{t("footer.about")}</Link>

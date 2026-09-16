@@ -4,16 +4,18 @@ import { useTranslation } from "react-i18next";
 import axios from "api/axios";
 import { getApiBaseUrl } from "../../config/api";
 import useShoppingCart from "hooks/useShoppingCart";
-import toast from "react-hot-toast";
-import Button from "../Button";
+import { useSelector } from "react-redux";
 import "./style.scss";
 
-const CHAT_TIMEOUT_MS = 18000;
+const CHAT_TIMEOUT_MS = 30000;
 const HEALTH_TIMEOUT_MS = 5000;
 
 const ChatWidget = () => {
   const { t, i18n } = useTranslation();
   const { addToCart } = useShoppingCart();
+  const ownerId = useSelector((state) => state.auth?.user?.id || 0);
+  const ownerRef = useRef(ownerId);
+  ownerRef.current = ownerId;
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: "assistant", content: t("chat.welcome") },
@@ -27,6 +29,17 @@ const ChatWidget = () => {
   const isOpenRef = useRef(false);
   const isMountedRef = useRef(true);
   const requestControllerRef = useRef(null);
+
+  useEffect(() => {
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
+    setMessages([{ role: "assistant", content: t("chat.welcome") }]);
+    setInput("");
+    setLoading(false);
+    setUnreadCount(0);
+    // Conversation belongs to the current account; locale updates are handled separately.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ownerId]);
 
   useEffect(() => {
     isOpenRef.current = isOpen;
@@ -142,7 +155,7 @@ const ChatWidget = () => {
   const sendMessage = async () => {
     const message = input.trim();
 
-    if (!message || loading) {
+    if (!message || loading || requestControllerRef.current) {
       return;
     }
 
@@ -152,6 +165,7 @@ const ChatWidget = () => {
     setLoading(true);
 
     const controller = new AbortController();
+    const requestOwner = ownerId;
     let didTimeout = false;
     const timeoutId = window.setTimeout(() => {
       didTimeout = true;
@@ -165,6 +179,8 @@ const ChatWidget = () => {
         url: "/chat",
         method: "POST",
         signal: controller.signal,
+        timeout: CHAT_TIMEOUT_MS,
+        headers: { "Accept-Language": i18n.resolvedLanguage || i18n.language },
         data: {
           message,
           history: messages
@@ -174,6 +190,9 @@ const ChatWidget = () => {
         },
       });
 
+      if (!isMountedRef.current || ownerRef.current !== requestOwner) return;
+      if (controller.signal.aborted) throw new DOMException("Request aborted", "AbortError");
+
       if (typeof data.reply !== "string" || !data.reply.trim()) {
         throw new Error(data.message || "Chat request failed");
       }
@@ -181,29 +200,46 @@ const ChatWidget = () => {
       if (isMountedRef.current) {
         setServiceStatus("online");
       }
+      let finalReply = data.reply;
       if (
         data.action?.type === "add_to_cart" &&
         data.action.product &&
-        Number(data.action.quantity) > 0
+        Number.isInteger(data.action.quantity) && data.action.quantity > 0
       ) {
-        addToCart(data.action.product, Number(data.action.quantity));
-        toast.success(t("cart.added"));
+        const cartResult = addToCart(
+          data.action.product,
+          Number(data.action.quantity)
+        );
+        const addedCount = cartResult?.addedCount ?? 0;
+        const requestedCount = Number(data.action.quantity);
+        const maxLimit = cartResult?.maxInventory ?? 0;
+        const interpolation = { count: addedCount, name: data.action.product.name, limit: maxLimit };
+
+        if (addedCount <= 0) {
+          finalReply = t("chat.cartLimit", interpolation);
+        } else if (addedCount < requestedCount) {
+          finalReply = t("chat.cartPartial", interpolation);
+        } else {
+          finalReply = t("chat.cartAdded", interpolation);
+        }
       }
-      appendAssistantMessage(data.reply);
+      appendAssistantMessage(finalReply);
     } catch (error) {
       const status = error?.response?.status;
-      const responseData = error?.response?.data || {};
 
       if (status === 429) {
         errorMessage = t("chat.rateLimited");
       } else if (status === 503) {
-        errorMessage = responseData.message || t("chat.unavailable");
+        errorMessage = t("chat.unavailable");
+      } else if (status === 409) {
+        errorMessage = t("chat.busy");
       }
 
-      if (didTimeout) {
+      if (didTimeout || ["ECONNABORTED", "ETIMEDOUT"].includes(error?.code)) {
         errorMessage = t("chat.timeout");
       }
 
+      if (!isMountedRef.current || ownerRef.current !== requestOwner || (controller.signal.aborted && !didTimeout)) return;
       if (isMountedRef.current) {
         setServiceStatus("offline");
       }
@@ -212,9 +248,7 @@ const ChatWidget = () => {
       window.clearTimeout(timeoutId);
       if (requestControllerRef.current === controller) {
         requestControllerRef.current = null;
-      }
-      if (isMountedRef.current) {
-        setLoading(false);
+        if (isMountedRef.current) setLoading(false);
       }
     }
   };
@@ -306,16 +340,14 @@ const ChatWidget = () => {
               onKeyDown={handleInputKeyDown}
               aria-label={t("chat.placeholder")}
             />
-            <Button
+            <button
               type="button"
-              className="chat-widget__send"
-              iconOnly
               onClick={sendMessage}
               disabled={!input.trim() || loading}
               aria-label={t("chat.send")}
             >
               <FiSend />
-            </Button>
+            </button>
           </footer>
         </section>
       )}

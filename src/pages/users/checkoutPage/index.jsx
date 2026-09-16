@@ -1,6 +1,6 @@
 import "./style.scss";
 import { memo, useEffect, useRef, useState } from "react";
-import { formatter } from "utils/fomater";
+import { formatter } from "utils/formatter";
 import Breadcrumb from "../theme/breadcrumb";
 import { SESSION_KEYS } from "utils/constant";
 import { useMutation } from "@tanstack/react-query";
@@ -12,25 +12,22 @@ import {
 } from "api/orderPage";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useShoppingCart from "hooks/useShoppingCart";
-import { getSessionItem } from "utils/session";
+import { setSessionItem } from "utils/session";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { translateProductName } from "utils/i18nLabels";
 import { getAddressesAPI, getProfileAPI } from "api/profile";
+import { useGetSiteContentUS } from "api/homePage";
 import { selectCustomerUser } from "../../../redux/authSlice";
-import { Button } from "component";
+import { getAnalyticsSessionId } from "utils/analytics";
 
 const CheckoutPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { clearCart } = useShoppingCart();
-  const cart = getSessionItem(SESSION_KEYS.CART, {
-    products: [],
-    totalPrice: 0,
-    totalQuantity: 0,
-  });
+  const cart = useSelector((state) => state.commonSlide.cart);
 
   const [orderError, setOrderError] = useState("");
   const idempotencyKeyRef = useRef(
@@ -41,17 +38,19 @@ const CheckoutPage = () => {
   const { mutate: submitOrder, isPending } = useMutation({
     mutationFn: ({ payload, idempotencyKey, paymentMethod }) =>
       paymentMethod === "vnpay"
-        ? createVNPayPaymentAPI(payload, idempotencyKey)
-        : postOrderAPI(payload, idempotencyKey),
+        ? createVNPayPaymentAPI(payload, idempotencyKey, getAnalyticsSessionId())
+        : postOrderAPI(payload, idempotencyKey, getAnalyticsSessionId()),
     onSuccess: (response, variables) => {
       const order = response?.data;
 
       if (variables.paymentMethod === "vnpay") {
+        setSessionItem(SESSION_KEYS.LAST_ORDER_SUCCESS, order);
         window.location.href = response.payment_url;
         return;
       }
 
       toast.success(t("order.success"));
+      setSessionItem(SESSION_KEYS.LAST_ORDER_SUCCESS, order);
       clearCart();
       navigate(`${ROUTERS.USER.ORDER_SUCCESS}?orderId=${order?.id || ""}`, {
         state: { order },
@@ -87,9 +86,12 @@ const CheckoutPage = () => {
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const [useManualAddress, setUseManualAddress] = useState(false);
   const currentUser = useSelector(selectCustomerUser);
+  const { data: siteContent } = useGetSiteContentUS();
   const isLoggedIn = Boolean(currentUser);
   const subtotal = Number(cart.totalPrice || 0);
-  const shippingFee = subtotal > 0 && subtotal < 200000 ? 20000 : 0;
+  const freeShippingThreshold = Number(siteContent?.settings?.free_shipping_threshold ?? 200000);
+  const configuredShippingFee = Number(siteContent?.settings?.shipping_fee ?? 20000);
+  const shippingFee = subtotal > 0 && subtotal < freeShippingThreshold ? configuredShippingFee : 0;
   const grandTotal = subtotal + shippingFee;
   const finalTotal = Math.max(grandTotal - couponDiscount, 0);
 
@@ -527,9 +529,8 @@ const CheckoutPage = () => {
                   </label>
                 </div>
                 {orderError && <span className="error">{orderError}</span>}
-                <Button
+                <button
                   type="submit"
-                  variant="primary"
                   className="button-submit"
                   data-testid="place-order"
                   disabled={isPending}
@@ -542,7 +543,7 @@ const CheckoutPage = () => {
                       ? t("checkout.payWithVnpay")
                       : t("checkout.placeOrder")}
                   </span>
-                </Button>
+                </button>
               </div>
             </div>
           </div>

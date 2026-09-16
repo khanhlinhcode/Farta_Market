@@ -13,7 +13,7 @@ import Breadcrumb from "../theme/breadcrumb";
 import { getWishlistAPI, removeWishlistAPI } from "api/wishlist";
 import useShoppingCart from "hooks/useShoppingCart";
 import { addToWishlist, removeFromWishlist, setWishlist } from "../../../redux/wishlistSlice";
-import { formatter } from "utils/fomater";
+import { formatter } from "utils/formatter";
 import { resolveProductImage } from "utils/productImages";
 import { ROUTERS } from "utils/router";
 import { translateProductName } from "utils/i18nLabels";
@@ -89,7 +89,6 @@ const WishlistPage = () => {
     }
 
     addToCart(product, 1);
-    toast.success(t("cart.added"));
   };
 
   return (

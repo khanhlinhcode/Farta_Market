@@ -7,7 +7,7 @@ import {
   AiOutlineShoppingCart,
 } from "react-icons/ai";
 import { generatePath, Link } from "react-router-dom";
-import { formatter } from "utils/fomater";
+import { formatter } from "utils/formatter";
 import { ROUTERS } from "utils/router";
 import { resolveProductImage } from "utils/productImages";
 import useShoppingCart from "hooks/useShoppingCart";
@@ -33,7 +33,6 @@ const ProductCard = ({ product }) => {
     }
 
     addToCart(product, 1);
-    toast.success(t("cart.added"));
   };
 
   return (

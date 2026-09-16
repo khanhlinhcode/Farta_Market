@@ -3,6 +3,7 @@ import {
   getCategoriesAPI,
   getProductsAPI,
   getRecommendedProductsAPI,
+  getSiteContentAPI,
 } from "./request";
 import { optionUseQuery } from "utils/common";
 export const useGetCategoriesUS = (option) => {
@@ -31,6 +32,16 @@ export const useRecommendedProductsUS = (option = {}) => {
     queryKey: ["GetRecommendedProductsAPI"],
     queryFn: () => getRecommendedProductsAPI(),
     select: (response) => response?.data || [],
+    ...optionUseQuery,
+    ...option,
+  });
+};
+
+export const useGetSiteContentUS = (option = {}) => {
+  return useQuery({
+    queryKey: ["GetSiteContentAPI"],
+    queryFn: getSiteContentAPI,
+    staleTime: 5 * 60 * 1000,
     ...optionUseQuery,
     ...option,
   });

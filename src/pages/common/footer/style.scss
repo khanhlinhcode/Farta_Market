@@ -2,7 +2,7 @@
 @use "style/pages/theme" as *;
 
 .footer {
-  background: var(--gradient-footer);
+  background: #f3f6fa;
   padding-top: 70px;
   padding-bottom: 0px;
   .footer__about {
@@ -47,7 +47,7 @@
 
       a {
         align-items: center;
-        background: var(--gradient-glass);
+        background: #ffffff;
         border: 1px solid #ededed;
         border-radius: 50%;
         color: #404040;
@@ -65,11 +65,9 @@
         }
 
         &:hover {
-          background: var(--gradient-primary);
+          background: map.get($theme-colors, "main");
           border-color: map.get($theme-colors, "main");
           color: #ffffff;
-          box-shadow: 0 12px 24px rgba(0, 136, 116, 0.18);
-          transform: translateY(-1px);
         }
       }
     }

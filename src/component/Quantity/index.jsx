@@ -1,8 +1,8 @@
 import useShoppingCart from "hooks/useShoppingCart";
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import toast from "react-hot-toast";
 import "./style.scss";
+import { getCartLineLimit, MAX_CART_LINE_QUANTITY } from "utils/constant";
 const Quantity = ({
   hasAddToCart = true,
   product,
@@ -12,8 +12,11 @@ const Quantity = ({
 }) => {
   const { t } = useTranslation();
   const { addToCart } = useShoppingCart();
-  const max = Math.max(1, Number(maxQuantity || product?.inventory || 1));
-  const [quantity, setQuantity] = useState(Math.min(initQuantity || 1, max));
+  const max = Math.min(getCartLineLimit(product?.inventory), maxQuantity === undefined ? MAX_CART_LINE_QUANTITY : getCartLineLimit(maxQuantity));
+  const initial = Number.isInteger(initQuantity) && initQuantity > 0 ? initQuantity : 1;
+  const [quantity, setQuantity] = useState(Math.min(initial, max));
+
+  useEffect(() => setQuantity(Math.min(initial, max)), [initial, max, product?.id]);
 
   const incrementQuantity = (isPlus) => {
     if (!isPlus && quantity <= 1) {
@@ -40,7 +43,7 @@ const Quantity = ({
         >
           -
         </button>
-        <input type="number" value={quantity} readOnly />
+        <input type="number" value={quantity} min={max === 0 ? 0 : 1} max={max} disabled={max === 0} readOnly />
         <button
           type="button"
           className="qtybtn"
@@ -55,10 +58,9 @@ const Quantity = ({
           type="button"
           className="button-submit"
           data-testid="add-to-cart"
-          disabled={!product || Number(product.inventory || 0) <= 0}
+          disabled={!product || max === 0}
           onClick={() => {
             addToCart(product, quantity);
-            toast.success(t("cart.added"));
           }}
         >
           {Number(product?.inventory || 0) > 0

@@ -4,6 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "../../i18n";
 import i18n from "../../i18n";
+import { Provider } from "react-redux";
+import store from "../../redux/store";
 
 const { addToCartMock, axiosMock } = vi.hoisted(() => ({
   addToCartMock: vi.fn(),
@@ -32,6 +34,7 @@ describe("ChatWidget", () => {
   beforeEach(async () => {
     await i18n.changeLanguage("vi");
     addToCartMock.mockReset();
+    addToCartMock.mockReturnValue({ addedCount: 2, totalQuantity: 2, maxInventory: 30 });
     axiosMock.mockReset();
     Element.prototype.scrollIntoView = vi.fn();
   });
@@ -45,7 +48,7 @@ describe("ChatWidget", () => {
       jsonResponse({ status: "online" })
     );
 
-    const { container } = render(<ChatWidget />);
+    const { container } = render(<Provider store={store}><ChatWidget /></Provider>);
 
     expect(container.querySelector(".chat-widget__badge")).toBeNull();
 
@@ -62,7 +65,7 @@ describe("ChatWidget", () => {
     );
     axiosMock.mockResolvedValue({ reply: "Cam tươi có giá 50.000đ." });
 
-    render(<ChatWidget />);
+    render(<Provider store={store}><ChatWidget /></Provider>);
 
     await userEvent.click(
       screen.getByRole("button", { name: "Farta Assistant" })
@@ -92,7 +95,7 @@ describe("ChatWidget", () => {
   it("aborts a slow chat request and allows the UI to recover", async () => {
     const nativeSetTimeout = window.setTimeout.bind(window);
     vi.spyOn(window, "setTimeout").mockImplementation((callback, delay, ...args) => {
-      if (delay === 18000) {
+      if (delay === 30000) {
         return nativeSetTimeout(callback, 0, ...args);
       }
 
@@ -129,7 +132,7 @@ describe("ChatWidget", () => {
       });
     });
 
-    render(<ChatWidget />);
+    render(<Provider store={store}><ChatWidget /></Provider>);
     await userEvent.click(
       screen.getByRole("button", { name: "Farta Assistant" })
     );
@@ -177,7 +180,7 @@ describe("ChatWidget", () => {
       },
     });
 
-    render(<ChatWidget />);
+    render(<Provider store={store}><ChatWidget /></Provider>);
 
     await userEvent.click(
       screen.getByRole("button", { name: "Farta Assistant" })

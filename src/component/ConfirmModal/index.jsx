@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-import Button from "../Button";
 import "./style.scss";
 
 const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
@@ -18,12 +17,12 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
         <h2 id="confirm-modal-title">{title || t("confirm.title")}</h2>
         <p>{message || t("confirm.message")}</p>
         <div className="confirm-modal__actions">
-          <Button type="button" variant="ghost" className="confirm-modal__button" onClick={onCancel}>
+          <button type="button" className="confirm-modal__button confirm-modal__button--ghost" onClick={onCancel}>
             {t("confirm.cancel")}
-          </Button>
-          <Button type="button" variant="destructive" className="confirm-modal__button" onClick={onConfirm}>
+          </button>
+          <button type="button" className="confirm-modal__button confirm-modal__button--danger" onClick={onConfirm}>
             {t("confirm.confirm")}
-          </Button>
+          </button>
         </div>
       </div>
     </div>,

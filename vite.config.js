@@ -72,7 +72,6 @@ export default defineConfig(async () => {
 
             if (
               normalizedId.includes("/node_modules/axios/") ||
-              normalizedId.includes("/node_modules/lodash.debounce/") ||
               normalizedId.includes("/node_modules/dompurify/")
             ) {
               return "vendor-utils";

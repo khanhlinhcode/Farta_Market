@@ -1,8 +1,7 @@
-import { memo, useEffect, useMemo, useRef, useState } from "react";
-import debounce from "lodash.debounce";
+import { memo, useEffect, useRef, useState } from "react";
 import { generatePath, useLocation, useNavigate } from "react-router-dom";
 import { getProductSuggestionsAPI } from "api/homePage";
-import { formatter } from "utils/fomater";
+import { formatter } from "utils/formatter";
 import { ROUTERS } from "utils/router";
 import { resolveProductImage } from "utils/productImages";
 import { useTranslation } from "react-i18next";
@@ -14,6 +13,8 @@ const SearchBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const wrapperRef = useRef(null);
+  const timerRef = useRef(null);
+  const requestIdRef = useRef(0);
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -39,35 +40,58 @@ const SearchBar = () => {
     navigate(generatePath(ROUTERS.USER.PRODUCT, { id: product.id }));
   };
 
-  const debouncedFetch = useMemo(
-    () =>
-      debounce(async (keyword) => {
-        const normalized = keyword.trim();
+  const fetchSuggestions = (keyword) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
 
-        if (!normalized) {
-          setSuggestions([]);
-          setIsOpen(false);
+    const currentRequestId = ++requestIdRef.current;
+
+    const normalized = keyword.trim();
+    if (!normalized) {
+      setSuggestions([]);
+      setIsOpen(false);
+      return;
+    }
+
+    timerRef.current = setTimeout(async () => {
+      try {
+        const response = await getProductSuggestionsAPI(normalized);
+        if (currentRequestId !== requestIdRef.current) {
           return;
         }
-
-        try {
-          const response = await getProductSuggestionsAPI(normalized);
-          const nextSuggestions = response?.data || [];
-          setSuggestions(nextSuggestions);
-          setIsOpen(true);
-          setActiveIndex(nextSuggestions.length ? 0 : -1);
-        } catch (error) {
-          setSuggestions([]);
-          setIsOpen(false);
+        const nextSuggestions = response?.data || [];
+        setSuggestions(nextSuggestions);
+        setIsOpen(true);
+        setActiveIndex(nextSuggestions.length ? 0 : -1);
+      } catch (error) {
+        if (currentRequestId !== requestIdRef.current) {
+          return;
         }
-      }, 300),
-    []
-  );
-
-  useEffect(() => () => debouncedFetch.cancel(), [debouncedFetch]);
+        setSuggestions([]);
+        setIsOpen(false);
+      }
+    }, 300);
+  };
 
   useEffect(() => {
+    return () => {
+      requestIdRef.current++;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    requestIdRef.current++;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     setQuery(new URLSearchParams(location.search).get("q") || "");
+    setSuggestions([]);
     setIsOpen(false);
     setActiveIndex(-1);
   }, [location]);
@@ -98,7 +122,7 @@ const SearchBar = () => {
   const handleChange = (event) => {
     const nextQuery = event.target.value;
     setQuery(nextQuery);
-    debouncedFetch(nextQuery);
+    fetchSuggestions(nextQuery);
   };
 
   const handleKeyDown = (event) => {

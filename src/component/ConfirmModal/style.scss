@@ -17,10 +17,9 @@
 }
 
 .confirm-modal__content {
-  background: var(--gradient-surface);
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 8px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18);
   max-width: 420px;
   padding: 24px;
   position: relative;
@@ -47,18 +46,18 @@
 
 .confirm-modal__button {
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   font-weight: 700;
   padding: 10px 16px;
 }
 
 .confirm-modal__button--ghost {
-  background: var(--gradient-card);
+  background: #f5f5f5;
   color: #333333;
 }
 
 .confirm-modal__button--danger {
-  background: var(--gradient-danger);
+  background: #d64545;
   color: #ffffff;
 }

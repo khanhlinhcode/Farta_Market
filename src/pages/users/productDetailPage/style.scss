@@ -22,10 +22,7 @@
   .product__detail__pic-main img {
     width: 100%;
     aspect-ratio: 1 / 1;
-    background: var(--gradient-hero-mesh);
-    border: 1px solid rgba(230, 236, 234, 0.86);
-    border-radius: 8px;
-    box-shadow: var(--shadow-apple);
+    background: #f3f6fa;
     display: block;
     object-fit: contain;
   }
@@ -36,23 +33,20 @@
     min-width: 0;
 
     button {
-      background: var(--gradient-card);
+      background: transparent;
       border: 1px solid transparent;
-      border-radius: 6px;
       cursor: pointer;
       padding: 0;
 
       &.is-active {
         border-color: map.get($theme-colors, "main");
-        box-shadow: 0 10px 22px rgba(0, 136, 116, 0.12);
       }
     }
 
     img {
       width: 100%;
       aspect-ratio: 1 / 1;
-      background: var(--gradient-card);
-      border-radius: 6px;
+      background: #f3f6fa;
       display: block;
       object-fit: contain;
     }
@@ -186,10 +180,9 @@
 }
 
 .product__reviews {
-  background: var(--gradient-surface);
+  background: #ffffff;
   border: 1px solid #edf2f7;
   border-radius: 8px;
-  box-shadow: var(--shadow-apple);
   margin: 26px 0 36px;
   padding: 24px;
 
@@ -218,7 +211,7 @@
 
   &__state,
   &__hint {
-    background: var(--gradient-primary-soft);
+    background: #f7fbfa;
     border: 1px solid #e6ecea;
     border-radius: 6px;
     color: #667085;
@@ -227,7 +220,7 @@
 
     &.is-error {
       background: #fef3f2;
-      color: var(--color-danger-deep);
+      color: #b42318;
     }
   }
 
@@ -237,7 +230,7 @@
   }
 
   &__more {
-    background: var(--gradient-glass);
+    background: #ffffff;
     border: 1px solid #b7ddd7;
     border-radius: 6px;
     color: map.get($theme-colors, "main");
@@ -279,7 +272,7 @@
     }
 
     > button {
-      background: var(--gradient-primary);
+      background: map.get($theme-colors, "main");
       border: none;
       border-radius: 6px;
       color: #ffffff;
@@ -288,7 +281,6 @@
       justify-self: start;
       min-height: 42px;
       padding: 0 18px;
-      box-shadow: 0 12px 24px rgba(0, 136, 116, 0.16);
 
       &:disabled {
         cursor: wait;
@@ -308,7 +300,7 @@
 }
 
 .product__review {
-  background: var(--gradient-card);
+  background: #fbfdfc;
   border: 1px solid #edf2f7;
   border-radius: 8px;
   padding: 14px;
@@ -352,7 +344,7 @@
   }
 
   button {
-    background: var(--gradient-primary);
+    background: map.get($theme-colors, "main");
     border: 0;
     border-radius: 6px;
     color: #ffffff;
@@ -361,7 +353,6 @@
     min-height: 40px;
     padding: 0 18px;
     white-space: nowrap;
-    box-shadow: 0 12px 24px rgba(0, 136, 116, 0.16);
 
     &:disabled {
       cursor: not-allowed;
@@ -371,10 +362,9 @@
 }
 
 .product__frequently {
-  background: var(--gradient-surface);
+  background: #ffffff;
   border: 1px solid #edf2f7;
   border-radius: 8px;
-  box-shadow: var(--shadow-apple);
   margin: 26px 0 36px;
   padding: 22px;
 }
@@ -387,7 +377,7 @@
 
 .product__frequently-item {
   align-items: center;
-  background: var(--gradient-card);
+  background: #fbfdfc;
   border: 1px solid #edf2f7;
   border-radius: 8px;
   cursor: pointer;
@@ -396,20 +386,13 @@
   grid-template-columns: 18px 58px minmax(0, 1fr) auto;
   min-width: 0;
   padding: 10px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
-
-  &:hover {
-    border-color: #b7ddd7;
-    box-shadow: 0 12px 24px rgba(0, 136, 116, 0.1);
-    transform: translateY(-1px);
-  }
 
   input {
     accent-color: map.get($theme-colors, "main");
   }
 
   img {
-    background: var(--gradient-primary-soft);
+    background: #f3f6fa;
     border-radius: 6px;
     height: 58px;
     object-fit: contain;

@@ -1,4 +1,4 @@
-import { formatter } from "./fomater";
+import { formatter } from "./formatter";
 
 test("formats numbers as Vietnamese currency", () => {
   const result = formatter(200000);

@@ -25,23 +25,20 @@
         gap: 10px;
         flex-wrap: wrap;
         .tag {
-          border: 1px solid transparent;
+          border: none;
           font-size: 12px;
           color: #6f6f6f;
           display: inline-block;
           padding: 8px 25px 6px;
           cursor: pointer;
-          background: var(--gradient-card);
+          background: #f5f5f5;
           margin-bottom: 0;
-          transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 
           &:hover,
           &:active,
           &.active {
-            background: var(--gradient-primary);
+            background: map.get($theme-colors, "main");
             color: #ffffff;
-            box-shadow: 0 10px 20px rgba(0, 136, 116, 0.16);
-            transform: translateY(-1px);
           }
         }
       }
@@ -83,12 +80,11 @@
   button {
     border: none;
     border-radius: 3px;
-    background: var(--gradient-primary);
+    background: map.get($theme-colors, "main");
     color: #ffffff;
     cursor: pointer;
     font-weight: 700;
     padding: 0 14px;
-    box-shadow: 0 10px 20px rgba(0, 136, 116, 0.14);
   }
 }
 .product-filter-error {
@@ -98,8 +94,8 @@
   margin-top: 8px;
 }
 .product-filter-reset {
-  background: var(--gradient-card);
-  border: 1px solid #e6ecea;
+  background: #f5f5f5;
+  border: 1px solid #ebebeb;
   color: map.get($theme-colors, "nomal-text");
   cursor: pointer;
   font-weight: 700;
@@ -135,7 +131,7 @@
   justify-content: flex-end;
 
   button {
-    background: var(--gradient-primary-soft);
+    background: #edf7f5;
     border: 1px solid #c9e8e2;
     border-radius: 3px;
     color: map.get($theme-colors, "main");
@@ -171,7 +167,7 @@
 
   button {
     border: 1px solid #ebebeb;
-    background: var(--gradient-card);
+    background: #ffffff;
     color: map.get($theme-colors, "nomal-text");
     cursor: pointer;
     min-width: 40px;
@@ -180,10 +176,9 @@
 
     &:hover,
     &.active {
-      background: var(--gradient-primary);
+      background: map.get($theme-colors, "main");
       border-color: map.get($theme-colors, "main");
       color: #ffffff;
-      box-shadow: 0 10px 20px rgba(0, 136, 116, 0.14);
     }
 
     &:disabled {
@@ -210,7 +205,7 @@
 @media (max-width: 768px) {
   .product-filter-toggle {
     align-items: center;
-    background: var(--gradient-primary);
+    background: map.get($theme-colors, "main");
     border: 0;
     color: #ffffff;
     cursor: pointer;
@@ -243,8 +238,7 @@
   }
 
   .container .sidebar {
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(16px);
+    background: #ffffff;
     box-sizing: border-box;
     height: 100dvh;
     left: 0;

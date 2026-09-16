@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import commonReducer from "./commonSlide";     
+import commonReducer from "./cartSlice";
 import wishlistReducer from "./wishlistSlice";
 import authReducer from "./authSlice";
 

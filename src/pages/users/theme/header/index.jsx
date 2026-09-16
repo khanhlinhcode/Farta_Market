@@ -2,20 +2,19 @@ import "./style.scss";
 import { ROUTERS } from "utils/router";
 import { BiUser } from "react-icons/bi";
 import { MdEmail } from "react-icons/md";
-import { formatter } from "utils/fomater";
-import { setCart } from "../../../../redux/commonSlide";
-import { SESSION_KEYS } from "utils/constant";
-import { useGetCategoriesUS } from "api/homePage";
+import { formatter } from "utils/formatter";
+import { useGetCategoriesUS, useGetSiteContentUS } from "api/homePage";
 import { LanguageSwitcher, SearchBar } from "component";
 import { useDispatch, useSelector } from "react-redux";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getSessionItem } from "utils/session";
+import useShoppingCart from "hooks/useShoppingCart";
 import bannerImg from "assets/users/images/hero/Banner.png";
 import { translateCategoryName } from "utils/i18nLabels";
 import { clearUserSession, getUserName } from "utils/userAuth";
 import { logoutUserAPI } from "api/auth";
+import { isExternalUrl, localizedValue } from "utils/siteContent";
 import {
   clearCustomerUser,
   selectCustomerUser,
@@ -38,28 +37,32 @@ const SOCIAL_LINKS = [
   {
     label: "Facebook",
     href: "https://www.facebook.com",
+    field: "facebook_url",
     Icon: AiOutlineFacebook,
   },
   {
     label: "Instagram",
     href: "https://www.instagram.com",
+    field: "instagram_url",
     Icon: AiOutlineInstagram,
   },
   {
     label: "LinkedIn",
     href: "https://www.linkedin.com",
+    field: "linkedin_url",
     Icon: AiOutlineLinkedin,
   },
   {
     label: "Twitter",
     href: "https://www.twitter.com",
+    field: "twitter_url",
     Icon: AiFillTwitterSquare,
   },
 ];
 
 const Header = () => {
-  const { t } = useTranslation();
-  const contactPhone = "0393886668";
+  const { t, i18n } = useTranslation();
+  useShoppingCart();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -79,14 +82,42 @@ const Header = () => {
     setShowCategories(isHome);
   }, [location]);
 
-  useEffect(() => {
-    const cart = getSessionItem(SESSION_KEYS.CART);
-    if (cart) {
-      dispatch(setCart(cart));
-    }
-  }, [dispatch]);
-
   const { data: categories } = useGetCategoriesUS();
+  const { data: siteContent } = useGetSiteContentUS();
+  const settings = siteContent?.settings || {};
+  const contactEmail = settings.contact_email || CONTACT_EMAIL;
+  const contactPhone = settings.contact_phone || "0977232232";
+  const supportPhone = settings.support_phone || contactPhone;
+  const freeShippingThreshold = Number(settings.free_shipping_threshold ?? 200000);
+  const brandName = settings.brand_name || t("brand.name");
+  const socialLinks = SOCIAL_LINKS.map((item) => ({
+    ...item,
+    href: siteContent ? settings[item.field] : item.href,
+  })).filter((item) => item.href);
+  const heroBanner = (siteContent?.banners || []).find(
+    (banner) => banner.placement === "hero"
+  );
+  const heroTitle = localizedValue(heroBanner, "title", i18n.resolvedLanguage);
+  const heroSubtitle = localizedValue(
+    heroBanner,
+    "subtitle",
+    i18n.resolvedLanguage,
+    t("home.hero.subtitle")
+  );
+  const heroButton = localizedValue(
+    heroBanner,
+    "button_label",
+    i18n.resolvedLanguage,
+    t("home.hero.cta")
+  );
+  const heroAlt = localizedValue(
+    heroBanner,
+    "alt_text",
+    i18n.resolvedLanguage,
+    heroTitle || t("home.hero.titleLine1")
+  );
+  const heroPath = heroBanner?.link_url || ROUTERS.USER.PRODUCTS;
+  const heroImage = heroBanner?.image_url || bannerImg;
   const menus = useMemo(() => {
     const categoryItems =
       categories?.map((category) => ({
@@ -202,7 +233,7 @@ const Header = () => {
       >
         <div className="header__logo">
           <Link to={ROUTERS.USER.HOME} onClick={() => setShowHumberger(false)}>
-            <h1>{t("brand.name")}</h1>
+            <h1>{brandName}</h1>
           </Link>
         </div>
         <div className="hunberger__menu__cart">
@@ -294,7 +325,7 @@ const Header = () => {
           </ul>
         </div>
         <div className="header__top__right__social">
-          {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+          {socialLinks.map(({ label, href, Icon }) => (
             <a href={href} key={label} target="_blank" rel="noreferrer" aria-label={label}>
               <Icon />
             </a>
@@ -304,9 +335,9 @@ const Header = () => {
           <ul>
             <li>
               <MdEmail />
-              <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
             </li>
-            <li>{t("navbar.freeShipping", { amount: formatter(200000) })}</li>
+            <li>{t("navbar.freeShipping", { amount: formatter(freeShippingThreshold) })}</li>
           </ul>
         </div>
       </div>
@@ -318,14 +349,14 @@ const Header = () => {
               <ul>
                 <li>
                   <AiOutlineMail />
-                  <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+                  <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
                 </li>
-                <li>{t("navbar.freeShipping", { amount: formatter(200000) })}</li>
+                <li>{t("navbar.freeShipping", { amount: formatter(freeShippingThreshold) })}</li>
               </ul>
             </div>
             <div className="col-6 header__top_right">
               <ul>
-                {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+                {socialLinks.map(({ label, href, Icon }) => (
                   <li key={label}>
                     <a href={href} target="_blank" rel="noreferrer" aria-label={label}>
                       <Icon />
@@ -368,7 +399,7 @@ const Header = () => {
           <div className="col-lg-3 header__main__logo">
             <div className="header__logo">
               <Link to={ROUTERS.USER.HOME}>
-                <h1>{t("brand.name")}</h1>
+                <h1>{brandName}</h1>
               </Link>
             </div>
           </div>
@@ -445,7 +476,7 @@ const Header = () => {
                   <AiOutlinePhone />
                 </div>
                 <div className="hero__search__phone__text">
-                  <p>0393.886. 668</p>
+                  <p><a href={`tel:${supportPhone}`}>{supportPhone}</a></p>
                   <span>{t("navbar.support")}</span>
                 </div>
               </div>
@@ -453,18 +484,19 @@ const Header = () => {
             {isHome && (
               <div
                 className="hero__item"
-                style={{ backgroundImage: `url(${bannerImg})` }}
+                style={{ backgroundImage: `url(${heroImage})` }}
+                role="img"
+                aria-label={heroAlt}
               >
                 <div className="hero__text">
                   <span>{t("home.hero.eyebrow")}</span>
-                  <h2>
-                    {t("home.hero.titleLine1")} <br />
-                    {t("home.hero.titleLine2")}
-                  </h2>
-                  <p>{t("home.hero.subtitle")}</p>
-                  <Link to={ROUTERS.USER.PRODUCTS} className="primary-btn">
-                    {t("home.hero.cta")}
-                  </Link>
+                  <h2>{heroTitle || <>{t("home.hero.titleLine1")} <br />{t("home.hero.titleLine2")}</>}</h2>
+                  <p>{heroSubtitle}</p>
+                  {isExternalUrl(heroPath) ? (
+                    <a href={heroPath} className="primary-btn" target="_blank" rel="noreferrer">{heroButton}</a>
+                  ) : (
+                    <Link to={heroPath} className="primary-btn">{heroButton}</Link>
+                  )}
                 </div>
               </div>
             )}

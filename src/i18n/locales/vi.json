@@ -186,8 +186,7 @@
     "loginSuccess": "Đăng nhập thành công.",
     "registerSuccess": "Tạo tài khoản thành công.",
     "error": "Không xử lý được yêu cầu, vui lòng kiểm tra lại.",
-    "continueShopping": "Tiếp tục mua sắm",
-    "adminLogin": "Đăng nhập cho quản trị"
+    "continueShopping": "Tiếp tục mua sắm"
   },
   "profile": {
     "title": "Thông tin cá nhân",
@@ -253,6 +252,10 @@
     "starRatingLabel": "Chọn {{value}} sao"
   },
   "cart": {
+    "adjusted": "Giỏ hàng đã được điều chỉnh theo tồn kho và giới hạn 100 sản phẩm mỗi dòng.",
+    "nothingAdded": "Không thêm được sản phẩm: giỏ đã đạt giới hạn hoặc sản phẩm không khả dụng.",
+    "addedCount": "Đã thêm {{count}} sản phẩm vào giỏ hàng.",
+    "partiallyAdded": "Đã thêm {{count}} trong {{requested}} sản phẩm yêu cầu vào giỏ hàng.",
     "title": "Giỏ hàng",
     "name": "Tên",
     "product": "Sản phẩm",
@@ -274,6 +277,9 @@
     "removed": "Đã xóa khỏi giỏ hàng"
   },
   "order": {
+    "verificationTitle": "Kiểm tra đơn hàng",
+    "verificationChecking": "Đang xác minh đơn hàng với cửa hàng.",
+    "verificationFailed": "Chưa xác minh được đơn hàng hoặc thanh toán. Vui lòng kiểm tra trong đơn hàng của bạn.",
     "success": "Đặt hàng thành công! Chúng tôi sẽ liên hệ sớm.",
     "successTitle": "Đặt hàng thành công",
     "successMessage": "Cảm ơn bạn đã mua sắm tại Farta Market. Chúng tôi sẽ xác nhận và giao hàng trong thời gian sớm nhất.",
@@ -631,6 +637,10 @@
     "cancel": "Hủy"
   },
   "chat": {
+    "cartAdded": "Đã thêm {{count}} {{name}} vào giỏ hàng.",
+    "cartPartial": "Đã thêm {{count}} {{name}} vào giỏ hàng (giỏ hàng đã đạt tối đa {{limit}} sản phẩm).",
+    "cartLimit": "Sản phẩm {{name}} trong giỏ đã đạt tối đa số lượng khả dụng ({{limit}}).",
+    "busy": "Một yêu cầu đang được xử lý. Vui lòng thử lại.",
     "title": "Farta Assistant",
     "welcome": "Xin chào! Tôi có thể giúp bạn tìm sản phẩm hoặc giải đáp thắc mắc 🛒",
     "placeholder": "Nhập câu hỏi...",
