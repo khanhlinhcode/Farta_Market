@@ -2,7 +2,6 @@ import { Provider } from "react-redux";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import store from "../../redux/store";
-import { SESSION_KEYS } from "utils/constant";
 import AuthBootstrap from ".";
 
 vi.mock("api/auth", () => ({
@@ -36,7 +35,7 @@ describe("AuthBootstrap", () => {
 
   it("removes legacy persisted order details on startup", async () => {
     window.localStorage.setItem(
-      SESSION_KEYS.LAST_ORDER_SUCCESS,
+      "farta_last_order_success",
       JSON.stringify({ address: "PII must not persist" })
     );
 
@@ -47,7 +46,7 @@ describe("AuthBootstrap", () => {
     );
 
     await waitFor(() => {
-      expect(window.localStorage.getItem(SESSION_KEYS.LAST_ORDER_SUCCESS)).toBeNull();
+      expect(window.localStorage.getItem("farta_last_order_success")).toBeNull();
     });
   });
 });

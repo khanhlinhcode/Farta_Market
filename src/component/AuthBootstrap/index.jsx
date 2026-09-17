@@ -7,8 +7,6 @@ import {
   setAuthenticatedUser,
 } from "../../redux/authSlice";
 import { clearUserSession } from "utils/userAuth";
-import { removeSessionItem } from "utils/session";
-import { SESSION_KEYS } from "utils/constant";
 
 const AuthBootstrap = () => {
   const dispatch = useDispatch();
@@ -18,7 +16,9 @@ const AuthBootstrap = () => {
 
     clearUserSession();
     ["farta_admin_token", "farta_admin_role"].forEach((key) => window.localStorage.removeItem(key));
-    removeSessionItem(SESSION_KEYS.LAST_ORDER_SUCCESS);
+    [window.localStorage, window.sessionStorage].forEach((storage) =>
+      storage.removeItem("farta_last_order_success")
+    );
 
     const bootstrap = async () => {
       try {

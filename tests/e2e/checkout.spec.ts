@@ -12,6 +12,19 @@ test("user can complete purchase flow", async ({ page }) => {
   await page.fill('[name="email"]', "test@example.com");
   await page.getByTestId("place-order").click();
   await expect(page).toHaveURL(/dat-hang-thanh-cong/);
+  const persistedOrder = await page.evaluate(() => ({
+    local: localStorage.getItem("farta_last_order_success"),
+    session: sessionStorage.getItem("farta_last_order_success"),
+    allValues: JSON.stringify({
+      local: Object.values(localStorage),
+      session: Object.values(sessionStorage),
+    }),
+  }));
+  expect(persistedOrder.local).toBeNull();
+  expect(persistedOrder.session).toBeNull();
+  expect(persistedOrder.allValues).not.toContain("test@example.com");
+  expect(persistedOrder.allValues).not.toContain("0901234567");
+  expect(persistedOrder.allValues).not.toContain("123 Đường Test");
 });
 
 test("a forged payment success URL cannot clear an unverified cart", async ({ page }) => {

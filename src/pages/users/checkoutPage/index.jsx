@@ -2,7 +2,6 @@ import "./style.scss";
 import { memo, useEffect, useRef, useState } from "react";
 import { formatter } from "utils/formatter";
 import Breadcrumb from "../theme/breadcrumb";
-import { SESSION_KEYS } from "utils/constant";
 import { useMutation } from "@tanstack/react-query";
 import { ROUTERS } from "utils/router";
 import {
@@ -12,7 +11,6 @@ import {
 } from "api/orderPage";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useShoppingCart from "hooks/useShoppingCart";
-import { setSessionItem } from "utils/session";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
@@ -44,13 +42,11 @@ const CheckoutPage = () => {
       const order = response?.data;
 
       if (variables.paymentMethod === "vnpay") {
-        setSessionItem(SESSION_KEYS.LAST_ORDER_SUCCESS, order);
         window.location.href = response.payment_url;
         return;
       }
 
       toast.success(t("order.success"));
-      setSessionItem(SESSION_KEYS.LAST_ORDER_SUCCESS, order);
       clearCart();
       navigate(`${ROUTERS.USER.ORDER_SUCCESS}?orderId=${order?.id || ""}`, {
         state: { order },
