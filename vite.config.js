@@ -1,9 +1,11 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
+import { buildSecurityHeaders } from "./security-headers.mjs";
 
-export default defineConfig(async () => {
+export default defineConfig(async ({ mode }) => {
   const { visualizer } = await import("rollup-plugin-visualizer");
+  const env = loadEnv(mode, process.cwd(), "");
 
   return {
     plugins: [
@@ -14,6 +16,16 @@ export default defineConfig(async () => {
         gzipSize: true,
         brotliSize: true,
       }),
+      {
+        name: "deployment-security-headers",
+        generateBundle() {
+          this.emitFile({
+            type: "asset",
+            fileName: "_headers",
+            source: buildSecurityHeaders(env.VITE_API_URL),
+          });
+        },
+      },
     ],
     resolve: {
       alias: {
