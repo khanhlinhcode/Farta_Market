@@ -1,6 +1,6 @@
 import axios from "api/axios";
 
-export const postOrderAPI = async (data, idempotencyKey, analyticsSessionId) => {
+export const postOrderAPI = async (data, idempotencyKey, analyticsToken) => {
   return await axios({
     url: "/order",
     method: "POST",
@@ -8,12 +8,12 @@ export const postOrderAPI = async (data, idempotencyKey, analyticsSessionId) => 
     headers: {
       "Content-Type": "application/json",
       "X-Idempotency-Key": idempotencyKey,
-      ...(analyticsSessionId ? { "X-Analytics-Session": analyticsSessionId } : {}),
+      ...(analyticsToken ? { "X-Analytics-Token": analyticsToken } : {}),
     },
   });
 };
 
-export const createVNPayPaymentAPI = async (data, idempotencyKey, analyticsSessionId) => {
+export const createVNPayPaymentAPI = async (data, idempotencyKey, analyticsToken) => {
   return await axios({
     url: "/payment/create",
     method: "POST",
@@ -21,7 +21,7 @@ export const createVNPayPaymentAPI = async (data, idempotencyKey, analyticsSessi
     headers: {
       "Content-Type": "application/json",
       "X-Idempotency-Key": idempotencyKey,
-      ...(analyticsSessionId ? { "X-Analytics-Session": analyticsSessionId } : {}),
+      ...(analyticsToken ? { "X-Analytics-Token": analyticsToken } : {}),
     },
   });
 };

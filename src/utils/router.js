@@ -10,5 +10,6 @@ export const ROUTERS = {
       MY_ORDERS: "/don-hang-cua-toi",
       WISHLIST: "/yeu-thich",
       LOGIN: "/dang-nhap",
+      VERIFY_EMAIL: "/verify-email",
   },
 };

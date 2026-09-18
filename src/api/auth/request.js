@@ -35,3 +35,13 @@ export const logoutUserAPI = async () => {
     method: "POST",
   });
 };
+
+export const getEmailVerificationStatusAPI = async () => axios({
+  url: "/email/verification-status",
+  method: "GET",
+});
+
+export const resendEmailVerificationAPI = async () => axios({
+  url: "/email/verification-notification",
+  method: "POST",
+});

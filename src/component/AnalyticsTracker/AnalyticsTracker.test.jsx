@@ -24,7 +24,12 @@ describe("AnalyticsTracker privacy boundary", () => {
     vi.stubGlobal("sessionStorage", storage());
     localStorage.clear();
     sessionStorage.clear();
-    api.mockResolvedValue({ data: {} });
+    api
+      .mockResolvedValueOnce({
+        token: "server-issued-token",
+        expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      })
+      .mockResolvedValue({});
     Object.defineProperty(navigator, "doNotTrack", { configurable: true, value: "0" });
     Object.defineProperty(navigator, "globalPrivacyControl", { configurable: true, value: false });
   });
@@ -34,17 +39,23 @@ describe("AnalyticsTracker privacy boundary", () => {
     vi.unstubAllGlobals();
   });
 
-  it("sends pathname and anonymous UUIDs without query data", async () => {
+  it("requests a server session then sends pathname with the signed token", async () => {
     vi.stubEnv("VITE_ANALYTICS_ENABLED", "true");
 
     render(<MemoryRouter initialEntries={["/san-pham?q=private"]}><AnalyticsTracker /></MemoryRouter>);
 
-    await waitFor(() => expect(api).toHaveBeenCalledTimes(1));
-    const payload = api.mock.calls[0][0].data;
+    await waitFor(() => expect(api).toHaveBeenCalledTimes(2));
+    expect(api.mock.calls[0][0]).toEqual(expect.objectContaining({
+      url: "/analytics/session",
+      method: "POST",
+    }));
+    const request = api.mock.calls[1][0];
+    const payload = request.data;
     expect(payload.path).toBe("/san-pham");
     expect(payload.path).not.toContain("private");
-    expect(payload.visitor_id).toMatch(/^[0-9a-f-]{36}$/i);
-    expect(payload.session_id).toMatch(/^[0-9a-f-]{36}$/i);
+    expect(payload).not.toHaveProperty("visitor_id");
+    expect(payload).not.toHaveProperty("session_id");
+    expect(request.headers["X-Analytics-Token"]).toBe("server-issued-token");
   });
 
   it.each([

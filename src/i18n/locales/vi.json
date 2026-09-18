@@ -169,7 +169,14 @@
     "loginRequired": "Vui lòng đăng nhập để lưu sản phẩm yêu thích.",
     "emptyTitle": "Chưa có sản phẩm yêu thích",
     "empty": "Hãy lưu những sản phẩm bạn muốn mua sau để xem lại nhanh hơn.",
-    "continueShopping": "Tiếp tục mua sắm"
+    "continueShopping": "Tiếp tục mua sắm",
+    "verifyEmailTitle": "Xác minh email",
+    "verifyEmailDetail": "Hãy mở liên kết đã gửi tới email của bạn trước khi thanh toán, dùng mã giảm giá hoặc đánh giá sản phẩm.",
+    "resendVerification": "Gửi lại email xác minh",
+    "verificationSent": "Đã gửi lại email xác minh.",
+    "verificationError": "Không gửi lại được email xác minh. Vui lòng thử lại sau.",
+    "verificationSuccess": "Email đã được xác minh",
+    "verificationSuccessDetail": "Bạn có thể tiếp tục sử dụng đầy đủ chức năng của Farta Market."
   },
   "auth": {
     "loginTitle": "Đăng nhập",
@@ -367,6 +374,7 @@
     "confirm": "Xác nhận",
     "success": "Đặt hàng thành công",
     "orderError": "Không đặt được hàng, vui lòng thử lại.",
+    "securityCheckRequired": "Vui lòng hoàn tất kiểm tra bảo mật trước khi đặt hàng.",
     "paymentFailed": "Thanh toán VNPay thất bại hoặc đã bị hủy. Vui lòng thử lại.",
     "loginForVnpay": "Vui lòng đăng nhập để thanh toán qua VNPay.",
     "emptyCart": "Giỏ hàng đang trống.",

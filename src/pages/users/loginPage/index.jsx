@@ -73,6 +73,10 @@ const UserLoginPage = () => {
       toast.success(
         mode === "register" ? t("auth.registerSuccess") : t("auth.loginSuccess")
       );
+      if (!response.user?.email_verified_at && !response.user?.email_verified) {
+        navigate(ROUTERS.USER.VERIFY_EMAIL, { replace: true });
+        return;
+      }
       navigate(redirectPath || ROUTERS.USER.HOME, { replace: true });
     } catch (err) {
       const message =

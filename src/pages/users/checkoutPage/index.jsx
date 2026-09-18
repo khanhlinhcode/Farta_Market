@@ -18,7 +18,8 @@ import { translateProductName } from "utils/i18nLabels";
 import { getAddressesAPI, getProfileAPI } from "api/profile";
 import { useGetSiteContentUS } from "api/homePage";
 import { selectCustomerUser } from "../../../redux/authSlice";
-import { getAnalyticsSessionId } from "utils/analytics";
+import { getAnalyticsToken } from "utils/analytics";
+import TurnstileWidget from "component/TurnstileWidget";
 
 const CheckoutPage = () => {
   const { t } = useTranslation();
@@ -28,6 +29,8 @@ const CheckoutPage = () => {
   const cart = useSelector((state) => state.commonSlide.cart);
 
   const [orderError, setOrderError] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const idempotencyKeyRef = useRef(
     globalThis.crypto?.randomUUID?.() ||
       `order-${Date.now()}-${Math.random().toString(36).slice(2)}`
@@ -36,8 +39,8 @@ const CheckoutPage = () => {
   const { mutate: submitOrder, isPending } = useMutation({
     mutationFn: ({ payload, idempotencyKey, paymentMethod }) =>
       paymentMethod === "vnpay"
-        ? createVNPayPaymentAPI(payload, idempotencyKey, getAnalyticsSessionId())
-        : postOrderAPI(payload, idempotencyKey, getAnalyticsSessionId()),
+        ? createVNPayPaymentAPI(payload, idempotencyKey, getAnalyticsToken())
+        : postOrderAPI(payload, idempotencyKey, getAnalyticsToken()),
     onSuccess: (response, variables) => {
       const order = response?.data;
 
@@ -57,6 +60,8 @@ const CheckoutPage = () => {
         err?.response?.data?.message || t("checkout.orderError")
       );
       toast.error(t("common.error"));
+      setTurnstileToken("");
+      setTurnstileResetKey((current) => current + 1);
     },
   });
 
@@ -84,6 +89,7 @@ const CheckoutPage = () => {
   const currentUser = useSelector(selectCustomerUser);
   const { data: siteContent } = useGetSiteContentUS();
   const isLoggedIn = Boolean(currentUser);
+  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
   const subtotal = Number(cart.totalPrice || 0);
   const freeShippingThreshold = Number(siteContent?.settings?.free_shipping_threshold ?? 200000);
   const configuredShippingFee = Number(siteContent?.settings?.shipping_fee ?? 20000);
@@ -270,6 +276,11 @@ const CheckoutPage = () => {
     }
 
     if (validateForm()) {
+      if (!isLoggedIn && turnstileSiteKey && !turnstileToken) {
+        setOrderError(t("checkout.securityCheckRequired"));
+        return;
+      }
+
       if (
         paymentMethod === "vnpay" &&
         !isLoggedIn
@@ -296,6 +307,7 @@ const CheckoutPage = () => {
           note,
           payment_method: paymentMethod,
           coupon_code: appliedCouponCode || undefined,
+          turnstile_token: !isLoggedIn ? turnstileToken || undefined : undefined,
           products: cart.products.map(({ product, quantity }) => ({
             product_id: product.id,
             quantity,
@@ -525,11 +537,18 @@ const CheckoutPage = () => {
                   </label>
                 </div>
                 {orderError && <span className="error">{orderError}</span>}
+                {!isLoggedIn && (
+                  <TurnstileWidget
+                    siteKey={turnstileSiteKey}
+                    onToken={setTurnstileToken}
+                    resetKey={turnstileResetKey}
+                  />
+                )}
                 <button
                   type="submit"
                   className="button-submit"
                   data-testid="place-order"
-                  disabled={isPending}
+                  disabled={isPending || (!isLoggedIn && Boolean(turnstileSiteKey) && !turnstileToken)}
                 >
                   {isPending && <span className="checkout-spinner" aria-hidden="true" />}
                   <span>
