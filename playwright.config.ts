@@ -11,7 +11,7 @@ export default defineConfig({
   timeout: 45_000,
   expect: { timeout: 15_000 },
   workers: 1,
-  use: { baseURL: frontendUrl, trace: "on-first-retry" },
+  use: { baseURL: frontendUrl, trace: "retain-on-failure" },
   webServer: [
     {
       command: "node tests/e2e/start-backend.mjs",

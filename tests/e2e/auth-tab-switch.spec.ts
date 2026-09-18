@@ -5,6 +5,7 @@ const authUser = {
   name: "QA Admin",
   email: "qa.admin@example.test",
   role: "customer",
+  email_verified_at: "2026-09-17T00:00:00.000000Z",
 };
 
 async function mockSharedAuthRoutes(page: Page) {
@@ -115,6 +116,7 @@ test("create account tab submits to /api/register and never /api/login", async (
           ...authUser,
           name: "QA Customer",
           email: "qa.customer.new@example.test",
+          email_verified_at: null,
         },
       }),
     });

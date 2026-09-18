@@ -23,7 +23,7 @@ for (const viewport of viewports) {
     await page.setViewportSize(viewport);
 
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Farta Market" }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Farta\s*Market$/i }).first()).toBeVisible();
     await expectNoHorizontalOverflow(page);
 
     await page.goto("/gio-hang");

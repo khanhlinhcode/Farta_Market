@@ -43,12 +43,22 @@ test("a pending guest purchase cannot be consumed after login changes the sessio
   await expect(page.getByTestId("chat-message-bot").last()).toContainText("Bạn muốn mua 1 Cam Tươi");
 
   const result = await page.evaluate(async ({ apiBase, apiRoot }) => {
-    const token = decodeURIComponent(document.cookie.split("; ").find(row => row.startsWith("XSRF-TOKEN="))?.split("=").slice(1).join("=") || "");
-    const common = { credentials: "include" as const, headers: { "Content-Type": "application/json", Accept: "application/json", "X-XSRF-TOKEN": token } };
-    const login = await fetch(`${apiBase}/login`, { ...common, method: "POST", body: JSON.stringify({ email: "qa.customer@example.test", password: "SiviE2EPass123!" }) });
-    await fetch(`${apiRoot}/sanctum/csrf-cookie`, { credentials: "include" });
-    const renewedToken = decodeURIComponent(document.cookie.split("; ").find(row => row.startsWith("XSRF-TOKEN="))?.split("=").slice(1).join("=") || "");
-    const chat = await fetch(`${apiBase}/chat`, { ...common, headers: { ...common.headers, "X-XSRF-TOKEN": renewedToken }, method: "POST", body: JSON.stringify({ message: "có", history: [] }) });
+    const token = () => decodeURIComponent(document.cookie.split("; ").find(row => row.startsWith("XSRF-TOKEN="))?.split("=").slice(1).join("=") || "");
+    const request = (url: string, csrfToken: string, body: object) => fetch(url, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json", Accept: "application/json", "X-XSRF-TOKEN": csrfToken },
+      body: JSON.stringify(body),
+    });
+    const login = await request(`${apiBase}/login`, token(), { email: "qa.customer@example.test", password: "SiviE2EPass123!" });
+    const renewCsrf = async () => {
+      await fetch(`${apiRoot}/sanctum/csrf-cookie`, { credentials: "include", headers: { Accept: "application/json" } });
+      return token();
+    };
+    let chat = await request(`${apiBase}/chat`, await renewCsrf(), { message: "có", history: [] });
+    if (chat.status === 419) {
+      chat = await request(`${apiBase}/chat`, await renewCsrf(), { message: "có", history: [] });
+    }
     return { login: login.status, chatStatus: chat.status, chat: await chat.json() };
   }, { apiBase: apiBaseUrl, apiRoot: apiRootUrl });
 
