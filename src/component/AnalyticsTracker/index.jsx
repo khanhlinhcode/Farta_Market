@@ -18,9 +18,12 @@ function AnalyticsTracker() {
 
     const track = async () => {
       let analyticsSession = getAnalyticsSession();
-      if (!analyticsSession) {
+      const issueSession = async () => {
         const issued = await api({ url: "/analytics/session", method: "POST", timeout: 3000 });
-        analyticsSession = storeAnalyticsSession(issued);
+        return storeAnalyticsSession(issued);
+      };
+      if (!analyticsSession) {
+        analyticsSession = await issueSession();
       }
       if (cancelled) return;
 
@@ -31,13 +34,23 @@ function AnalyticsTracker() {
         referrer = undefined;
       }
 
-      await api({
-        url: "/analytics/page-view",
-        method: "POST",
-        data: { path: location.pathname, referrer },
-        headers: { "X-Analytics-Token": analyticsSession.token },
-        timeout: 3000,
-      });
+      const sendPageView = (session) => api({
+          url: "/analytics/page-view",
+          method: "POST",
+          data: { path: location.pathname, referrer },
+          headers: { "X-Analytics-Token": session.token },
+          timeout: 3000,
+        });
+
+      try {
+        await sendPageView(analyticsSession);
+      } catch (error) {
+        if (error?.response?.status !== 401) throw error;
+        clearAnalyticsSession();
+        if (cancelled) return;
+        analyticsSession = await issueSession();
+        if (!cancelled) await sendPageView(analyticsSession);
+      }
     };
 
     track().catch((error) => {

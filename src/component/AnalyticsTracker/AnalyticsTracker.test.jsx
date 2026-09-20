@@ -58,6 +58,31 @@ describe("AnalyticsTracker privacy boundary", () => {
     expect(request.headers["X-Analytics-Token"]).toBe("server-issued-token");
   });
 
+  it("reissues the analytics session once when the server binding changes", async () => {
+    vi.stubEnv("VITE_ANALYTICS_ENABLED", "true");
+    api.mockReset()
+      .mockResolvedValueOnce({
+        token: "stale-token",
+        expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      })
+      .mockRejectedValueOnce({ response: { status: 401 } })
+      .mockResolvedValueOnce({
+        token: "replacement-token",
+        expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      })
+      .mockResolvedValueOnce({});
+
+    render(<MemoryRouter initialEntries={["/san-pham"]}><AnalyticsTracker /></MemoryRouter>);
+
+    await waitFor(() => expect(api).toHaveBeenCalledTimes(4));
+    expect(api.mock.calls[2][0]).toEqual(expect.objectContaining({
+      url: "/analytics/session",
+      method: "POST",
+    }));
+    expect(api.mock.calls[3][0].headers["X-Analytics-Token"]).toBe("replacement-token");
+    expect(JSON.parse(sessionStorage.getItem(ANALYTICS_STORAGE_KEYS.session)).token).toBe("replacement-token");
+  });
+
   it.each([
     ["feature flag", "false", "0", null],
     ["Do Not Track", "true", "1", null],
