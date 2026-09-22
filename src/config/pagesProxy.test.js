@@ -20,6 +20,7 @@ describe("Pages API proxy", () => {
     expect(upstream.mock.calls[0][0].url).toBe("https://api.example.test/api/me");
     expect(upstream.mock.calls[0][0].headers.get("Cookie")).toBe("laravel_session=test");
     expect(response.headers.get("Set-Cookie")).toContain("XSRF-TOKEN=test");
+    expect(response.headers.get("Strict-Transport-Security")).toBe("max-age=31536000; includeSubDomains");
   });
 
   it("rejects a cross-origin mutation before contacting the API", async () => {
@@ -33,6 +34,43 @@ describe("Pages API proxy", () => {
     const response = await worker.fetch(request, { API_ORIGIN: "https://api.example.test" });
 
     expect(response.status).toBe(403);
+    expect(response.headers.get("Strict-Transport-Security")).toBe("max-age=31536000; includeSubDomains");
     expect(upstream).not.toHaveBeenCalled();
+  });
+
+  it("adds HSTS to static asset responses", async () => {
+    const assets = { fetch: vi.fn(async () => new Response("storefront")) };
+
+    const response = await worker.fetch(
+      new Request("https://farta-storefront.pages.dev/"),
+      { ASSETS: assets }
+    );
+
+    expect(response.headers.get("Strict-Transport-Security")).toBe("max-age=31536000; includeSubDomains");
+  });
+
+  it("blocks reset-link referrers before the page loads assets", async () => {
+    const assets = { fetch: vi.fn(async () => new Response("reset page")) };
+    const response = await worker.fetch(
+      new Request("https://fartamarket.company/reset-password?token=one-time-token"),
+      { ASSETS: assets }
+    );
+
+    expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
+    expect(response.headers.get("Strict-Transport-Security")).toBe("max-age=31536000; includeSubDomains");
+  });
+
+  it("keeps separate upstream cookies when adding response headers", async () => {
+    const headers = new Headers();
+    headers.append("Set-Cookie", "XSRF-TOKEN=test; Secure; SameSite=Lax");
+    headers.append("Set-Cookie", "laravel_session=test; Secure; HttpOnly; SameSite=Lax");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("ok", { headers })));
+
+    const response = await worker.fetch(
+      new Request("https://fartamarket.company/api/me"),
+      { API_ORIGIN: "https://api.fartamarket.company" }
+    );
+
+    expect(response.headers.getSetCookie()).toHaveLength(2);
   });
 });

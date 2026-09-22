@@ -27,6 +27,26 @@ export const registerUserAPI = async (data) => {
   });
 };
 
+export const forgotPasswordAPI = async (data) => {
+  await getCsrfCookieAPI();
+
+  return await axios({
+    url: "/forgot-password",
+    method: "POST",
+    data,
+  });
+};
+
+export const resetPasswordAPI = async (data) => {
+  await getCsrfCookieAPI();
+
+  return await axios({
+    url: "/reset-password",
+    method: "POST",
+    data,
+  });
+};
+
 export const logoutUserAPI = async () => {
   await getCsrfCookieAPI();
 

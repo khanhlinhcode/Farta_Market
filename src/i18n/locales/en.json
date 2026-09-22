@@ -234,7 +234,22 @@
     "verificationSent": "Verification email sent again.",
     "verificationError": "Unable to send the verification email. You can continue shopping and try again later.",
     "verificationSuccess": "Email verified",
-    "verificationSuccessDetail": "You can now use all Farta Market account features."
+    "verificationSuccessDetail": "You can now use all Farta Market account features.",
+    "forgotPassword": "Forgot password?",
+    "forgotPasswordTitle": "Recover your password",
+    "forgotPasswordDetail": "Enter your account email. If it matches, we will send password reset instructions.",
+    "sendResetLink": "Send reset link",
+    "forgotPasswordSent": "If the email belongs to a customer account, password reset instructions will be sent.",
+    "forgotPasswordError": "Unable to submit the request. Please try again later.",
+    "resetPasswordTitle": "Reset your password",
+    "resetPasswordDetail": "Create a new password for your account.",
+    "newPassword": "New password",
+    "resetPasswordButton": "Update password",
+    "resetPasswordSuccess": "Password updated. Please log in again.",
+    "resetPasswordError": "Unable to reset the password. The link may have expired.",
+    "resetLinkInvalid": "The password reset link is invalid or has expired.",
+    "passwordMismatch": "Password confirmation does not match.",
+    "backToLogin": "Back to login"
   },
   "profile": {
     "title": "Profile",

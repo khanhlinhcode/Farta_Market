@@ -193,7 +193,22 @@
     "verificationSent": "Đã gửi lại email xác minh.",
     "verificationError": "Không gửi được email xác minh. Bạn vẫn có thể tiếp tục mua sắm và thử lại sau.",
     "verificationSuccess": "Email đã được xác minh",
-    "verificationSuccessDetail": "Bạn có thể tiếp tục sử dụng đầy đủ chức năng của Farta Market."
+    "verificationSuccessDetail": "Bạn có thể tiếp tục sử dụng đầy đủ chức năng của Farta Market.",
+    "forgotPassword": "Quên mật khẩu?",
+    "forgotPasswordTitle": "Khôi phục mật khẩu",
+    "forgotPasswordDetail": "Nhập email tài khoản. Nếu thông tin khớp, chúng tôi sẽ gửi liên kết đặt lại mật khẩu.",
+    "sendResetLink": "Gửi liên kết đặt lại",
+    "forgotPasswordSent": "Nếu email thuộc một tài khoản khách hàng, hướng dẫn đặt lại mật khẩu sẽ được gửi.",
+    "forgotPasswordError": "Chưa thể gửi yêu cầu. Vui lòng thử lại sau.",
+    "resetPasswordTitle": "Đặt lại mật khẩu",
+    "resetPasswordDetail": "Tạo mật khẩu mới cho tài khoản của bạn.",
+    "newPassword": "Mật khẩu mới",
+    "resetPasswordButton": "Cập nhật mật khẩu",
+    "resetPasswordSuccess": "Mật khẩu đã được cập nhật. Vui lòng đăng nhập lại.",
+    "resetPasswordError": "Không thể đặt lại mật khẩu. Liên kết có thể đã hết hạn.",
+    "resetLinkInvalid": "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp.",
+    "backToLogin": "Quay lại đăng nhập"
   },
   "profile": {
     "title": "Thông tin cá nhân",

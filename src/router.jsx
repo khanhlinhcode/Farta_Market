@@ -16,6 +16,7 @@ const OrderSuccessPage = React.lazy(() => import("pages/users/orderSuccessPage")
 const MyOrdersPage = React.lazy(() => import("pages/users/myOrdersPage"));
 const WishlistPage = React.lazy(() => import("pages/users/wishlistPage"));
 const VerifyEmailPage = React.lazy(() => import("pages/users/verifyEmailPage"));
+const PasswordRecoveryPage = React.lazy(() => import("pages/users/passwordRecoveryPage"));
 class RouteErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -93,6 +94,14 @@ const renderUserRouter = (fallback, errorTitle, retryLabel, resetKey) => {
     {
       path: ROUTERS.USER.VERIFY_EMAIL,
       component: <VerifyEmailPage />,
+    },
+    {
+      path: ROUTERS.USER.FORGOT_PASSWORD,
+      component: <PasswordRecoveryPage mode="forgot" />,
+    },
+    {
+      path: ROUTERS.USER.RESET_PASSWORD,
+      component: <PasswordRecoveryPage mode="reset" />,
     },
   ];
 

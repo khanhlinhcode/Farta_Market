@@ -39,6 +39,60 @@ async function mockSharedAuthRoutes(page: Page) {
   });
 }
 
+test("forgot password stays generic and is reachable from customer login", async ({ page }) => {
+  await mockSharedAuthRoutes(page);
+  await page.route("**/api/forgot-password", async (route) => {
+    await route.fulfill({
+      status: 202,
+      contentType: "application/json",
+      body: JSON.stringify({
+        message: "Nếu email thuộc một tài khoản khách hàng, hướng dẫn đặt lại mật khẩu sẽ được gửi.",
+      }),
+    });
+  });
+
+  await page.goto("/dang-nhap");
+  await page.getByRole("link", { name: "Quên mật khẩu?" }).click();
+  await expect(page).toHaveURL(/\/forgot-password$/);
+  await page.getByLabel("Email").fill("customer@example.test");
+
+  const requestPromise = page.waitForRequest(
+    (request) => request.method() === "POST" && new URL(request.url()).pathname.endsWith("/api/forgot-password")
+  );
+  await page.getByRole("button", { name: "Gửi liên kết đặt lại" }).click();
+
+  expect((await requestPromise).postDataJSON()).toEqual({ email: "customer@example.test" });
+  await expect(page.getByRole("status")).toContainText("Nếu email thuộc một tài khoản khách hàng");
+  expect(await page.evaluate(() => localStorage.getItem("email") || sessionStorage.getItem("email"))).toBeNull();
+});
+
+test("password reset removes the one-time token from browser history and returns to login", async ({ page }) => {
+  await mockSharedAuthRoutes(page);
+  await page.route("**/api/reset-password", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ message: "Password reset." }),
+    });
+  });
+
+  await page.goto("/reset-password?token=qa-one-time-token&email=customer%40example.test");
+  await expect(page.getByRole("heading", { name: "Đặt lại mật khẩu" })).toBeVisible();
+  await expect(page).toHaveURL(/\/reset-password$/);
+  await page.getByLabel("Mật khẩu mới").fill("NewPass456");
+  await page.getByLabel("Nhập lại mật khẩu").fill("NewPass456");
+
+  const requestPromise = page.waitForRequest(
+    (request) => request.method() === "POST" && new URL(request.url()).pathname.endsWith("/api/reset-password")
+  );
+  await page.getByRole("button", { name: "Cập nhật mật khẩu" }).click();
+  expect((await requestPromise).postDataJSON()).toMatchObject({
+    email: "customer@example.test",
+    token: "qa-one-time-token",
+  });
+  await expect(page).toHaveURL(/\/dang-nhap$/);
+});
+
 test("login tab submits to /api/login and never /api/register", async ({ page }) => {
   await mockSharedAuthRoutes(page);
 

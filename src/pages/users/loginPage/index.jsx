@@ -206,6 +206,11 @@ const UserLoginPage = () => {
         </form>
 
         <div className="user-login__links">
+          {mode === "login" && (
+            <Link className="user-login__forgot" to={ROUTERS.USER.FORGOT_PASSWORD}>
+              {t("auth.forgotPassword")}
+            </Link>
+          )}
           <Link className="user-login__back" to={ROUTERS.USER.PRODUCTS}>
             {t("auth.continueShopping")}
           </Link>
