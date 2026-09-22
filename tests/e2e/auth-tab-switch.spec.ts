@@ -54,7 +54,10 @@ test("forgot password stays generic and is reachable from customer login", async
   await page.goto("/dang-nhap");
   await page.getByRole("link", { name: "Quên mật khẩu?" }).click();
   await expect(page).toHaveURL(/\/forgot-password$/);
-  await page.getByLabel("Email").fill("customer@example.test");
+  await page.waitForLoadState("networkidle");
+  const email = page.getByLabel("Email");
+  await email.fill("customer@example.test");
+  await expect(email).toHaveValue("customer@example.test");
 
   const requestPromise = page.waitForRequest(
     (request) => request.method() === "POST" && new URL(request.url()).pathname.endsWith("/api/forgot-password")
@@ -79,8 +82,10 @@ test("password reset removes the one-time token from browser history and returns
   await page.goto("/reset-password?token=qa-one-time-token&email=customer%40example.test");
   await expect(page.getByRole("heading", { name: "Đặt lại mật khẩu" })).toBeVisible();
   await expect(page).toHaveURL(/\/reset-password$/);
+  await page.waitForLoadState("networkidle");
   await page.getByLabel("Mật khẩu mới").fill("NewPass456");
   await page.getByLabel("Nhập lại mật khẩu").fill("NewPass456");
+  await expect(page.getByLabel("Mật khẩu mới")).toHaveValue("NewPass456");
 
   const requestPromise = page.waitForRequest(
     (request) => request.method() === "POST" && new URL(request.url()).pathname.endsWith("/api/reset-password")
