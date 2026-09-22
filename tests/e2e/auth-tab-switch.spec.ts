@@ -118,6 +118,7 @@ test("create account tab submits to /api/register and never /api/login", async (
           email: "qa.customer.new@example.test",
           email_verified_at: null,
         },
+        verification_email_sent: false,
       }),
     });
   });
@@ -153,6 +154,12 @@ test("create account tab submits to /api/register and never /api/login", async (
     password_confirmation: "FartaQa12345",
   });
   expect(loginRequestCount).toBe(0);
+  await expect(page).toHaveURL(/\/verify-email$/);
+  await expect(page.getByRole("heading", { name: "Xác minh email" })).toBeVisible();
+  await expect(page.locator(".verify-email__card [role='status']")).toContainText(
+    "Không gửi được email xác minh"
+  );
+  await expect(page.getByRole("link", { name: "Tiếp tục mua sắm" })).toBeVisible();
 });
 
 test("register validation error is cleared immediately when switching to login tab", async ({

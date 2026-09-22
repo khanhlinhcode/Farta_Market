@@ -210,14 +210,7 @@
     "loginRequired": "Please log in to save favorite products.",
     "emptyTitle": "No favorite products yet",
     "empty": "Save products you want to buy later so you can find them faster.",
-    "continueShopping": "Continue shopping",
-    "verifyEmailTitle": "Verify your email",
-    "verifyEmailDetail": "Open the link sent to your email before paying, using coupons, or reviewing products.",
-    "resendVerification": "Resend verification email",
-    "verificationSent": "Verification email sent again.",
-    "verificationError": "Unable to resend the verification email. Please try again later.",
-    "verificationSuccess": "Email verified",
-    "verificationSuccessDetail": "You can now use all Farta Market account features."
+    "continueShopping": "Continue shopping"
   },
   "auth": {
     "loginTitle": "Login",
@@ -234,7 +227,14 @@
     "loginSuccess": "Logged in successfully.",
     "registerSuccess": "Account created successfully.",
     "error": "Unable to process your request, please check again.",
-    "continueShopping": "Continue shopping"
+    "continueShopping": "Continue shopping",
+    "verifyEmailTitle": "Verify your email",
+    "verifyEmailDetail": "Open the link sent to your email before paying, using coupons, or reviewing products.",
+    "resendVerification": "Resend verification email",
+    "verificationSent": "Verification email sent again.",
+    "verificationError": "Unable to send the verification email. You can continue shopping and try again later.",
+    "verificationSuccess": "Email verified",
+    "verificationSuccessDetail": "You can now use all Farta Market account features."
   },
   "profile": {
     "title": "Profile",

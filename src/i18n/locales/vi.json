@@ -169,14 +169,7 @@
     "loginRequired": "Vui lòng đăng nhập để lưu sản phẩm yêu thích.",
     "emptyTitle": "Chưa có sản phẩm yêu thích",
     "empty": "Hãy lưu những sản phẩm bạn muốn mua sau để xem lại nhanh hơn.",
-    "continueShopping": "Tiếp tục mua sắm",
-    "verifyEmailTitle": "Xác minh email",
-    "verifyEmailDetail": "Hãy mở liên kết đã gửi tới email của bạn trước khi thanh toán, dùng mã giảm giá hoặc đánh giá sản phẩm.",
-    "resendVerification": "Gửi lại email xác minh",
-    "verificationSent": "Đã gửi lại email xác minh.",
-    "verificationError": "Không gửi lại được email xác minh. Vui lòng thử lại sau.",
-    "verificationSuccess": "Email đã được xác minh",
-    "verificationSuccessDetail": "Bạn có thể tiếp tục sử dụng đầy đủ chức năng của Farta Market."
+    "continueShopping": "Tiếp tục mua sắm"
   },
   "auth": {
     "loginTitle": "Đăng nhập",
@@ -193,7 +186,14 @@
     "loginSuccess": "Đăng nhập thành công.",
     "registerSuccess": "Tạo tài khoản thành công.",
     "error": "Không xử lý được yêu cầu, vui lòng kiểm tra lại.",
-    "continueShopping": "Tiếp tục mua sắm"
+    "continueShopping": "Tiếp tục mua sắm",
+    "verifyEmailTitle": "Xác minh email",
+    "verifyEmailDetail": "Hãy mở liên kết đã gửi tới email của bạn trước khi thanh toán, dùng mã giảm giá hoặc đánh giá sản phẩm.",
+    "resendVerification": "Gửi lại email xác minh",
+    "verificationSent": "Đã gửi lại email xác minh.",
+    "verificationError": "Không gửi được email xác minh. Bạn vẫn có thể tiếp tục mua sắm và thử lại sau.",
+    "verificationSuccess": "Email đã được xác minh",
+    "verificationSuccessDetail": "Bạn có thể tiếp tục sử dụng đầy đủ chức năng của Farta Market."
   },
   "profile": {
     "title": "Thông tin cá nhân",
