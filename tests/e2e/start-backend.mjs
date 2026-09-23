@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
@@ -15,17 +15,21 @@ if (process.env.E2E_DB_CONNECTION && !["mysql", "sqlite"].includes(process.env.E
   throw new Error("E2E only supports a dedicated SQLite or MySQL test database.");
 }
 const database = mysql ? process.env.E2E_DB_DATABASE : path.join(runtime, "database.sqlite");
+const storage = path.join(runtime, "storage");
 const databasePort = process.env.E2E_DB_PORT || "3307";
 if (mysql && (!/^sivi_e2e_[a-z0-9_]+$/.test(database || "") || databasePort === "3306")) {
   throw new Error("Refusing E2E migration: use a sivi_e2e_* database on an isolated MySQL port.");
 }
 if (!mysql) writeFileSync(database, "");
+mkdirSync(path.join(storage, "framework", "cache", "data"), { recursive: true });
+mkdirSync(path.join(storage, "framework", "views"), { recursive: true });
 const env = {
   ...process.env,
   APP_ENV: "testing",
   APP_DEBUG: "false",
   APP_KEY: "base64:" + randomBytes(32).toString("base64"),
   APP_URL: "http://127.0.0.1:" + backendPort,
+  LARAVEL_STORAGE_PATH: storage,
   APP_CONFIG_CACHE: path.join(runtime, "config.php"),
   APP_ROUTES_CACHE: path.join(runtime, "routes.php"),
   DB_URL: "",
@@ -40,7 +44,10 @@ const env = {
   SESSION_COOKIE: "sivi_e2e_session",
   SESSION_DOMAIN: "",
   SESSION_SECURE_COOKIE: "false",
-  CACHE_STORE: "database",
+  // SQLite permits only one writer, so database-backed atomic locks can fail
+  // nondeterministically under the concurrent chat E2E. Laravel's file store
+  // keeps the lock cross-process without changing the production cache driver.
+  CACHE_STORE: "file",
   CACHE_PREFIX: "sivi_e2e_" + path.basename(runtime).replace(/[^A-Za-z0-9]/g, "_") + "_",
   QUEUE_CONNECTION: "database",
   MAIL_MAILER: "array",
@@ -61,12 +68,14 @@ const inspect = spawnSync(php, ["-r", [
   '$app = require "bootstrap/app.php";',
   '$app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap();',
   '$c = config("database.default"); $d = config("database.connections.".$c);',
-  'echo json_encode(["environment"=>app()->environment(),"connection"=>$c,"database"=>$d["database"],"host"=>$d["host"]??null,"port"=>$d["port"]??null]);',
+  'echo json_encode(["environment"=>app()->environment(),"connection"=>$c,"database"=>$d["database"],"host"=>$d["host"]??null,"port"=>$d["port"]??null,"cache"=>config("cache.default"),"cache_path"=>config("cache.stores.file.path"),"storage"=>storage_path()]);',
 ].join("")], { cwd: backendDir, env, encoding: "utf8" });
 if (inspect.status !== 0) throw new Error("Laravel test boot failed: " + inspect.stderr);
 const actual = JSON.parse(inspect.stdout);
 if (actual.environment !== "testing" || actual.connection !== env.DB_CONNECTION ||
-    actual.database !== database || (mysql && (actual.host !== "127.0.0.1" || String(actual.port) !== databasePort))) {
+    actual.database !== database || actual.cache !== "file" || actual.storage !== storage ||
+    actual.cache_path !== path.join(storage, "framework", "cache", "data") ||
+    (mysql && (actual.host !== "127.0.0.1" || String(actual.port) !== databasePort))) {
   throw new Error("Refusing migration: resolved Laravel configuration differs from the isolated test target.");
 }
 console.log("Verified Laravel E2E database:", JSON.stringify(actual));
