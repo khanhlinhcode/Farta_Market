@@ -10,6 +10,7 @@ describe("deployment security headers", () => {
     expect(headers).toContain("connect-src 'self' https://api.example.test");
     expect(headers).toContain("https://static.cloudflareinsights.com");
     expect(headers).toContain("https://cloudflareinsights.com");
+    expect(headers).toContain("img-src 'self' data: https://res.cloudinary.com https://vietqr.app");
     expect(headers).toContain("frame-ancestors 'none'");
     expect(headers).not.toContain("script-src *");
     expect(headers).not.toContain("'unsafe-eval'");

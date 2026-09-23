@@ -15,7 +15,7 @@ export const buildSecurityHeaders = (apiUrl) => {
     "script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com",
     // Existing React components use a small number of inline style attributes.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://res.cloudinary.com",
+    "img-src 'self' data: https://res.cloudinary.com https://vietqr.app",
     `connect-src 'self'${apiOrigin ? ` ${apiOrigin}` : ""} https://challenges.cloudflare.com https://cloudflareinsights.com`,
     "font-src 'self' data:",
     "frame-src https://challenges.cloudflare.com",
