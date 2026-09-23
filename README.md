@@ -1,207 +1,191 @@
-# Farta Market Frontend
+# Farta Market Storefront
 
-## Overview
+Customer-facing React 19 and Vite application for Farta Market. It consumes the
+Laravel API for catalog data, Sanctum authentication, customer profiles,
+wishlist, reviews, analytics, AI chat, orders, and payments.
 
-Farta Market Frontend is the customer-facing web application for a fresh food e-commerce platform. It is built with React 19, Vite, JavaScript, and SCSS, with a focus on product browsing, cart management, checkout, authentication, wishlist, reviews, and bilingual UI support.
+## Current release status
 
-The frontend is designed to integrate with a Laravel backend API. Product data, authentication, checkout, wishlist, reviews, chat, and admin features require a running backend service configured through environment variables.
+The storefront changes were merged into `main` on 24 September 2026. The public
+domain is currently operated as a staging/demo environment:
+
+- Storefront: <https://fartamarket.company>
+- API health: <https://api.fartamarket.company/up>
+
+Cloudflare Pages labels the Direct Upload deployment as `Production` because it
+uses the `main` alias. That provider label does not mean the overall Farta
+Market system has completed its production-readiness gates.
+
+The SePay interface is deployed, but staging payment creation remains
+unavailable until the backend receives the real Test Mode bank-account and HMAC
+webhook configuration. The API intentionally returns HTTP `503` while that
+configuration is missing.
 
 ## Features
 
-- Product listing page with category, stock, price, search, sorting, and pagination UI
-- Product detail page with gallery, quantity selector, cart action, reviews, related products, and frequently-bought-together sections
-- Shopping cart workflow with persistent cart state
-- Checkout flow with customer information, coupon input, COD/VNPay payment options, and order summary
-- Customer login and registration screens
-- Wishlist UI and shopping cart actions
-- AI chat widget connected to the backend chat endpoint
-- VI/EN bilingual UI with `react-i18next`
-- Responsive layouts for desktop and mobile breakpoints
-- Admin route structure for dashboard, orders, products, categories, coupons, and users
-- Unit tests with Vitest and end-to-end tests with Playwright
+- Product catalog with categories, stock, price, search, sorting, pagination,
+  related items, and frequently-bought-together suggestions.
+- Product detail skeletons, route-level loading placeholders, lazy-loaded images,
+  responsive layouts, and reduced-motion support.
+- Cart stored in `sessionStorage`, expired after 60 minutes, and cleared on
+  logout rather than persisted across browser sessions.
+- Checkout with coupons, COD, and SePay VietQR. VNPay is no longer offered for
+  new storefront payments.
+- SePay pending-payment screen with QR details and server-side status polling;
+  the cart is cleared only after the API confirms the payment.
+- Registration, login, email verification, password recovery, profile,
+  addresses, wishlist, reviews, and customer-owned order history.
+- Grounded AI chat whose product information is verified by the backend before
+  display or cart actions.
+- Vietnamese and English UI through `react-i18next`.
+- Same-origin API proxy, CSP/HSTS headers, Turnstile for guest checkout, unit
+  tests with Vitest, and browser tests with Playwright.
 
-## Tech Stack
+The administration portal is a separate application in `../websivi-admin` and
+is intentionally not bundled into the customer storefront.
 
-- **Frontend:** React 19, Vite, JavaScript
-- **Routing:** React Router
-- **State Management:** Redux Toolkit, React Redux
-- **Data Fetching:** Axios, TanStack Query
-- **Styling:** SCSS, CSS
-- **Internationalization:** i18next, react-i18next
-- **UI Utilities:** React Icons, React Hot Toast, React Multi Carousel
-- **Testing:** Vitest, Testing Library, Playwright
-- **Tooling:** npm, Git, Vite
+## Tech stack
 
-## Screenshots
+- React 19, React Router, Redux Toolkit, and TanStack Query
+- Vite 8, JavaScript, SCSS, and BE Vietnam Pro
+- Axios, DOMPurify, i18next, and React Testing Library
+- Vitest and Playwright
 
-### Home Page
+## Local development
 
-![Home Page](docs/screenshots/home.png)
-
-### Product Listing
-
-![Product Listing](docs/screenshots/products.png)
-
-### Product Detail
-
-![Product Detail](docs/screenshots/product-detail.png)
-
-### Shopping Cart
-
-![Shopping Cart](docs/screenshots/cart.png)
-
-### Checkout
-
-![Checkout](docs/screenshots/checkout.png)
-
-### Login
-
-![Login](docs/screenshots/login.png)
-
-### Register
-
-![Register](docs/screenshots/register.png)
-
-### Mobile View
-
-![Mobile Home](docs/screenshots/mobile-home.png)
-
-## Project Structure
-
-```text
-.
-├── public/
-├── src/
-│   ├── api/
-│   ├── assets/
-│   ├── component/
-│   ├── config/
-│   ├── hooks/
-│   ├── i18n/
-│   ├── pages/
-│   ├── redux/
-│   ├── style/
-│   └── utils/
-├── tests/
-│   └── e2e/
-├── docs/
-│   └── screenshots/
-├── index.html
-├── package.json
-├── playwright.config.ts
-├── vite.config.js
-└── README.md
-```
-
-## Getting Started
-
-Install dependencies:
+Requirements: Node.js 22 or newer and the Laravel backend running locally.
 
 ```bash
-npm install
-```
-
-Create a local environment file:
-
-```bash
+npm ci
 cp .env.example .env
-```
-
-Start the Vite development server:
-
-```bash
 npm run dev
 ```
 
-Open the local site in your browser:
+Open <http://127.0.0.1:5173>. Use `127.0.0.1` consistently for the backend,
+storefront, and Admin app when testing Sanctum cookies; do not mix it with
+`localhost`.
 
-```text
-http://127.0.0.1:5173
-```
-
-## Environment Variables
-
-The frontend expects the backend API to be available through `VITE_API_URL`.
+Default local configuration:
 
 ```dotenv
 VITE_API_URL=http://127.0.0.1:8000/api
 VITE_API_TIME_OUT=20000
 VITE_SITE_URL=http://127.0.0.1:5173
+VITE_ANALYTICS_ENABLED=true
+VITE_TURNSTILE_SITE_KEY=
 ```
 
-For production builds, set `VITE_API_URL` to the public Laravel API URL before running `npm run build`.
+Only the Turnstile site key is public. Never put database, payment, mail,
+Cloudinary, AI-provider, or webhook secrets in a `VITE_` variable.
+
+## Available scripts
 
 ```bash
-VITE_API_URL=https://api.example.com/api npm run build
-```
-
-Do not commit real secrets, API keys, access tokens, or local `.env` files.
-
-## Available Scripts
-
-```bash
-npm run start
 npm run dev
 npm run build
 npm run preview
 npm run test
 npm run test:e2e
 ```
+
+There are currently no `lint` or `typecheck` scripts. Do not report those checks
+as executed unless scripts are added to `package.json`.
 
 ## Testing
 
 Run unit tests:
 
 ```bash
-npm run test
+npm test
 ```
 
-Install Playwright browsers:
+Install Chromium and run browser tests:
 
 ```bash
 npx playwright install chromium
-```
-
-Run end-to-end tests:
-
-```bash
 npm run test:e2e
 ```
 
-The Playwright configuration starts the Laravel backend and Vite frontend for the e2e suite. If your backend lives in another folder, set `BACKEND_DIR` before running the tests.
+Playwright starts isolated Laravel and Vite processes and uses test data rather
+than the deployed staging database. If the backend is stored elsewhere, set
+`BACKEND_DIR` before running the suite:
 
 ```bash
-BACKEND_DIR=/path/to/backend npm run test:e2e
+BACKEND_DIR=/absolute/path/to/backend npm run test:e2e
 ```
 
-## Build
-
-Create a production build:
+Create a deployable build:
 
 ```bash
+VITE_API_URL=/api \
+VITE_ANALYTICS_ENABLED=true \
+VITE_TURNSTILE_SITE_KEY=replace-with-public-site-key \
 npm run build
 ```
 
-Preview the production build locally:
+## Checkout behavior
+
+COD orders are created through the standard order endpoint. SePay requires an
+authenticated, email-verified customer and a unique idempotency key. The API,
+not the browser, calculates the final amount and generates the transfer
+reference.
+
+For SePay, the storefront displays the VietQR image returned by the API and
+polls the customer-owned payment-status endpoint. A browser redirect, query
+parameter, or client-side action can never mark an order as paid. If the payment
+expires or fails, the cart remains available for retry.
+
+## Cloudflare Pages deployment
+
+The project uses Cloudflare Pages Direct Upload. A Git push or merge does not
+deploy the storefront automatically.
 
 ```bash
-npm run preview
+VITE_API_URL=/api \
+VITE_ANALYTICS_ENABLED=true \
+VITE_TURNSTILE_SITE_KEY=replace-with-public-site-key \
+npm run build
+
+npx wrangler pages deploy build \
+  --project-name=farta-storefront \
+  --branch=main
 ```
 
-## Deployment
+The Pages runtime must provide `API_ORIGIN` as the full HTTPS backend origin
+without an `/api` suffix. The worker proxies only `/api/*` and
+`/sanctum/csrf-cookie`, rejects cross-origin browser requests, and returns `503`
+when its upstream configuration is invalid.
 
-This Vite frontend can be deployed to Vercel, Netlify, or any static hosting platform after running `npm run build`.
+## Project structure
 
-Make sure the production environment has the correct `VITE_API_URL` value. If the frontend and Laravel API are served behind the same domain, `/api` can be used with a reverse proxy.
+```text
+.
+├── public/                 # Pages worker, routes, and static assets
+├── src/
+│   ├── api/                # Laravel API clients
+│   ├── component/          # Shared UI and skeletons
+│   ├── hooks/
+│   ├── i18n/
+│   ├── pages/              # Customer routes
+│   ├── redux/
+│   ├── style/
+│   └── utils/              # Session/cart/security helpers
+├── tests/e2e/              # Playwright flows
+├── security-headers.mjs
+├── playwright.config.ts
+├── vite.config.js
+└── README.md
+```
 
-## Live Demo
+## Production gates
 
-Live demo: Not available yet.
+Before treating the public domain as production:
 
-## Notes
-
-- Screenshots were captured from the local development environment.
-- Product data, checkout, authentication, reviews, wishlist, chat, and admin pages require the Laravel backend API.
-- Admin product management exists in the route structure, but the local environment used for screenshots did not provide configured seed admin credentials.
-- Customer profile pages require an authenticated customer session.
-- Some data shown in screenshots comes from local database seeders and may differ in production.
+1. Configure SePay Test Mode on the backend and complete a simulated inbound
+   transfer using the exact amount and reference shown by checkout.
+2. Repeat registration, Gmail verification, login, COD checkout, order view,
+   and cancellation on the deployed domain.
+3. Confirm SePay success, expiration, retry, and cart-retention behavior on
+   desktop and mobile.
+4. Rebuild from the reviewed `main` revision, rerun CI, and perform a controlled
+   release with a rollback point.
