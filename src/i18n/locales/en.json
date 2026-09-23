@@ -213,6 +213,9 @@
     "continueShopping": "Continue shopping"
   },
   "auth": {
+    "brandHomeLabel": "Go to the Farta Market homepage",
+    "brandTagline": "Fresh every day",
+    "accountSecurity": "Account security",
     "loginTitle": "Login",
     "registerTitle": "Create account",
     "name": "Full name",
@@ -235,6 +238,7 @@
     "verificationError": "Unable to send the verification email. You can continue shopping and try again later.",
     "verificationSuccess": "Email verified",
     "verificationSuccessDetail": "You can now use all Farta Market account features.",
+    "verificationInboxTip": "No email yet? Check your spam folder or wait a minute before resending.",
     "forgotPassword": "Forgot password?",
     "forgotPasswordTitle": "Recover your password",
     "forgotPasswordDetail": "Enter your account email. If it matches, we will send password reset instructions.",

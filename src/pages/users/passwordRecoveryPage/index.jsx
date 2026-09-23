@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { forgotPasswordAPI, resetPasswordAPI } from "api/auth";
+import AuthBrand from "component/AuthBrand";
 import { ROUTERS } from "utils/router";
 import "../loginPage/style.scss";
 
@@ -81,6 +82,9 @@ function PasswordRecoveryPage({ mode }) {
   return (
     <main className="user-login">
       <section className="user-login__card" aria-labelledby="password-recovery-title">
+        <div className="user-login__brand">
+          <AuthBrand />
+        </div>
         <div className="user-login__intro">
           <h1 id="password-recovery-title">
             {t(resetting ? "auth.resetPasswordTitle" : "auth.forgotPasswordTitle")}

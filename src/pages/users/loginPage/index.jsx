@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { loginUserAPI, registerUserAPI } from "api/auth";
 import { syncGuestWishlistAPI } from "api/wishlist";
+import AuthBrand from "component/AuthBrand";
 import { SESSION_KEYS } from "utils/constant";
 import { ROUTERS } from "utils/router";
 import { setAuthenticatedUser } from "../../../redux/authSlice";
@@ -99,6 +100,9 @@ const UserLoginPage = () => {
   return (
     <main className="user-login">
       <section className="user-login__card">
+        <div className="user-login__brand">
+          <AuthBrand />
+        </div>
         <div className="user-login__tabs">
           <button
             type="button"
@@ -194,7 +198,7 @@ const UserLoginPage = () => {
             </div>
           )}
 
-          {error && <p className="user-login__error">{error}</p>}
+          {error && <p className="user-login__error" role="alert">{error}</p>}
 
           <button type="submit" className="user-login__submit" disabled={isLoading}>
             {isLoading

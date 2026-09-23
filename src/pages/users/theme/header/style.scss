@@ -558,6 +558,8 @@
   .header__main__logo {
     flex: 1 1 auto;
     max-width: calc(100% - 52px);
+    min-width: 0;
+    width: calc(100% - 52px);
   }
 
   .header__main__nav {
@@ -579,7 +581,8 @@
 
     h1 {
       font-size: 28px;
-      overflow-wrap: anywhere;
+      overflow-wrap: normal;
+      white-space: nowrap;
     }
   }
 
