@@ -39,3 +39,21 @@ for (const viewport of viewports) {
     await expectNoHorizontalOverflow(page);
   });
 }
+
+test("product detail keeps a stable skeleton while data is loading", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.route("**/api/products/1", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    await route.continue();
+  });
+
+  await page.goto("/san-pham/chi-tiet/1");
+  const skeleton = page.locator(".product-detail-skeleton");
+  await expect(skeleton).toBeVisible();
+  await expect(skeleton).toHaveAttribute("aria-busy", "true");
+  await expect(page.locator("h1.product__detail__state")).toHaveCount(0);
+  expect(await skeleton.evaluate((element) => element.getBoundingClientRect().height))
+    .toBeGreaterThanOrEqual(700);
+  await expect(page.locator(".product-detail-layout")).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+});

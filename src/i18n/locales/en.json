@@ -358,9 +358,22 @@
     "paymentMethod": "Payment method",
     "paymentMethods": {
       "cod": "Cash on delivery",
-      "vnpay": "VNPay"
+      "sepay": "SePay VietQR bank transfer",
+      "vnpay": "VNPay (legacy order)"
     },
     "paidBadge": "Paid",
+    "sepayTitle": "Pay for your order with VietQR",
+    "sepayWaiting": "Waiting for bank confirmation",
+    "sepayInstructions": "Scan the QR code or transfer the exact amount with the reference below. The order updates automatically after SePay confirms the transaction.",
+    "sepayQrAlt": "VietQR code for this order",
+    "sepayBank": "Bank",
+    "sepayAccount": "Account number",
+    "sepayAccountHolder": "Account holder",
+    "sepayReference": "Transfer reference",
+    "sepayExpires": "Payment deadline",
+    "sepayAutoCheck": "This page is checking the payment status automatically.",
+    "paymentExpiredTitle": "Payment is no longer available",
+    "paymentExpiredMessage": "The payment window expired or the order was cancelled. Reserved inventory will be restored automatically.",
     "continueShopping": "Continue shopping",
     "viewOrder": "View order"
   },
@@ -424,21 +437,21 @@
     "discountAmount": "Discount",
     "paymentMethods": {
       "cod": "Cash on delivery (COD)",
-      "vnpay": "VNPay payment (ATM/Visa/QR)"
+      "sepay": "SePay VietQR bank transfer"
     },
     "paymentDescriptions": {
       "cod": "Pay directly to the delivery staff.",
-      "vnpay": "Continue to the VNPay sandbox gateway for secure payment."
+      "sepay": "Scan VietQR and let the store confirm the incoming transfer automatically."
     },
     "placing": "Placing order...",
     "placeOrder": "Place order",
-    "payWithVnpay": "Pay with VNPay",
+    "payWithSepay": "Create VietQR",
     "confirm": "Confirm",
     "success": "Order placed successfully",
     "orderError": "Unable to place order, please try again.",
     "securityCheckRequired": "Please complete the security check before placing your order.",
-    "paymentFailed": "VNPay payment failed or was cancelled. Please try again.",
-    "loginForVnpay": "Please log in to pay with VNPay.",
+    "paymentFailed": "The payment failed or was cancelled. Please try again.",
+    "loginForSepay": "Please log in to pay with SePay.",
     "emptyCart": "Your cart is empty.",
     "validation": {
       "fullNameRequired": "Please enter full name",

@@ -5,7 +5,7 @@ import Breadcrumb from "../theme/breadcrumb";
 import { useMutation } from "@tanstack/react-query";
 import { ROUTERS } from "utils/router";
 import {
-  createVNPayPaymentAPI,
+  createSepayPaymentAPI,
   postOrderAPI,
   validateCouponAPI,
 } from "api/orderPage";
@@ -39,14 +39,17 @@ const CheckoutPage = () => {
 
   const { mutate: submitOrder, isPending } = useMutation({
     mutationFn: ({ payload, idempotencyKey, paymentMethod }) =>
-      paymentMethod === "vnpay"
-        ? createVNPayPaymentAPI(payload, idempotencyKey, getAnalyticsToken())
+      paymentMethod === "sepay"
+        ? createSepayPaymentAPI(payload, idempotencyKey, getAnalyticsToken())
         : postOrderAPI(payload, idempotencyKey, getAnalyticsToken()),
     onSuccess: (response, variables) => {
       const order = response?.data;
 
-      if (variables.paymentMethod === "vnpay") {
-        window.location.href = response.payment_url;
+      if (variables.paymentMethod === "sepay") {
+        navigate(
+          `${ROUTERS.USER.ORDER_SUCCESS}?orderId=${order?.id || ""}&payment=sepay`,
+          { state: { order, payment: response?.payment || null } }
+        );
         return;
       }
 
@@ -291,10 +294,10 @@ const CheckoutPage = () => {
       }
 
       if (
-        paymentMethod === "vnpay" &&
+        paymentMethod === "sepay" &&
         !isLoggedIn
       ) {
-        setOrderError(t("checkout.loginForVnpay"));
+        setOrderError(t("checkout.loginForSepay"));
         navigate(
           `${ROUTERS.USER.LOGIN}?redirect=${encodeURIComponent(
             ROUTERS.USER.CHECKOUT
@@ -536,13 +539,13 @@ const CheckoutPage = () => {
                     <input
                       type="radio"
                       name="payment_method"
-                      value="vnpay"
-                      checked={paymentMethod === "vnpay"}
+                      value="sepay"
+                      checked={paymentMethod === "sepay"}
                       onChange={(event) => setPaymentMethod(event.target.value)}
                     />
                     <span>
-                      <b>{t("checkout.paymentMethods.vnpay")}</b>
-                      <small>{t("checkout.paymentDescriptions.vnpay")}</small>
+                      <b>{t("checkout.paymentMethods.sepay")}</b>
+                      <small>{t("checkout.paymentDescriptions.sepay")}</small>
                     </span>
                   </label>
                 </div>
@@ -564,8 +567,8 @@ const CheckoutPage = () => {
                   <span>
                     {isPending
                       ? t("checkout.placing")
-                      : paymentMethod === "vnpay"
-                      ? t("checkout.payWithVnpay")
+                      : paymentMethod === "sepay"
+                      ? t("checkout.payWithSepay")
                       : t("checkout.placeOrder")}
                   </span>
                 </button>

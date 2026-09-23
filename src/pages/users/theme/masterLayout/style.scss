@@ -1,0 +1,62 @@
+@use "style/pages/all" as *;
+
+.site-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.site-shell__content {
+  flex: 1 0 auto;
+}
+
+.route-loading {
+  display: grid;
+  gap: 24px;
+  min-height: clamp(420px, 58vh, 680px);
+  padding-bottom: 48px;
+  padding-top: 48px;
+}
+
+.route-loading__title,
+.route-loading__line,
+.route-loading__surface {
+  background: #e8eceb;
+  border-radius: 8px;
+}
+
+.route-loading__title {
+  height: 32px;
+  max-width: 360px;
+  width: 60%;
+}
+
+.route-loading__surface {
+  min-height: 280px;
+}
+
+.route-loading__line {
+  height: 18px;
+  max-width: 720px;
+  width: 82%;
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+@media (max-width: 767px) {
+  .route-loading {
+    gap: 16px;
+    min-height: 460px;
+    padding-bottom: 32px;
+    padding-top: 32px;
+  }
+}

@@ -14,6 +14,84 @@
     max-width: 760px;
     padding: 42px;
     text-align: center;
+
+    &--payment {
+      max-width: 920px;
+    }
+  }
+
+  &__payment-status {
+    align-items: center;
+    color: var(--color-primary);
+    display: inline-flex;
+    font-size: 14px;
+    font-weight: 800;
+    gap: 10px;
+    margin-bottom: 18px;
+
+    span {
+      animation: payment-status-pulse 1.3s ease-in-out infinite;
+      background: var(--color-primary);
+      border-radius: 50%;
+      height: 10px;
+      width: 10px;
+    }
+  }
+
+  &__payment-grid {
+    align-items: center;
+    display: grid;
+    gap: 32px;
+    grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+    margin: 32px 0 24px;
+    text-align: left;
+  }
+
+  &__qr {
+    aspect-ratio: 1 / 1;
+    background: var(--color-surface-soft);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    display: block;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+    width: 100%;
+  }
+
+  &__payment-details {
+    display: grid;
+    gap: 12px;
+
+    div {
+      border-bottom: 1px solid var(--color-border);
+      display: grid;
+      gap: 4px;
+      padding-bottom: 12px;
+    }
+
+    dt {
+      color: var(--color-muted);
+      font-size: 13px;
+    }
+
+    dd {
+      color: var(--color-heading);
+      font-size: 16px;
+      font-weight: 800;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__reference {
+    color: var(--color-primary) !important;
+    font-size: 19px !important;
+    letter-spacing: 0.02em;
+  }
+
+  &__payment-note {
+    margin-bottom: 24px !important;
   }
 
   &__icon {
@@ -111,6 +189,23 @@
   }
 }
 
+@keyframes payment-status-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-success__payment-status span {
+    animation: none;
+  }
+}
+
 @media (max-width: 576px) {
   .order-success {
     padding: 32px 0 48px;
@@ -122,6 +217,16 @@
     &__summary div {
       align-items: flex-start;
       flex-direction: column;
+    }
+
+    &__payment-grid {
+      gap: 24px;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__qr {
+      justify-self: center;
+      max-width: 320px;
     }
 
     &__button {

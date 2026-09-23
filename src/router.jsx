@@ -17,6 +17,21 @@ const MyOrdersPage = React.lazy(() => import("pages/users/myOrdersPage"));
 const WishlistPage = React.lazy(() => import("pages/users/wishlistPage"));
 const VerifyEmailPage = React.lazy(() => import("pages/users/verifyEmailPage"));
 const PasswordRecoveryPage = React.lazy(() => import("pages/users/passwordRecoveryPage"));
+
+const RouteLoading = ({ label }) => (
+  <div
+    className="container route-loading"
+    role="status"
+    aria-busy="true"
+    aria-live="polite"
+  >
+    <span className="visually-hidden">{label}</span>
+    <div className="route-loading__title skeleton-pulse" aria-hidden="true" />
+    <div className="route-loading__surface skeleton-pulse" aria-hidden="true" />
+    <div className="route-loading__line skeleton-pulse" aria-hidden="true" />
+  </div>
+);
+
 class RouteErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -124,7 +139,7 @@ const renderUserRouter = (fallback, errorTitle, retryLabel, resetKey) => {
 const RouterCustom = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  const fallback = t("common.loading");
+  const fallback = <RouteLoading label={t("common.loading")} />;
   const errorTitle = t("common.error");
   const retryLabel = t("common.retry");
 

@@ -148,10 +148,122 @@
   }
 }
 .product__detail__state {
-  width: 100%;
-  padding: 24px 0;
-  text-align: center;
+  align-items: center;
   color: #6f6f6f;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  min-height: 360px;
+  padding-bottom: 48px;
+  padding-top: 48px;
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+
+  button {
+    background: map.get($theme-colors, "main");
+    border: 0;
+    border-radius: 6px;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 800;
+    min-height: 42px;
+    padding: 0 20px;
+
+    &:focus-visible {
+      outline: 3px solid rgba(0, 136, 116, 0.25);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.product-detail-skeleton {
+  min-height: 720px;
+  padding-bottom: 48px;
+  padding-top: 48px;
+}
+
+.product-detail-skeleton__layout {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.product-detail-skeleton__gallery {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) clamp(72px, 22%, 120px);
+}
+
+.product-detail-skeleton__image,
+.product-detail-skeleton__thumbnail,
+.product-detail-skeleton__heading,
+.product-detail-skeleton__meta,
+.product-detail-skeleton__price,
+.product-detail-skeleton__copy,
+.product-detail-skeleton__action,
+.product-detail-skeleton__section {
+  background: #e8eceb;
+  border-radius: 8px;
+}
+
+.product-detail-skeleton__image {
+  aspect-ratio: 1 / 1;
+}
+
+.product-detail-skeleton__thumbnails {
+  display: grid;
+  gap: 10px;
+}
+
+.product-detail-skeleton__thumbnail {
+  aspect-ratio: 1 / 1;
+}
+
+.product-detail-skeleton__details {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 8px;
+}
+
+.product-detail-skeleton__heading {
+  height: 36px;
+  width: 76%;
+}
+
+.product-detail-skeleton__meta {
+  height: 18px;
+  width: 48%;
+}
+
+.product-detail-skeleton__price {
+  height: 34px;
+  width: 36%;
+}
+
+.product-detail-skeleton__copy {
+  height: 18px;
+  width: 100%;
+}
+
+.product-detail-skeleton__copy--short {
+  width: 72%;
+}
+
+.product-detail-skeleton__action {
+  height: 48px;
+  margin-top: 16px;
+  max-width: 280px;
+  width: 58%;
+}
+
+.product-detail-skeleton__section {
+  height: 180px;
+  margin-top: 48px;
 }
 
 .product__detail__stars {
@@ -419,9 +531,19 @@
     align-items: start;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .product-detail-skeleton__layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 767px) {
+  .product-detail-skeleton {
+    min-height: 780px;
+    padding-bottom: 32px;
+    padding-top: 32px;
+  }
+
   .product__section-head {
     align-items: stretch;
     flex-direction: column;

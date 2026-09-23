@@ -1,4 +1,5 @@
 import React from "react";
+import "@testing-library/jest-dom/vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -85,6 +86,9 @@ it("QA: out-of-stock detail disables adding to cart", async () => {
 
 it("QA: loading detail does not offer a purchase action", async () => {
   mocks.loading = true; mocks.product = null;
-  await renderPage();
+  const { container } = await renderPage();
   expect(screen.queryByTestId("add-to-cart")).toBeNull();
+  expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
+  expect(container.querySelector(".product-detail-skeleton__image")).not.toBeNull();
+  expect(container.querySelectorAll(".product-detail-skeleton__thumbnail")).toHaveLength(4);
 });

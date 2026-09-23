@@ -317,9 +317,22 @@
     "paymentMethod": "Phương thức thanh toán",
     "paymentMethods": {
       "cod": "Thanh toán khi nhận hàng",
-      "vnpay": "VNPay"
+      "sepay": "Chuyển khoản VietQR qua SePay",
+      "vnpay": "VNPay (đơn cũ)"
     },
     "paidBadge": "Đã thanh toán",
+    "sepayTitle": "Thanh toán đơn hàng bằng VietQR",
+    "sepayWaiting": "Đang chờ ngân hàng xác nhận",
+    "sepayInstructions": "Quét mã QR hoặc chuyển khoản đúng số tiền và nội dung bên dưới. Đơn hàng sẽ tự động cập nhật sau khi SePay xác nhận giao dịch.",
+    "sepayQrAlt": "Mã VietQR thanh toán đơn hàng",
+    "sepayBank": "Ngân hàng",
+    "sepayAccount": "Số tài khoản",
+    "sepayAccountHolder": "Chủ tài khoản",
+    "sepayReference": "Nội dung chuyển khoản",
+    "sepayExpires": "Thời hạn thanh toán",
+    "sepayAutoCheck": "Trang đang tự động kiểm tra trạng thái thanh toán.",
+    "paymentExpiredTitle": "Thanh toán không còn hiệu lực",
+    "paymentExpiredMessage": "Đơn hàng đã hết thời gian thanh toán hoặc đã bị hủy. Tồn kho sẽ được hoàn lại tự động.",
     "continueShopping": "Tiếp tục mua sắm",
     "viewOrder": "Xem đơn hàng"
   },
@@ -383,21 +396,21 @@
     "discountAmount": "Giảm giá",
     "paymentMethods": {
       "cod": "Thanh toán khi nhận hàng (COD)",
-      "vnpay": "Thanh toán VNPay (ATM/Visa/QR)"
+      "sepay": "Chuyển khoản VietQR qua SePay"
     },
     "paymentDescriptions": {
       "cod": "Bạn thanh toán trực tiếp cho nhân viên giao hàng.",
-      "vnpay": "Chuyển sang cổng VNPay sandbox để thanh toán an toàn."
+      "sepay": "Quét VietQR và hệ thống tự xác nhận khi tiền vào tài khoản."
     },
     "placing": "Đang đặt hàng...",
     "placeOrder": "Đặt hàng",
-    "payWithVnpay": "Thanh toán qua VNPay",
+    "payWithSepay": "Tạo mã VietQR",
     "confirm": "Xác nhận",
     "success": "Đặt hàng thành công",
     "orderError": "Không đặt được hàng, vui lòng thử lại.",
     "securityCheckRequired": "Vui lòng hoàn tất kiểm tra bảo mật trước khi đặt hàng.",
-    "paymentFailed": "Thanh toán VNPay thất bại hoặc đã bị hủy. Vui lòng thử lại.",
-    "loginForVnpay": "Vui lòng đăng nhập để thanh toán qua VNPay.",
+    "paymentFailed": "Thanh toán thất bại hoặc đã bị hủy. Vui lòng thử lại.",
+    "loginForSepay": "Vui lòng đăng nhập để thanh toán qua SePay.",
     "emptyCart": "Giỏ hàng đang trống.",
     "validation": {
       "fullNameRequired": "Vui lòng nhập họ và tên",

@@ -36,7 +36,7 @@ test("a forged payment success URL cannot clear an unverified cart", async ({ pa
       totalQuantity: 2,
     },
   })));
-  await page.goto("/dat-hang-thanh-cong?orderId=999999&payment=vnpay");
+  await page.goto("/dat-hang-thanh-cong?orderId=999999&payment=sepay");
   await expect(page.locator(".order-success__panel")).toContainText("Chưa xác minh được đơn hàng hoặc thanh toán");
   const cart = await page.evaluate(() => JSON.parse(sessionStorage.getItem("cart") || "null")?.value);
   expect(cart.totalQuantity).toBe(2);
