@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
 import worker from "../../public/_worker.js";
 
 afterEach(() => vi.unstubAllGlobals());
@@ -46,6 +47,20 @@ describe("Pages API proxy", () => {
       { ASSETS: assets }
     );
 
+    expect(response.headers.get("Strict-Transport-Security")).toBe("max-age=31536000; includeSubDomains");
+  });
+
+  it("routes reset pages through the Worker and blocks reset-link referrers", async () => {
+    const routes = JSON.parse(readFileSync(new URL("../../public/_routes.json", import.meta.url), "utf8"));
+    const assets = { fetch: vi.fn(async () => new Response("reset page")) };
+
+    const response = await worker.fetch(
+      new Request("https://fartamarket.company/reset-password?token=one-time-token"),
+      { ASSETS: assets }
+    );
+
+    expect(routes.include).toContain("/reset-password*");
+    expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
     expect(response.headers.get("Strict-Transport-Security")).toBe("max-age=31536000; includeSubDomains");
   });
 

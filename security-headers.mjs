@@ -21,5 +21,5 @@ export const buildSecurityHeaders = (apiUrl) => {
     "frame-src https://challenges.cloudflare.com",
   ].join("; ");
 
-  return `/*\n  Content-Security-Policy: ${csp}\n  Strict-Transport-Security: max-age=31536000; includeSubDomains\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), geolocation=(), microphone=()\n\n/reset-password\n  Referrer-Policy: no-referrer\n`;
+  return `/*\n  Content-Security-Policy: ${csp}\n  Strict-Transport-Security: max-age=31536000; includeSubDomains\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), geolocation=(), microphone=()\n`;
 };
