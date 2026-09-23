@@ -1,8 +1,7 @@
-const withTransportSecurity = async (responsePromise, resetPage = false) => {
+const withTransportSecurity = async (responsePromise) => {
   const response = await responsePromise;
   const secured = new Response(response.body, response);
   secured.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-  if (resetPage) secured.headers.set("Referrer-Policy", "no-referrer");
   return secured;
 };
 
@@ -10,7 +9,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (!url.pathname.startsWith("/api/") && url.pathname !== "/sanctum/csrf-cookie") {
-      return withTransportSecurity(env.ASSETS.fetch(request), url.pathname === "/reset-password");
+      return withTransportSecurity(env.ASSETS.fetch(request));
     }
 
     const origin = request.headers.get("Origin");

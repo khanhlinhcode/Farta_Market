@@ -83,8 +83,16 @@ for (const args of [["artisan", "migrate", "--force"], ["artisan", "db:seed", "-
   const result = spawnSync(php, args, { cwd: backendDir, env, stdio: "inherit" });
   if (result.status !== 0) process.exit(result.status || 1);
 }
-const server = spawn(php, ["artisan", "serve", "--host=127.0.0.1", "--port=" + backendPort, "--no-reload"], {
-  cwd: backendDir, env, stdio: "inherit",
+// Run PHP's development server directly. `artisan serve --no-reload` rebuilds
+// its child environment from `$_ENV`, which can drop values injected by this
+// Node process and accidentally boot the developer database instead of the
+// isolated E2E database.
+const serverScript = path.join(
+  backendDir,
+  "vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"
+);
+const server = spawn(php, ["-d", "variables_order=EGPCS", "-S", "127.0.0.1:" + backendPort, serverScript], {
+  cwd: path.join(backendDir, "public"), env, stdio: "inherit",
 });
 for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => server.kill(signal));
 server.on("exit", (code) => process.exit(code || 0));

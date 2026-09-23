@@ -49,17 +49,6 @@ describe("Pages API proxy", () => {
     expect(response.headers.get("Strict-Transport-Security")).toBe("max-age=31536000; includeSubDomains");
   });
 
-  it("blocks reset-link referrers before the page loads assets", async () => {
-    const assets = { fetch: vi.fn(async () => new Response("reset page")) };
-    const response = await worker.fetch(
-      new Request("https://fartamarket.company/reset-password?token=one-time-token"),
-      { ASSETS: assets }
-    );
-
-    expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
-    expect(response.headers.get("Strict-Transport-Security")).toBe("max-age=31536000; includeSubDomains");
-  });
-
   it("keeps separate upstream cookies when adding response headers", async () => {
     const headers = new Headers();
     headers.append("Set-Cookie", "XSRF-TOKEN=test; Secure; SameSite=Lax");

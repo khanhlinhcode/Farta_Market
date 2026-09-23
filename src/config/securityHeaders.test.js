@@ -21,4 +21,11 @@ describe("deployment security headers", () => {
     expect(headers).toContain("connect-src 'self' https://challenges.cloudflare.com https://cloudflareinsights.com");
     expect(headers).not.toContain("127.0.0.1");
   });
+
+  it("prevents reset-link query parameters from leaking through referrers", () => {
+    const headers = buildSecurityHeaders("/api");
+
+    expect(headers).toContain("Referrer-Policy: strict-origin-when-cross-origin");
+    expect(headers).toContain("/reset-password\n  Referrer-Policy: no-referrer");
+  });
 });
