@@ -28,13 +28,17 @@ test("user can complete purchase flow", async ({ page }) => {
 });
 
 test("a forged payment success URL cannot clear an unverified cart", async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem("cart", JSON.stringify({
-    products: [{ product: { id: 1, name: "Local cart", price: 1, inventory: 10 }, quantity: 2 }],
-    totalPrice: 2, totalQuantity: 2,
+  await page.addInitScript(() => sessionStorage.setItem("cart", JSON.stringify({
+    expiresAt: Date.now() + 60 * 60 * 1000,
+    value: {
+      products: [{ product: { id: 1, name: "Session cart", price: 1, inventory: 10 }, quantity: 2 }],
+      totalPrice: 2,
+      totalQuantity: 2,
+    },
   })));
   await page.goto("/dat-hang-thanh-cong?orderId=999999&payment=vnpay");
   await expect(page.locator(".order-success__panel")).toContainText("Chưa xác minh được đơn hàng hoặc thanh toán");
-  const cart = await page.evaluate(() => JSON.parse(localStorage.getItem("cart") || "null"));
+  const cart = await page.evaluate(() => JSON.parse(sessionStorage.getItem("cart") || "null")?.value);
   expect(cart.totalQuantity).toBe(2);
 });
 

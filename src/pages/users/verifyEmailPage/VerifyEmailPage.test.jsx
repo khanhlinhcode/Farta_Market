@@ -8,11 +8,13 @@ import authReducer from "../../../redux/authSlice";
 import VerifyEmailPage from ".";
 
 const mocks = vi.hoisted(() => ({
+  me: vi.fn(),
   status: vi.fn(),
   resend: vi.fn(),
 }));
 
 vi.mock("api/auth", () => ({
+  getMeAPI: mocks.me,
   getEmailVerificationStatusAPI: mocks.status,
   resendEmailVerificationAPI: mocks.resend,
 }));
@@ -40,8 +42,23 @@ const renderPage = (entry = "/verify-email") => {
 };
 
 beforeEach(() => {
+  mocks.me.mockReset();
+  mocks.me.mockResolvedValue({
+    id: 7,
+    role: "customer",
+    email_verified_at: "2026-09-23T00:00:00Z",
+  });
   mocks.status.mockReset();
   mocks.resend.mockReset();
+});
+
+it("restores the customer UI only after verification is confirmed", async () => {
+  mocks.status.mockResolvedValue({ email_verified: true });
+  const store = renderPage();
+
+  expect(await screen.findByRole("heading", { name: "auth.verificationSuccess" }))
+    .toBeInTheDocument();
+  await waitFor(() => expect(store.getState().auth.user?.id).toBe(7));
 });
 
 it("shows an expired-session state and clears stale authentication after a 401", async () => {

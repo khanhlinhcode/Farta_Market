@@ -461,6 +461,31 @@
     width: 100%;
     //padding-left: 75px;
 
+    &.hero__item--loading {
+      background: #e8eceb;
+      overflow: hidden;
+      position: relative;
+
+      &::after {
+        animation: hero-loading-pulse 1.3s ease-in-out infinite;
+        background: rgba(255, 255, 255, 0.45);
+        content: "";
+        filter: blur(18px);
+        inset: 18% 8%;
+        position: absolute;
+      }
+    }
+
+    .hero__loading-label {
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      height: 1px;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+      width: 1px;
+    }
+
     .hero__text {
       padding-left: 75px;
 
@@ -516,6 +541,17 @@
           outline-offset: 2px;
         }
       }
+    }
+  }
+
+  @keyframes hero-loading-pulse {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+
+    50% {
+      opacity: 0.9;
     }
   }
 }

@@ -5,12 +5,16 @@ const initialState = {
   isBootstrapped: false,
 };
 
+export const isVerifiedCustomer = (user) =>
+  user?.role === "customer" &&
+  Boolean(user.email_verified_at || user.email_verified === true);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
     setAuthenticatedUser: (state, action) => {
-      state.user = action.payload?.role === "customer" ? action.payload : null;
+      state.user = isVerifiedCustomer(action.payload) ? action.payload : null;
     },
     setAuthBootstrapped: (state, action) => {
       state.isBootstrapped = action.payload ?? true;

@@ -10,11 +10,30 @@
   }
 
   .featured__item__pic {
+    background: #e8eceb;
     height: 270px;
     position: relative;
     overflow: hidden;
     background-position: center;
     background-size: cover;
+
+    .featured__item__image {
+      filter: blur(14px);
+      height: 100%;
+      inset: 0;
+      object-fit: cover;
+      opacity: 0.35;
+      position: absolute;
+      transform: scale(1.03);
+      transition: filter 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+      width: 100%;
+    }
+
+    &.is-loaded .featured__item__image {
+      filter: blur(0);
+      opacity: 1;
+      transform: scale(1);
+    }
 
     .featured__item__pic__hover {
       position: absolute;
@@ -28,6 +47,7 @@
       gap: 10px;
       margin: 0;
       padding: 0;
+      z-index: 2;
 
       li {
         list-style: none;
@@ -96,6 +116,7 @@
       padding: 6px 8px;
       position: absolute;
       top: 10px;
+      z-index: 2;
 
       &.featured__item__stock--out {
         background: rgba(214, 69, 69, 0.92);

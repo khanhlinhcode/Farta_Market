@@ -8,6 +8,8 @@ import { calculateCart, setCart } from "../../redux/cartSlice";
 import { clearAuth, setAuthenticatedUser } from "../../redux/authSlice";
 import i18n from "../../i18n";
 import ChatWidget from ".";
+import { CART_SESSION_TTL_MS, SESSION_KEYS } from "utils/constant";
+import { getExpiringSessionItem, setExpiringSessionItem } from "utils/session";
 
 const mocks = vi.hoisted(() => ({ api: vi.fn(), success: vi.fn(), error: vi.fn(), notice: vi.fn() }));
 vi.mock("api/axios", () => ({ default: mocks.api }));
@@ -41,11 +43,11 @@ const send = async () => {
 
 it.each([29, 30])("QA: chat must not claim two units were added when cart already contains %i of 30", async (existingQuantity) => {
   const previous = calculateCart([{ product, quantity: existingQuantity }]);
-  window.localStorage.setItem("cart", JSON.stringify(previous));
+  setExpiringSessionItem(SESSION_KEYS.CART, previous, CART_SESSION_TTL_MS);
   store.dispatch(setCart(previous));
   mocks.api.mockResolvedValue({ reply: "Đã thêm 2 Cam Tươi vào giỏ hàng.", action: { type: "add_to_cart", product_id: 1, quantity: 2, product } });
   await send();
-  const cart = JSON.parse(window.localStorage.getItem("cart"));
+  const cart = getExpiringSessionItem(SESSION_KEYS.CART);
   expect(cart.totalQuantity).toBe(30);
   expect(cart.totalQuantity - existingQuantity).toBeLessThan(2);
   expect(screen.queryByText("Đã thêm 2 Cam Tươi vào giỏ hàng.")).not.toBeInTheDocument();
@@ -57,7 +59,7 @@ it("QA: chat confirms two units when the real cart hook adds both", async () => 
   mocks.api.mockResolvedValue({ reply: "Đã thêm 2 Cam Tươi vào giỏ hàng.", action: { type: "add_to_cart", product_id: 1, quantity: 2, product } });
   await send();
   expect(store.getState().commonSlide.cart.totalQuantity).toBe(2);
-  expect(JSON.parse(window.localStorage.getItem("cart")).totalQuantity).toBe(2);
+  expect(getExpiringSessionItem(SESSION_KEYS.CART).totalQuantity).toBe(2);
   expect(screen.getByText("Đã thêm 2 Cam Tươi vào giỏ hàng.")).toBeInTheDocument();
   expect(mocks.success).toHaveBeenCalledTimes(1);
 });
@@ -77,7 +79,7 @@ it("QA: model text is rendered as text rather than executable HTML", async () =>
 it.each([0, 29, 30])("English cart confirmation uses actual delta with %i already stored", async (existingQuantity) => {
   await i18n.changeLanguage("en");
   const cart = calculateCart(existingQuantity ? [{ product, quantity: existingQuantity }] : []);
-  window.localStorage.setItem("cart", JSON.stringify(cart));
+  setExpiringSessionItem(SESSION_KEYS.CART, cart, CART_SESSION_TTL_MS);
   store.dispatch(setCart(cart));
   mocks.api.mockResolvedValue({ reply: "Added 9999 units with 90% discount", action: { type: "add_to_cart", quantity: 2, product } });
   await send();
@@ -101,7 +103,7 @@ it("a response received after unmount cannot mutate real Redux or storage", asyn
   expect(mocks.api.mock.calls[0][0].signal.aborted).toBe(true);
   await act(async () => resolve({ reply: "Added", action: { type: "add_to_cart", quantity: 2, product } }));
   expect(store.getState().commonSlide.cart.totalQuantity).toBe(0);
-  expect(window.localStorage.getItem("cart")).toBeNull();
+  expect(window.sessionStorage.getItem(SESSION_KEYS.CART)).toBeNull();
   expect(mocks.success).not.toHaveBeenCalled();
 });
 
@@ -112,7 +114,11 @@ it("changing account aborts the previous conversation and ignores its late cart 
   fireEvent.click(screen.getByTestId("chat-bubble"));
   fireEvent.change(screen.getByTestId("chat-input"), { target: { value: "mua 2 Cam Tươi" } });
   fireEvent.click(screen.getByRole("button", { name: i18n.t("chat.send") }));
-  await act(async () => store.dispatch(setAuthenticatedUser({ id: 2, role: "customer" })));
+  await act(async () => store.dispatch(setAuthenticatedUser({
+    id: 2,
+    role: "customer",
+    email_verified_at: "2026-09-23T00:00:00Z",
+  })));
   expect(mocks.api.mock.calls[0][0].signal.aborted).toBe(true);
   await act(async () => resolve({ reply: "Added", action: { type: "add_to_cart", quantity: 2, product } }));
   expect(store.getState().commonSlide.cart.totalQuantity).toBe(0);

@@ -9,7 +9,7 @@ import { syncGuestWishlistAPI } from "api/wishlist";
 import AuthBrand from "component/AuthBrand";
 import { SESSION_KEYS } from "utils/constant";
 import { ROUTERS } from "utils/router";
-import { setAuthenticatedUser } from "../../../redux/authSlice";
+import { clearCustomerUser, setAuthenticatedUser } from "../../../redux/authSlice";
 import "./style.scss";
 
 const UserLoginPage = () => {
@@ -57,6 +57,18 @@ const UserLoginPage = () => {
           ? await registerUserAPI(payload)
           : await loginUserAPI(payload);
 
+      if (!response.user?.email_verified_at && !response.user?.email_verified) {
+        dispatch(clearCustomerUser());
+        navigate(ROUTERS.USER.VERIFY_EMAIL, {
+          replace: true,
+          state: {
+            verificationEmailUnavailable:
+              response.verification_email_sent === false,
+          },
+        });
+        return;
+      }
+
       dispatch(setAuthenticatedUser(response.user));
 
       const wishlistIds = getStoredWishlistIds();
@@ -74,16 +86,6 @@ const UserLoginPage = () => {
       toast.success(
         mode === "register" ? t("auth.registerSuccess") : t("auth.loginSuccess")
       );
-      if (!response.user?.email_verified_at && !response.user?.email_verified) {
-        navigate(ROUTERS.USER.VERIFY_EMAIL, {
-          replace: true,
-          state: {
-            verificationEmailUnavailable:
-              response.verification_email_sent === false,
-          },
-        });
-        return;
-      }
       navigate(redirectPath || ROUTERS.USER.HOME, { replace: true });
     } catch (err) {
       const message =

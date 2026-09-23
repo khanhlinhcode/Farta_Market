@@ -62,7 +62,7 @@ const SOCIAL_LINKS = [
 
 const Header = () => {
   const { t, i18n } = useTranslation();
-  useShoppingCart();
+  const { clearCart } = useShoppingCart();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -83,7 +83,7 @@ const Header = () => {
   }, [location]);
 
   const { data: categories } = useGetCategoriesUS();
-  const { data: siteContent } = useGetSiteContentUS();
+  const { data: siteContent, isLoading: isSiteContentLoading } = useGetSiteContentUS();
   const settings = siteContent?.settings || {};
   const contactEmail = settings.contact_email || CONTACT_EMAIL;
   const contactPhone = settings.contact_phone || "0977232232";
@@ -163,6 +163,7 @@ const Header = () => {
       // The local UI still exits the account state if the server session is gone.
     } finally {
       clearUserSession();
+      clearCart();
       dispatch(clearCustomerUser());
       setShowHumberger(false);
       navigate(ROUTERS.USER.HOME);
@@ -483,21 +484,26 @@ const Header = () => {
             </div>
             {isHome && (
               <div
-                className="hero__item"
-                style={{ backgroundImage: `url(${heroImage})` }}
-                role="img"
-                aria-label={heroAlt}
+                className={`hero__item${isSiteContentLoading ? " hero__item--loading" : ""}`}
+                style={isSiteContentLoading ? undefined : { backgroundImage: `url(${heroImage})` }}
+                role={isSiteContentLoading ? "status" : "img"}
+                aria-label={isSiteContentLoading ? t("common.loading") : heroAlt}
+                aria-busy={isSiteContentLoading}
               >
-                <div className="hero__text">
-                  <span>{t("home.hero.eyebrow")}</span>
-                  <h2>{heroTitle || <>{t("home.hero.titleLine1")} <br />{t("home.hero.titleLine2")}</>}</h2>
-                  <p>{heroSubtitle}</p>
-                  {isExternalUrl(heroPath) ? (
-                    <a href={heroPath} className="primary-btn" target="_blank" rel="noreferrer">{heroButton}</a>
-                  ) : (
-                    <Link to={heroPath} className="primary-btn">{heroButton}</Link>
-                  )}
-                </div>
+                {isSiteContentLoading ? (
+                  <span className="hero__loading-label">{t("common.loading")}</span>
+                ) : (
+                  <div className="hero__text">
+                    <span>{t("home.hero.eyebrow")}</span>
+                    <h2>{heroTitle || <>{t("home.hero.titleLine1")} <br />{t("home.hero.titleLine2")}</>}</h2>
+                    <p>{heroSubtitle}</p>
+                    {isExternalUrl(heroPath) ? (
+                      <a href={heroPath} className="primary-btn" target="_blank" rel="noreferrer">{heroButton}</a>
+                    ) : (
+                      <Link to={heroPath} className="primary-btn">{heroButton}</Link>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

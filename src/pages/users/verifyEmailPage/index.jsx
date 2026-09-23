@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FiCheck, FiMail, FiRefreshCw, FiShield } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import {
+  getMeAPI,
   getEmailVerificationStatusAPI,
   resendEmailVerificationAPI,
 } from "api/auth";
 import AuthBrand from "component/AuthBrand";
-import { clearAuth } from "../../../redux/authSlice";
+import { clearAuth, setAuthenticatedUser } from "../../../redux/authSlice";
 import { ROUTERS } from "utils/router";
 import "./style.scss";
 
@@ -30,16 +31,27 @@ export default function VerifyEmailPage() {
   );
   const [loading, setLoading] = useState(false);
 
+  const restoreVerifiedCustomer = useCallback(async () => {
+    const response = await getMeAPI();
+    dispatch(setAuthenticatedUser(response.user || response));
+  }, [dispatch]);
+
   useEffect(() => {
     getEmailVerificationStatusAPI()
-      .then((response) => setVerified(Boolean(response.email_verified)))
+      .then(async (response) => {
+        const isVerified = Boolean(response.email_verified);
+        setVerified(isVerified);
+        if (isVerified) {
+          await restoreVerifiedCustomer();
+        }
+      })
       .catch((error) => {
         if (error?.response?.status === 401 && !verificationSucceeded) {
           dispatch(clearAuth());
           setSessionExpired(true);
         }
       });
-  }, [dispatch, verificationSucceeded]);
+  }, [dispatch, restoreVerifiedCustomer, verificationSucceeded]);
 
   const resend = async () => {
     setLoading(true);
@@ -47,7 +59,11 @@ export default function VerifyEmailPage() {
     setMessageType("");
     try {
       const response = await resendEmailVerificationAPI();
-      setVerified(Boolean(response.email_verified));
+      const isVerified = Boolean(response.email_verified);
+      setVerified(isVerified);
+      if (isVerified) {
+        await restoreVerifiedCustomer();
+      }
       setMessage(response.message || t("auth.verificationSent"));
       setMessageType("success");
     } catch (error) {

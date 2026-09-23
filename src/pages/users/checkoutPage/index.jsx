@@ -35,6 +35,7 @@ const CheckoutPage = () => {
     globalThis.crypto?.randomUUID?.() ||
       `order-${Date.now()}-${Math.random().toString(36).slice(2)}`
   );
+  const submittingRef = useRef(false);
 
   const { mutate: submitOrder, isPending } = useMutation({
     mutationFn: ({ payload, idempotencyKey, paymentMethod }) =>
@@ -56,9 +57,14 @@ const CheckoutPage = () => {
       });
     },
     onError: (err) => {
+      submittingRef.current = false;
       setOrderError(
         err?.response?.data?.message || t("checkout.orderError")
       );
+      if (err?.response?.data?.email_verification_required) {
+        navigate(ROUTERS.USER.VERIFY_EMAIL, { replace: true });
+        return;
+      }
       toast.error(t("common.error"));
       setTurnstileToken("");
       setTurnstileResetKey((current) => current + 1);
@@ -268,6 +274,9 @@ const CheckoutPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (submittingRef.current) {
+      return;
+    }
     setOrderError("");
 
     if (!cart.products.length) {
@@ -294,6 +303,7 @@ const CheckoutPage = () => {
         return;
       }
 
+      submittingRef.current = true;
       submitOrder({
         idempotencyKey: idempotencyKeyRef.current,
         paymentMethod,

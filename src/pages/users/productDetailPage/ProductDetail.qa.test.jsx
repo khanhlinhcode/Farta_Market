@@ -6,6 +6,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import store from "../../../redux/store";
 import { emptyCart, setCart } from "../../../redux/cartSlice";
 import { SESSION_KEYS } from "utils/constant";
+import { getExpiringSessionItem } from "utils/session";
 import i18n from "../../../i18n";
 import ProductDetailPage from "./index";
 
@@ -72,7 +73,7 @@ it("QA: detail quantity flows into real cart state/storage and caps inventory", 
   expect(cart.totalQuantity).toBe(2);
   expect(cart.totalPrice).toBe(90000);
   expect(cart.products[0].quantity).toBe(2);
-  expect(JSON.parse(window.localStorage.getItem(SESSION_KEYS.CART))).toEqual(cart);
+  expect(getExpiringSessionItem(SESSION_KEYS.CART)).toEqual(cart);
 });
 
 it("QA: out-of-stock detail disables adding to cart", async () => {
