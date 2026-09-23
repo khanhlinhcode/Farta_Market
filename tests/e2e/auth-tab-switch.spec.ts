@@ -182,6 +182,14 @@ test("create account tab submits to /api/register and never /api/login", async (
     });
   });
 
+  await page.route("**/api/email/verification-status", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ email_verified: false }),
+    });
+  });
+
   await page.goto("/dang-nhap");
   await page
     .locator(".user-login__tabs")

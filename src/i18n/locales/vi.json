@@ -197,6 +197,8 @@
     "verificationError": "Không gửi được email xác minh. Bạn vẫn có thể tiếp tục mua sắm và thử lại sau.",
     "verificationSuccess": "Email đã được xác minh",
     "verificationSuccessDetail": "Bạn có thể tiếp tục sử dụng đầy đủ chức năng của Farta Market.",
+    "verificationSessionExpired": "Phiên đăng nhập đã hết hạn",
+    "verificationSessionExpiredDetail": "Vui lòng đăng nhập lại trước khi kiểm tra hoặc gửi lại email xác minh.",
     "verificationInboxTip": "Không thấy email? Hãy kiểm tra thư rác hoặc chờ một phút trước khi gửi lại.",
     "forgotPassword": "Quên mật khẩu?",
     "forgotPasswordTitle": "Khôi phục mật khẩu",

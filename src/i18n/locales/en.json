@@ -238,6 +238,8 @@
     "verificationError": "Unable to send the verification email. You can continue shopping and try again later.",
     "verificationSuccess": "Email verified",
     "verificationSuccessDetail": "You can now use all Farta Market account features.",
+    "verificationSessionExpired": "Your session has expired",
+    "verificationSessionExpiredDetail": "Sign in again before checking or resending your verification email.",
     "verificationInboxTip": "No email yet? Check your spam folder or wait a minute before resending.",
     "forgotPassword": "Forgot password?",
     "forgotPasswordTitle": "Recover your password",
