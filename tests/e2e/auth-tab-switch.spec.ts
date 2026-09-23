@@ -39,6 +39,65 @@ async function mockSharedAuthRoutes(page: Page) {
   });
 }
 
+test("forgot password stays generic and is reachable from customer login", async ({ page }) => {
+  await mockSharedAuthRoutes(page);
+  await page.route("**/api/forgot-password", async (route) => {
+    await route.fulfill({
+      status: 202,
+      contentType: "application/json",
+      body: JSON.stringify({
+        message: "Nếu email thuộc một tài khoản khách hàng, hướng dẫn đặt lại mật khẩu sẽ được gửi.",
+      }),
+    });
+  });
+
+  await page.goto("/dang-nhap");
+  await page.getByRole("link", { name: "Quên mật khẩu?" }).click();
+  await expect(page).toHaveURL(/\/forgot-password$/);
+  await page.waitForLoadState("networkidle");
+  const email = page.getByLabel("Email");
+  await email.fill("customer@example.test");
+  await expect(email).toHaveValue("customer@example.test");
+
+  const requestPromise = page.waitForRequest(
+    (request) => request.method() === "POST" && new URL(request.url()).pathname.endsWith("/api/forgot-password")
+  );
+  await page.getByRole("button", { name: "Gửi liên kết đặt lại" }).click();
+
+  expect((await requestPromise).postDataJSON()).toEqual({ email: "customer@example.test" });
+  await expect(page.getByRole("status")).toContainText("Nếu email thuộc một tài khoản khách hàng");
+  expect(await page.evaluate(() => localStorage.getItem("email") || sessionStorage.getItem("email"))).toBeNull();
+});
+
+test("password reset removes the one-time token from browser history and returns to login", async ({ page }) => {
+  await mockSharedAuthRoutes(page);
+  await page.route("**/api/reset-password", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ message: "Password reset." }),
+    });
+  });
+
+  await page.goto("/reset-password?token=qa-one-time-token&email=customer%40example.test");
+  await expect(page.getByRole("heading", { name: "Đặt lại mật khẩu" })).toBeVisible();
+  await expect(page).toHaveURL(/\/reset-password$/);
+  await page.waitForLoadState("networkidle");
+  await page.getByLabel("Mật khẩu mới").fill("NewPass456");
+  await page.getByLabel("Nhập lại mật khẩu").fill("NewPass456");
+  await expect(page.getByLabel("Mật khẩu mới")).toHaveValue("NewPass456");
+
+  const requestPromise = page.waitForRequest(
+    (request) => request.method() === "POST" && new URL(request.url()).pathname.endsWith("/api/reset-password")
+  );
+  await page.getByRole("button", { name: "Cập nhật mật khẩu" }).click();
+  expect((await requestPromise).postDataJSON()).toMatchObject({
+    email: "customer@example.test",
+    token: "qa-one-time-token",
+  });
+  await expect(page).toHaveURL(/\/dang-nhap$/);
+});
+
 test("login tab submits to /api/login and never /api/register", async ({ page }) => {
   await mockSharedAuthRoutes(page);
 
@@ -123,6 +182,14 @@ test("create account tab submits to /api/register and never /api/login", async (
     });
   });
 
+  await page.route("**/api/email/verification-status", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ email_verified: false }),
+    });
+  });
+
   await page.goto("/dang-nhap");
   await page
     .locator(".user-login__tabs")
@@ -156,7 +223,7 @@ test("create account tab submits to /api/register and never /api/login", async (
   expect(loginRequestCount).toBe(0);
   await expect(page).toHaveURL(/\/verify-email$/);
   await expect(page.getByRole("heading", { name: "Xác minh email" })).toBeVisible();
-  await expect(page.locator(".verify-email__card [role='status']")).toContainText(
+  await expect(page.locator(".verify-email__card [role='alert']")).toContainText(
     "Không gửi được email xác minh"
   );
   await expect(page.getByRole("link", { name: "Tiếp tục mua sắm" })).toBeVisible();

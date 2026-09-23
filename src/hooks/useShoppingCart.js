@@ -3,8 +3,12 @@ import { useDispatch, useStore } from "react-redux";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { calculateCart, emptyCart, normalizeCart, setCart } from "../redux/cartSlice";
-import { getCartLineLimit, SESSION_KEYS } from "../utils/constant";
-import { getSessionItem, removeSessionItem, setSessionItem } from "utils/session";
+import { CART_SESSION_TTL_MS, getCartLineLimit, SESSION_KEYS } from "../utils/constant";
+import {
+  getExpiringSessionItem,
+  removeSessionItem,
+  setExpiringSessionItem,
+} from "utils/session";
 
 const useShoppingCart = () => {
   const dispatch = useDispatch();
@@ -13,13 +17,13 @@ const useShoppingCart = () => {
 
   const persistCart = useCallback((products) => {
     const cart = calculateCart(products);
-    setSessionItem(SESSION_KEYS.CART, cart);
+    setExpiringSessionItem(SESSION_KEYS.CART, cart, CART_SESSION_TTL_MS);
     dispatch(setCart(cart));
     return cart;
   }, [dispatch]);
 
   const getCart = useCallback(() => {
-    const stored = getSessionItem(SESSION_KEYS.CART, emptyCart);
+    const stored = getExpiringSessionItem(SESSION_KEYS.CART, emptyCart);
     const cart = normalizeCart(stored);
     if (JSON.stringify(stored) !== JSON.stringify(cart)) {
       persistCart(cart.products);

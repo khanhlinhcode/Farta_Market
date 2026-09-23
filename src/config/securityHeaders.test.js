@@ -6,9 +6,11 @@ describe("deployment security headers", () => {
     const headers = buildSecurityHeaders("https://api.example.test/api");
 
     expect(headers).toContain("Content-Security-Policy:");
+    expect(headers).toContain("Strict-Transport-Security: max-age=31536000; includeSubDomains");
     expect(headers).toContain("connect-src 'self' https://api.example.test");
     expect(headers).toContain("https://static.cloudflareinsights.com");
     expect(headers).toContain("https://cloudflareinsights.com");
+    expect(headers).toContain("img-src 'self' data: https://res.cloudinary.com https://vietqr.app");
     expect(headers).toContain("frame-ancestors 'none'");
     expect(headers).not.toContain("script-src *");
     expect(headers).not.toContain("'unsafe-eval'");

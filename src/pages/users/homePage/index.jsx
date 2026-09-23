@@ -72,7 +72,10 @@ const HomPage = () => {
     refetch: refetchProducts,
   } = useGetProductsUS();
   const { data: recommendedProducts = [] } = useRecommendedProductsUS();
-  const { data: siteContent } = useGetSiteContentUS();
+  const {
+    data: siteContent,
+    isLoading: isSiteContentLoading,
+  } = useGetSiteContentUS();
   const settings = siteContent?.settings || {};
   const cmsBanners = (siteContent?.banners || [])
     .filter((banner) => banner.placement === "home_promo")
@@ -83,7 +86,7 @@ const HomPage = () => {
       path: banner.link_url || ROUTERS.USER.PRODUCTS,
     }));
   const bannerItems = cmsBanners.length ? cmsBanners : fallbackBanners;
-  const isLoading = isCategoriesLoading || isProductsLoading;
+  const isLoading = isCategoriesLoading || isProductsLoading || isSiteContentLoading;
   const isError = isCategoriesError || isProductsError;
   const refetchHomeData = () => {
     refetchCategories();
@@ -137,8 +140,18 @@ const HomPage = () => {
   };
   if (isLoading) {
     return (
-      <div className="container homepage-state homepage-state--loading">
-        <div className="row">
+      <main
+        className="container homepage-state homepage-state--loading"
+        aria-busy="true"
+        aria-label={t("common.loading")}
+      >
+        <div className="homepage-loading__categories" aria-hidden="true">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div className="homepage-loading__category skeleton-pulse" key={index} />
+          ))}
+        </div>
+        <div className="homepage-loading__heading skeleton-pulse" aria-hidden="true" />
+        <div className="row homepage-loading__products" aria-hidden="true">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               className="col-lg-3 col-md-4 col-sm-6 col-xs-12"
@@ -148,7 +161,11 @@ const HomPage = () => {
             </div>
           ))}
         </div>
-      </div>
+        <div className="homepage-loading__banners" aria-hidden="true">
+          <div className="homepage-loading__banner skeleton-pulse" />
+          <div className="homepage-loading__banner skeleton-pulse" />
+        </div>
+      </main>
     );
   }
 
@@ -218,11 +235,11 @@ const HomPage = () => {
           {bannerItems.map((item, index) =>
             isExternalUrl(item.path) ? (
               <a className="banner__pic" href={item.path} key={item.id || `${item.path}-${index}`} target="_blank" rel="noreferrer">
-                <img src={item.img} alt={item.label} />
+                <img src={item.img} alt={item.label} loading="lazy" decoding="async" />
               </a>
             ) : (
               <Link className="banner__pic" to={item.path} key={item.id || `${item.path}-${index}`}>
-                <img src={item.img} alt={item.label} />
+                <img src={item.img} alt={item.label} loading="lazy" decoding="async" />
               </Link>
             )
           )}

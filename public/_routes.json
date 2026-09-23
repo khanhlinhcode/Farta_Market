@@ -1,1 +1,1 @@
-{"version":1,"include":["/api/*","/sanctum/csrf-cookie"],"exclude":[]}
+{"version":1,"include":["/api/*","/sanctum/csrf-cookie","/reset-password*"],"exclude":[]}

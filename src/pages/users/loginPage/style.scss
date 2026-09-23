@@ -12,11 +12,17 @@
   &__card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 10px;
+    border-radius: 14px;
     box-shadow: var(--shadow-apple);
     max-width: 460px;
-    padding: 28px;
+    padding: 30px;
     width: 100%;
+  }
+
+  &__brand {
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 24px;
+    padding-bottom: 22px;
   }
 
   &__tabs {
@@ -139,6 +145,12 @@
     line-height: 1.45;
   }
 
+  &__field-error {
+    color: var(--color-danger);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
   &__links {
     align-items: center;
     display: flex;
@@ -147,14 +159,47 @@
     margin-top: 18px;
   }
 
-  &__back {
+  &__back,
+  &__forgot {
     color: map.get($theme-colors, "main");
     display: inline-flex;
     font-weight: 700;
     line-height: 1.4;
   }
 
+  &__intro {
+    margin-bottom: 24px;
+
+    h1 {
+      color: var(--color-heading);
+      font-size: clamp(24px, 5vw, 32px);
+      line-height: 1.2;
+      margin: 0 0 8px;
+    }
+
+    p {
+      color: var(--color-muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+  }
+
+  &__status {
+    background: color-mix(in srgb, var(--color-success) 10%, var(--color-surface) 90%);
+    border-radius: 6px;
+    color: var(--color-success);
+    line-height: 1.5;
+    margin: 0;
+    padding: 12px 14px;
+  }
+
   @media (max-width: 480px) {
+    padding: 24px 12px;
+
+    &__card {
+      padding: 24px 18px;
+    }
+
     &__links {
       align-items: flex-start;
       flex-direction: column;

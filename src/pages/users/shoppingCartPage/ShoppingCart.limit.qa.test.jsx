@@ -8,6 +8,8 @@ import store from "../../../redux/store";
 import { calculateCart, setCart } from "../../../redux/cartSlice";
 import i18n from "../../../i18n";
 import ShoppingCartPage from ".";
+import { CART_SESSION_TTL_MS, SESSION_KEYS } from "utils/constant";
+import { getExpiringSessionItem, setExpiringSessionItem } from "utils/session";
 
 vi.mock("react-hot-toast", () => ({ default: notices }));
 const notices = vi.hoisted(() => Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }));
@@ -25,11 +27,11 @@ afterEach(cleanup);
 it("QA: cart quantity controls must preserve checkout's maximum of 100 per line", () => {
   const product = { id: 1, name: "Cam Tươi", img: "/cam.png", price: 45000, inventory: 1000 };
   const cart = calculateCart([{ product, quantity: 100 }]);
-  window.localStorage.setItem("cart", JSON.stringify(cart));
+  setExpiringSessionItem(SESSION_KEYS.CART, cart, CART_SESSION_TTL_MS);
   store.dispatch(setCart(cart));
   render(<Provider store={store}><MemoryRouter><ShoppingCartPage /></MemoryRouter></Provider>);
   fireEvent.click(screen.getByRole("button", { name: "+" }));
-  expect(JSON.parse(window.localStorage.getItem("cart")).products[0].quantity).toBeLessThanOrEqual(100);
+  expect(getExpiringSessionItem(SESSION_KEYS.CART).products[0].quantity).toBeLessThanOrEqual(100);
   expect(store.getState().commonSlide.cart.products[0].quantity).toBeLessThanOrEqual(100);
 });
 
@@ -37,11 +39,11 @@ it("QA: cart quantity controls must preserve checkout's maximum of 100 per line"
 it("legacy quantity 200 is repaired consistently in UI, Redux and storage", () => {
   const product = { id: 1, name: "Cam Tươi", img: "/cam.png", price: 45000, inventory: 1000 };
   const cart = calculateCart([{ product, quantity: 200 }]);
-  window.localStorage.setItem("cart", JSON.stringify(cart));
+  setExpiringSessionItem(SESSION_KEYS.CART, cart, CART_SESSION_TTL_MS);
   store.dispatch(setCart(cart));
   render(<Provider store={store}><MemoryRouter><ShoppingCartPage /></MemoryRouter></Provider>);
   expect(screen.getByRole("spinbutton")).toHaveValue(100);
-  expect(JSON.parse(window.localStorage.getItem("cart")).totalQuantity).toBe(100);
+  expect(getExpiringSessionItem(SESSION_KEYS.CART).totalQuantity).toBe(100);
   expect(store.getState().commonSlide.cart.totalQuantity).toBe(100);
   expect(notices).toHaveBeenCalledWith(i18n.t("cart.adjusted"));
 });

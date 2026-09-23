@@ -1,0 +1,49 @@
+@use "style/pages/all" as *;
+
+.auth-brand {
+  align-items: center;
+  color: var(--color-heading);
+  display: inline-flex;
+  gap: 12px;
+  text-decoration: none;
+
+  &__mark {
+    align-items: center;
+    background: var(--color-primary);
+    border-radius: 10px;
+    color: var(--color-surface);
+    display: inline-flex;
+    flex: 0 0 42px;
+    height: 42px;
+    justify-content: center;
+    width: 42px;
+
+    svg {
+      height: 21px;
+      width: 21px;
+    }
+  }
+
+  &__copy {
+    display: grid;
+    gap: 2px;
+    text-align: left;
+
+    strong {
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    small {
+      color: var(--color-muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+  }
+
+  &:focus-visible {
+    border-radius: 10px;
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+  }
+}

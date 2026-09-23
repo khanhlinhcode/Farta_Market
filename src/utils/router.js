@@ -11,5 +11,7 @@ export const ROUTERS = {
       WISHLIST: "/yeu-thich",
       LOGIN: "/dang-nhap",
       VERIFY_EMAIL: "/verify-email",
+      FORGOT_PASSWORD: "/forgot-password",
+      RESET_PASSWORD: "/reset-password",
   },
 };

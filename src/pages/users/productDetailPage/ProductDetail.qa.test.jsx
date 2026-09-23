@@ -1,4 +1,5 @@
 import React from "react";
+import "@testing-library/jest-dom/vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -6,6 +7,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import store from "../../../redux/store";
 import { emptyCart, setCart } from "../../../redux/cartSlice";
 import { SESSION_KEYS } from "utils/constant";
+import { getExpiringSessionItem } from "utils/session";
 import i18n from "../../../i18n";
 import ProductDetailPage from "./index";
 
@@ -72,7 +74,7 @@ it("QA: detail quantity flows into real cart state/storage and caps inventory", 
   expect(cart.totalQuantity).toBe(2);
   expect(cart.totalPrice).toBe(90000);
   expect(cart.products[0].quantity).toBe(2);
-  expect(JSON.parse(window.localStorage.getItem(SESSION_KEYS.CART))).toEqual(cart);
+  expect(getExpiringSessionItem(SESSION_KEYS.CART)).toEqual(cart);
 });
 
 it("QA: out-of-stock detail disables adding to cart", async () => {
@@ -84,6 +86,9 @@ it("QA: out-of-stock detail disables adding to cart", async () => {
 
 it("QA: loading detail does not offer a purchase action", async () => {
   mocks.loading = true; mocks.product = null;
-  await renderPage();
+  const { container } = await renderPage();
   expect(screen.queryByTestId("add-to-cart")).toBeNull();
+  expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
+  expect(container.querySelector(".product-detail-skeleton__image")).not.toBeNull();
+  expect(container.querySelectorAll(".product-detail-skeleton__thumbnail")).toHaveLength(4);
 });

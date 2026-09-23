@@ -38,6 +38,36 @@ import { selectCustomerUser } from "../../../redux/authSlice";
 
 const EMPTY_PRODUCTS = [];
 
+const ProductDetailSkeleton = ({ label }) => (
+  <section
+    className="container product-detail-skeleton"
+    role="status"
+    aria-busy="true"
+    aria-live="polite"
+  >
+    <span className="visually-hidden">{label}</span>
+    <div className="product-detail-skeleton__layout" aria-hidden="true">
+      <div className="product-detail-skeleton__gallery">
+        <div className="product-detail-skeleton__image skeleton-pulse" />
+        <div className="product-detail-skeleton__thumbnails">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div className="product-detail-skeleton__thumbnail skeleton-pulse" key={index} />
+          ))}
+        </div>
+      </div>
+      <div className="product-detail-skeleton__details">
+        <div className="product-detail-skeleton__heading skeleton-pulse" />
+        <div className="product-detail-skeleton__meta skeleton-pulse" />
+        <div className="product-detail-skeleton__price skeleton-pulse" />
+        <div className="product-detail-skeleton__copy skeleton-pulse" />
+        <div className="product-detail-skeleton__copy product-detail-skeleton__copy--short skeleton-pulse" />
+        <div className="product-detail-skeleton__action skeleton-pulse" />
+      </div>
+    </div>
+    <div className="product-detail-skeleton__section skeleton-pulse" aria-hidden="true" />
+  </section>
+);
+
 const renderStars = (
   rating,
   interactive = false,
@@ -71,7 +101,7 @@ const renderStars = (
 const ProductDetailPage = () => {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
-  const { data: product, isLoading, isError } = useProductDetailUS(id);
+  const { data: product, isLoading, isError, refetch } = useProductDetailUS(id);
   const { data: relatedProducts = EMPTY_PRODUCTS } = useRelatedProductsUS(id);
   const { data: frequentlyBoughtProducts = EMPTY_PRODUCTS } =
     useFrequentlyBoughtWithUS(id);
@@ -315,11 +345,14 @@ const ProductDetailPage = () => {
   return (
     <>
       <Breadcrumb name={t("productDetail.breadcrumb")} />
-      {isLoading && (
-        <h1 className="product__detail__state">{t("productDetail.loading")}</h1>
-      )}
+      {isLoading && <ProductDetailSkeleton label={t("productDetail.loading")} />}
       {isError && (
-        <h1 className="product__detail__state">{t("productDetail.loadError")}</h1>
+        <section className="container product__detail__state" role="alert">
+          <p>{t("productDetail.loadError")}</p>
+          <button type="button" onClick={() => refetch?.()}>
+            {t("common.retry")}
+          </button>
+        </section>
       )}
       {!isLoading && product && (
         <div className="container">

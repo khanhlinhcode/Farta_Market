@@ -1,14 +1,16 @@
 import "@testing-library/jest-dom/vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
 import { MemoryRouter } from "react-router-dom";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import store from "../../../redux/store";
-import { SESSION_KEYS } from "utils/constant";
+import { CART_SESSION_TTL_MS, SESSION_KEYS } from "utils/constant";
+import { setExpiringSessionItem } from "utils/session";
 import "../../../i18n";
 import CheckoutPage from ".";
+import * as orderApi from "api/orderPage";
 
 const createStorageMock = () => {
   const values = new Map();
@@ -42,6 +44,7 @@ const renderCheckout = () => {
 
 describe("CheckoutFlow", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     Object.defineProperty(window, "localStorage", {
       configurable: true,
       value: createStorageMock(),
@@ -49,9 +52,9 @@ describe("CheckoutFlow", () => {
     window.localStorage.clear();
     window.localStorage.setItem("lang", "vi");
     window.sessionStorage.clear();
-    window.localStorage.setItem(
+    setExpiringSessionItem(
       SESSION_KEYS.CART,
-      JSON.stringify({
+      {
         products: [
           {
             product: {
@@ -65,7 +68,8 @@ describe("CheckoutFlow", () => {
         ],
         totalPrice: 45000,
         totalQuantity: 1,
-      })
+      },
+      CART_SESSION_TTL_MS
     );
   });
 
@@ -83,5 +87,31 @@ describe("CheckoutFlow", () => {
     expect(screen.queryByText("SVC783")).not.toBeInTheDocument();
     expect(screen.queryByText("Giảm giá")).not.toBeInTheDocument();
     expect(screen.getAllByText(/45\.000/).length).toBeGreaterThan(0);
+  });
+
+  it("submits a valid order only once when the form fires twice", async () => {
+    const postOrder = vi
+      .spyOn(orderApi, "postOrderAPI")
+      .mockReturnValue(new Promise(() => {}));
+    const { container } = renderCheckout();
+
+    fireEvent.change(container.querySelector('input[name="customer_name"]'), {
+      target: { value: "Nguyen Van A" },
+    });
+    fireEvent.change(container.querySelector('input[name="address"]'), {
+      target: { value: "123 Nguyen Trai, Can Tho" },
+    });
+    fireEvent.change(container.querySelector('input[name="customer_phone"]'), {
+      target: { value: "0900000000" },
+    });
+    fireEvent.change(container.querySelector('input[name="email"]'), {
+      target: { value: "customer@example.test" },
+    });
+
+    const form = screen.getByTestId("place-order").closest("form");
+    fireEvent.submit(form);
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(postOrder).toHaveBeenCalledTimes(1));
   });
 });

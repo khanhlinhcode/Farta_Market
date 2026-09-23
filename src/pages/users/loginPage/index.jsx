@@ -6,9 +6,10 @@ import { useDispatch } from "react-redux";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { loginUserAPI, registerUserAPI } from "api/auth";
 import { syncGuestWishlistAPI } from "api/wishlist";
+import AuthBrand from "component/AuthBrand";
 import { SESSION_KEYS } from "utils/constant";
 import { ROUTERS } from "utils/router";
-import { setAuthenticatedUser } from "../../../redux/authSlice";
+import { clearCustomerUser, setAuthenticatedUser } from "../../../redux/authSlice";
 import "./style.scss";
 
 const UserLoginPage = () => {
@@ -56,6 +57,18 @@ const UserLoginPage = () => {
           ? await registerUserAPI(payload)
           : await loginUserAPI(payload);
 
+      if (!response.user?.email_verified_at && !response.user?.email_verified) {
+        dispatch(clearCustomerUser());
+        navigate(ROUTERS.USER.VERIFY_EMAIL, {
+          replace: true,
+          state: {
+            verificationEmailUnavailable:
+              response.verification_email_sent === false,
+          },
+        });
+        return;
+      }
+
       dispatch(setAuthenticatedUser(response.user));
 
       const wishlistIds = getStoredWishlistIds();
@@ -73,16 +86,6 @@ const UserLoginPage = () => {
       toast.success(
         mode === "register" ? t("auth.registerSuccess") : t("auth.loginSuccess")
       );
-      if (!response.user?.email_verified_at && !response.user?.email_verified) {
-        navigate(ROUTERS.USER.VERIFY_EMAIL, {
-          replace: true,
-          state: {
-            verificationEmailUnavailable:
-              response.verification_email_sent === false,
-          },
-        });
-        return;
-      }
       navigate(redirectPath || ROUTERS.USER.HOME, { replace: true });
     } catch (err) {
       const message =
@@ -99,6 +102,9 @@ const UserLoginPage = () => {
   return (
     <main className="user-login">
       <section className="user-login__card">
+        <div className="user-login__brand">
+          <AuthBrand />
+        </div>
         <div className="user-login__tabs">
           <button
             type="button"
@@ -194,7 +200,7 @@ const UserLoginPage = () => {
             </div>
           )}
 
-          {error && <p className="user-login__error">{error}</p>}
+          {error && <p className="user-login__error" role="alert">{error}</p>}
 
           <button type="submit" className="user-login__submit" disabled={isLoading}>
             {isLoading
@@ -206,6 +212,11 @@ const UserLoginPage = () => {
         </form>
 
         <div className="user-login__links">
+          {mode === "login" && (
+            <Link className="user-login__forgot" to={ROUTERS.USER.FORGOT_PASSWORD}>
+              {t("auth.forgotPassword")}
+            </Link>
+          )}
           <Link className="user-login__back" to={ROUTERS.USER.PRODUCTS}>
             {t("auth.continueShopping")}
           </Link>

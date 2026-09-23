@@ -13,7 +13,7 @@ export const postOrderAPI = async (data, idempotencyKey, analyticsToken) => {
   });
 };
 
-export const createVNPayPaymentAPI = async (data, idempotencyKey, analyticsToken) => {
+export const createSepayPaymentAPI = async (data, idempotencyKey, analyticsToken) => {
   return await axios({
     url: "/payment/create",
     method: "POST",
@@ -23,6 +23,14 @@ export const createVNPayPaymentAPI = async (data, idempotencyKey, analyticsToken
       "X-Idempotency-Key": idempotencyKey,
       ...(analyticsToken ? { "X-Analytics-Token": analyticsToken } : {}),
     },
+  });
+};
+
+export const getSepayPaymentStatusAPI = async (id, signal) => {
+  return await axios({
+    url: `/payment/${id}/status`,
+    method: "GET",
+    signal,
   });
 };
 

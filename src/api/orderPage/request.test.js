@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import axios from "api/axios";
-import { createVNPayPaymentAPI, postOrderAPI } from "./request";
+import { createSepayPaymentAPI, postOrderAPI } from "./request";
 
 vi.mock("api/axios", () => ({ default: vi.fn() }));
 
@@ -9,7 +9,7 @@ describe("order analytics attribution header", () => {
 
   it.each([
     [postOrderAPI, "/order"],
-    [createVNPayPaymentAPI, "/payment/create"],
+    [createSepayPaymentAPI, "/payment/create"],
   ])("keeps idempotency and adds the optional signed analytics token", async (request, url) => {
     await request({ products: [] }, "idem-1", "server-issued-token");
 

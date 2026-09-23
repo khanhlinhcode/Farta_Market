@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import "./style.scss";
 import {
   AiFillHeart,
@@ -25,6 +25,12 @@ const ProductCard = ({ product }) => {
   const avgRating = Number(product.avg_rating || 0);
   const wishlisted = isWishlisted(product.id);
   const productName = translateProductName(product, t);
+  const productImage = resolveProductImage(product.img);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [productImage]);
 
   const handleAddToCart = () => {
     if (isOutOfStock) {
@@ -39,9 +45,16 @@ const ProductCard = ({ product }) => {
     <>
       <div className="featured__item pl-r-10">
         <div
-          className="featured__item__pic"
-          style={{ backgroundImage: `url(${resolveProductImage(product.img)})` }}
+          className={`featured__item__pic${imageLoaded ? " is-loaded" : " is-loading"}`}
         >
+          <img
+            className="featured__item__image"
+            src={productImage}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            onLoad={() => setImageLoaded(true)}
+          />
           <ul className="featured__item__pic__hover">
             <li>
               <button

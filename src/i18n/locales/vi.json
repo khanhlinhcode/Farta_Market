@@ -172,6 +172,9 @@
     "continueShopping": "Tiếp tục mua sắm"
   },
   "auth": {
+    "brandHomeLabel": "Về trang chủ Farta Market",
+    "brandTagline": "Tươi sạch mỗi ngày",
+    "accountSecurity": "Bảo mật tài khoản",
     "loginTitle": "Đăng nhập",
     "registerTitle": "Tạo tài khoản",
     "name": "Họ và tên",
@@ -193,7 +196,25 @@
     "verificationSent": "Đã gửi lại email xác minh.",
     "verificationError": "Không gửi được email xác minh. Bạn vẫn có thể tiếp tục mua sắm và thử lại sau.",
     "verificationSuccess": "Email đã được xác minh",
-    "verificationSuccessDetail": "Bạn có thể tiếp tục sử dụng đầy đủ chức năng của Farta Market."
+    "verificationSuccessDetail": "Bạn có thể tiếp tục sử dụng đầy đủ chức năng của Farta Market.",
+    "verificationSessionExpired": "Phiên đăng nhập đã hết hạn",
+    "verificationSessionExpiredDetail": "Vui lòng đăng nhập lại trước khi kiểm tra hoặc gửi lại email xác minh.",
+    "verificationInboxTip": "Không thấy email? Hãy kiểm tra thư rác hoặc chờ một phút trước khi gửi lại.",
+    "forgotPassword": "Quên mật khẩu?",
+    "forgotPasswordTitle": "Khôi phục mật khẩu",
+    "forgotPasswordDetail": "Nhập email tài khoản. Nếu thông tin khớp, chúng tôi sẽ gửi liên kết đặt lại mật khẩu.",
+    "sendResetLink": "Gửi liên kết đặt lại",
+    "forgotPasswordSent": "Nếu email thuộc một tài khoản khách hàng, hướng dẫn đặt lại mật khẩu sẽ được gửi.",
+    "forgotPasswordError": "Chưa thể gửi yêu cầu. Vui lòng thử lại sau.",
+    "resetPasswordTitle": "Đặt lại mật khẩu",
+    "resetPasswordDetail": "Tạo mật khẩu mới cho tài khoản của bạn.",
+    "newPassword": "Mật khẩu mới",
+    "resetPasswordButton": "Cập nhật mật khẩu",
+    "resetPasswordSuccess": "Mật khẩu đã được cập nhật. Vui lòng đăng nhập lại.",
+    "resetPasswordError": "Không thể đặt lại mật khẩu. Liên kết có thể đã hết hạn.",
+    "resetLinkInvalid": "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp.",
+    "backToLogin": "Quay lại đăng nhập"
   },
   "profile": {
     "title": "Thông tin cá nhân",
@@ -296,9 +317,22 @@
     "paymentMethod": "Phương thức thanh toán",
     "paymentMethods": {
       "cod": "Thanh toán khi nhận hàng",
-      "vnpay": "VNPay"
+      "sepay": "Chuyển khoản VietQR qua SePay",
+      "vnpay": "VNPay (đơn cũ)"
     },
     "paidBadge": "Đã thanh toán",
+    "sepayTitle": "Thanh toán đơn hàng bằng VietQR",
+    "sepayWaiting": "Đang chờ ngân hàng xác nhận",
+    "sepayInstructions": "Quét mã QR hoặc chuyển khoản đúng số tiền và nội dung bên dưới. Đơn hàng sẽ tự động cập nhật sau khi SePay xác nhận giao dịch.",
+    "sepayQrAlt": "Mã VietQR thanh toán đơn hàng",
+    "sepayBank": "Ngân hàng",
+    "sepayAccount": "Số tài khoản",
+    "sepayAccountHolder": "Chủ tài khoản",
+    "sepayReference": "Nội dung chuyển khoản",
+    "sepayExpires": "Thời hạn thanh toán",
+    "sepayAutoCheck": "Trang đang tự động kiểm tra trạng thái thanh toán.",
+    "paymentExpiredTitle": "Thanh toán không còn hiệu lực",
+    "paymentExpiredMessage": "Đơn hàng đã hết thời gian thanh toán hoặc đã bị hủy. Tồn kho sẽ được hoàn lại tự động.",
     "continueShopping": "Tiếp tục mua sắm",
     "viewOrder": "Xem đơn hàng"
   },
@@ -362,21 +396,21 @@
     "discountAmount": "Giảm giá",
     "paymentMethods": {
       "cod": "Thanh toán khi nhận hàng (COD)",
-      "vnpay": "Thanh toán VNPay (ATM/Visa/QR)"
+      "sepay": "Chuyển khoản VietQR qua SePay"
     },
     "paymentDescriptions": {
       "cod": "Bạn thanh toán trực tiếp cho nhân viên giao hàng.",
-      "vnpay": "Chuyển sang cổng VNPay sandbox để thanh toán an toàn."
+      "sepay": "Quét VietQR và hệ thống tự xác nhận khi tiền vào tài khoản."
     },
     "placing": "Đang đặt hàng...",
     "placeOrder": "Đặt hàng",
-    "payWithVnpay": "Thanh toán qua VNPay",
+    "payWithSepay": "Tạo mã VietQR",
     "confirm": "Xác nhận",
     "success": "Đặt hàng thành công",
     "orderError": "Không đặt được hàng, vui lòng thử lại.",
     "securityCheckRequired": "Vui lòng hoàn tất kiểm tra bảo mật trước khi đặt hàng.",
-    "paymentFailed": "Thanh toán VNPay thất bại hoặc đã bị hủy. Vui lòng thử lại.",
-    "loginForVnpay": "Vui lòng đăng nhập để thanh toán qua VNPay.",
+    "paymentFailed": "Thanh toán thất bại hoặc đã bị hủy. Vui lòng thử lại.",
+    "loginForSepay": "Vui lòng đăng nhập để thanh toán qua SePay.",
     "emptyCart": "Giỏ hàng đang trống.",
     "validation": {
       "fullNameRequired": "Vui lòng nhập họ và tên",

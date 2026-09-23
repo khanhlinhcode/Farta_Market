@@ -102,6 +102,43 @@
   min-height: 260px;
 }
 
+.homepage-state--loading {
+  min-height: 860px;
+}
+
+.homepage-loading__categories,
+.homepage-loading__banners {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.homepage-loading__category {
+  background: #e8eceb;
+  height: 300px;
+}
+
+.homepage-loading__heading {
+  background: #e8eceb;
+  height: 28px;
+  margin: 54px auto 48px;
+  width: min(280px, 70%);
+}
+
+.homepage-loading__products {
+  min-height: 350px;
+}
+
+.homepage-loading__banners {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 30px;
+}
+
+.homepage-loading__banner {
+  aspect-ratio: 19 / 9;
+  background: #e8eceb;
+}
+
 .homepage-state--error {
   align-items: center;
   display: flex;
@@ -139,6 +176,8 @@
   margin-bottom: 30px;
 
   .banner__pic {
+    aspect-ratio: 19 / 9;
+    background: #e8eceb;
     display: block;
     flex: 1;
     overflow: hidden;
@@ -159,6 +198,8 @@
     cursor: pointer;
     display: block;
     width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 }
 
@@ -175,5 +216,19 @@
 @include Responsive($WIDE_MOBILE) {
   .container {
     width: 540px !important;
+  }
+
+  .homepage-loading__categories {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .homepage-loading__banners {
+    grid-template-columns: 1fr;
+  }
+}
+
+@include Responsive($SMALL_DEVICE) {
+  .homepage-loading__categories {
+    grid-template-columns: 1fr;
   }
 }

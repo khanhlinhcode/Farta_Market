@@ -1,6 +1,12 @@
 import rawAxios from "axios";
 import api, { getCsrfCookieAPI } from "./axios";
-import { loginUserAPI, registerUserAPI, logoutUserAPI } from "./auth/request";
+import {
+  forgotPasswordAPI,
+  loginUserAPI,
+  registerUserAPI,
+  resetPasswordAPI,
+  logoutUserAPI,
+} from "./auth/request";
 import { beforeEach, expect, it, vi } from "vitest";
 
 let adapter;
@@ -58,7 +64,7 @@ it("QA: ordinary GET does not initialize CSRF", async () => {
   expect(csrfCalls()).toHaveLength(0);
 });
 
-it.each([loginUserAPI, registerUserAPI, logoutUserAPI])(
+it.each([loginUserAPI, registerUserAPI, forgotPasswordAPI, resetPasswordAPI, logoutUserAPI])(
   "QA: real auth wrapper does not fetch CSRF twice (%#)", async (wrapper) => {
     await wrapper({});
     expect(csrfCalls()).toHaveLength(1);
@@ -93,6 +99,28 @@ it("QA: mutation 419 refreshes CSRF and replays once", async () => {
   expect(csrfCalls()).toHaveLength(1);
   expect(mutationCalls).toBe(2);
   expect(adapter).toHaveBeenCalledTimes(3);
+});
+
+it("QA: mutation 419 drops the expired XSRF header before replay", async () => {
+  setCookie();
+  const mutationHeaders = [];
+  adapter.mockImplementation(async (config) => {
+    if (csrf(config)) {
+      document.cookie = "XSRF-TOKEN=fresh-token; path=/";
+      return response(config);
+    }
+
+    mutationHeaders.push(config.headers.get("X-XSRF-TOKEN"));
+    if (mutationHeaders.length === 1) {
+      throw Object.assign(new Error("expired"), { response: { status: 419 }, config });
+    }
+    return response(config);
+  });
+
+  await api.post("/qa-mutation", {}, { headers: { "X-XSRF-TOKEN": "expired-token" } });
+
+  expect(mutationHeaders).toEqual(["expired-token", undefined]);
+  expect(csrfCalls()).toHaveLength(1);
 });
 
 it("QA: repeated mutation 419 is rejected after one replay", async () => {
