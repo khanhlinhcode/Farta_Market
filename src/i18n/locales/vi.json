@@ -684,7 +684,7 @@
     "cartLimit": "Sản phẩm {{name}} trong giỏ đã đạt tối đa số lượng khả dụng ({{limit}}).",
     "busy": "Một yêu cầu đang được xử lý. Vui lòng thử lại.",
     "title": "Farta Assistant",
-    "welcome": "Xin chào! Tôi có thể giúp bạn tìm sản phẩm hoặc giải đáp thắc mắc 🛒",
+    "welcome": "Xin chào! Tôi có thể giúp bạn tìm sản phẩm, kiểm tra giỏ hàng và tra cứu đơn của bạn.",
     "placeholder": "Nhập câu hỏi...",
     "error": "Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.",
     "unavailable": "Trợ lý AI đang tạm gián đoạn. Vui lòng thử lại sau.",
@@ -693,6 +693,14 @@
     "checking": "Đang kiểm tra kết nối",
     "online": "Đang trực tuyến",
     "offline": "Tạm gián đoạn",
-    "send": "Gửi tin nhắn"
+    "send": "Gửi tin nhắn",
+    "retry": "Thử lại",
+    "signInRequired": "Vui lòng đăng nhập tài khoản khách hàng để tra cứu đơn.",
+    "forbidden": "Tài khoản này không có quyền sử dụng chức năng tra cứu đơn khách hàng.",
+    "productResults": "Sản phẩm đã xác minh",
+    "inStock": "Còn {{count}} sản phẩm",
+    "outOfStock": "Hết hàng",
+    "addToCart": "Thêm {{count}} vào giỏ",
+    "added": "Đã thêm"
   }
 }

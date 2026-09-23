@@ -35,8 +35,9 @@ configuration is missing.
   the cart is cleared only after the API confirms the payment.
 - Registration, login, email verification, password recovery, profile,
   addresses, wishlist, reviews, and customer-owned order history.
-- Grounded AI chat whose product information is verified by the backend before
-  display or cart actions.
+- Grounded conversational assistant with backend-verified product cards,
+  ID/quantity-only cart context, recoverable error states, and explicit
+  customer confirmation before cart changes.
 - Vietnamese and English UI through `react-i18next`.
 - Same-origin API proxy, CSP/HSTS headers, Turnstile for guest checkout, unit
   tests with Vitest, and browser tests with Playwright.
@@ -134,6 +135,20 @@ For SePay, the storefront displays the VietQR image returned by the API and
 polls the customer-owned payment-status endpoint. A browser redirect, query
 parameter, or client-side action can never mark an order as paid. If the payment
 expires or fails, the cart remains available for retry.
+
+## Chat behavior
+
+The widget sends the current question, bounded display history, and at most 20
+cart references containing only `product_id` and `quantity`. Product names,
+prices, images, inventory, and order/payment status displayed in chat come from
+the backend's structured response rather than parsed assistant prose.
+
+`suggested_actions` are proposals. The widget renders a visible add-to-cart
+button and does not mutate `sessionStorage` until the customer clicks it. The
+button then uses the same inventory-capped cart hook as the rest of the
+storefront and reports the actual quantity added. Network, timeout, rate-limit,
+authentication, malformed-response, no-result, and provider-unavailable states
+remain recoverable through clear messages and retry controls.
 
 ## Cloudflare Pages deployment
 

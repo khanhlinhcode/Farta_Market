@@ -12,6 +12,23 @@ test("chat responds to product query", async ({ page }) => {
     "Cam",
     { timeout: 15_000 }
   );
+  await expect(page.getByTestId("chat-product-card").first()).toContainText("Cam");
+});
+
+test("verified product proposal changes the cart only after confirmation and becomes cart context", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("chat-bubble").click();
+  await page.getByTestId("chat-input").fill("Mua 2 Cam Tươi");
+  await page.keyboard.press("Enter");
+
+  const card = page.getByTestId("chat-product-card").last();
+  await expect(card).toContainText("Cam Tươi", { timeout: 15_000 });
+  await card.getByRole("button", { name: /Thêm 2 vào giỏ/i }).click();
+  await expect(page.getByTestId("chat-message-bot").last()).toContainText("Đã thêm 2 Cam Tươi");
+
+  await page.getByTestId("chat-input").fill("Trong giỏ của tôi có gì?");
+  await page.keyboard.press("Enter");
+  await expect(page.getByTestId("chat-message-bot").last()).toContainText("2 × Cam Tươi", { timeout: 15_000 });
 });
 
 test("one server purchase offer can be confirmed only once under concurrent requests", async ({ page }) => {
@@ -31,8 +48,8 @@ test("one server purchase offer can be confirmed only once under concurrent requ
     return Promise.all([send(), send()]);
   }, apiBaseUrl);
 
-  expect(actions.filter(result => result.action?.type === "add_to_cart")).toHaveLength(1);
-  expect(actions.filter(result => result.action?.type === "none")).toHaveLength(1);
+  expect(actions.filter(result => result.suggested_actions?.[0]?.type === "ADD_TO_CART")).toHaveLength(1);
+  expect(actions.filter(result => (result.suggested_actions || []).length === 0)).toHaveLength(1);
 });
 
 test("a pending guest purchase cannot be consumed after login changes the session owner", async ({ page }) => {

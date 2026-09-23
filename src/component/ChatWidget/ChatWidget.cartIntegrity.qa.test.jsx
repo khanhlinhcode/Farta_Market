@@ -16,6 +16,21 @@ vi.mock("api/axios", () => ({ default: mocks.api }));
 vi.mock("react-hot-toast", () => ({ default: Object.assign(mocks.notice, { success: mocks.success, error: mocks.error }) }));
 
 const product = { id: 1, name: "Cam Tươi", img: "/cam.png", price: 45000, inventory: 30 };
+const verifiedProduct = {
+  id: 1,
+  slug: "cam-tuoi",
+  name: "Cam Tươi",
+  image_url: "/cam.png",
+  price: 45000,
+  inventory: 30,
+  inventory_status: "in_stock",
+  category: { id: 1, name: "Trái Cây" },
+};
+const proposal = (message = "Hãy xác nhận để thêm 2 Cam Tươi vào giỏ.") => ({
+  message,
+  products: [verifiedProduct],
+  suggested_actions: [{ type: "ADD_TO_CART", product_id: 1, quantity: 2 }],
+});
 const storage = () => {
   const values = new Map();
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, String(value)), removeItem: key => values.delete(key) };
@@ -38,61 +53,62 @@ const send = async () => {
   fireEvent.click(screen.getByRole("button", { name: "Farta Assistant" }));
   fireEvent.change(screen.getByTestId("chat-input"), { target: { value: "mua 2 Cam Tươi" } });
   fireEvent.click(screen.getByRole("button", { name: i18n.t("chat.send") }));
-  return waitFor(() => expect(document.querySelector(".chat-widget__messages")).toHaveAttribute("aria-busy", "false"));
+  await waitFor(() => expect(document.querySelector(".chat-widget__messages")).toHaveAttribute("aria-busy", "false"));
 };
 
-it.each([29, 30])("QA: chat must not claim two units were added when cart already contains %i of 30", async (existingQuantity) => {
+it("does not mutate the cart until the user confirms the proposed action", async () => {
+  mocks.api.mockResolvedValue(proposal());
+  await send();
+
+  expect(store.getState().commonSlide.cart.totalQuantity).toBe(0);
+  fireEvent.click(screen.getByRole("button", { name: "Thêm 2 vào giỏ" }));
+
+  expect(store.getState().commonSlide.cart.totalQuantity).toBe(2);
+  expect(screen.getByText("Đã thêm 2 Cam Tươi vào giỏ hàng.")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Đã thêm" })).toBeDisabled();
+});
+
+it.each([29, 30])("reports the real cart delta when %i units already exist", async (existingQuantity) => {
   const previous = calculateCart([{ product, quantity: existingQuantity }]);
   setExpiringSessionItem(SESSION_KEYS.CART, previous, CART_SESSION_TTL_MS);
   store.dispatch(setCart(previous));
-  mocks.api.mockResolvedValue({ reply: "Đã thêm 2 Cam Tươi vào giỏ hàng.", action: { type: "add_to_cart", product_id: 1, quantity: 2, product } });
+  mocks.api.mockResolvedValue(proposal());
   await send();
+  fireEvent.click(screen.getByRole("button", { name: "Thêm 2 vào giỏ" }));
+
   const cart = getExpiringSessionItem(SESSION_KEYS.CART);
+  const added = 30 - existingQuantity;
   expect(cart.totalQuantity).toBe(30);
-  expect(cart.totalQuantity - existingQuantity).toBeLessThan(2);
-  expect(screen.queryByText("Đã thêm 2 Cam Tươi vào giỏ hàng.")).not.toBeInTheDocument();
-  expect(mocks.success).toHaveBeenCalledTimes(existingQuantity === 29 ? 1 : 0);
-  expect(store.getState().commonSlide.cart).toEqual(cart);
+  expect(screen.getByText(i18n.t(added === 0 ? "chat.cartLimit" : "chat.cartPartial", {
+    count: added,
+    name: product.name,
+    limit: 30,
+  }))).toBeInTheDocument();
 });
 
-it("QA: chat confirms two units when the real cart hook adds both", async () => {
-  mocks.api.mockResolvedValue({ reply: "Đã thêm 2 Cam Tươi vào giỏ hàng.", action: { type: "add_to_cart", product_id: 1, quantity: 2, product } });
+it("sends only product IDs and quantities as cart context", async () => {
+  const previous = calculateCart([{ product: { ...product, secret: "ignore-me" }, quantity: 3 }]);
+  setExpiringSessionItem(SESSION_KEYS.CART, previous, CART_SESSION_TTL_MS);
+  store.dispatch(setCart(previous));
+  mocks.api.mockResolvedValue({ message: "Giỏ hàng đã xác minh.", products: [], suggested_actions: [] });
   await send();
-  expect(store.getState().commonSlide.cart.totalQuantity).toBe(2);
-  expect(getExpiringSessionItem(SESSION_KEYS.CART).totalQuantity).toBe(2);
-  expect(screen.getByText("Đã thêm 2 Cam Tươi vào giỏ hàng.")).toBeInTheDocument();
-  expect(mocks.success).toHaveBeenCalledTimes(1);
+
+  expect(mocks.api.mock.calls[0][0].data.cart).toEqual([{ product_id: 1, quantity: 3 }]);
+  expect(JSON.stringify(mocks.api.mock.calls[0][0].data.cart)).not.toContain("secret");
 });
 
-it("QA: model text is rendered as text rather than executable HTML", async () => {
+it("renders assistant content as text rather than executable HTML", async () => {
   const reply = '<img src=x onerror="alert(1)">';
-  mocks.api.mockResolvedValue({ reply, action: { type: "none" } });
+  mocks.api.mockResolvedValue({ message: reply, products: [], suggested_actions: [] });
   const { container } = render(<Provider store={store}><ChatWidget /></Provider>);
   fireEvent.click(screen.getByRole("button", { name: "Farta Assistant" }));
   fireEvent.change(screen.getByTestId("chat-input"), { target: { value: "Xin chào" } });
   fireEvent.click(screen.getByRole("button", { name: "Gửi tin nhắn" }));
   expect(await screen.findByText(reply)).toBeInTheDocument();
-  expect(container.querySelector(".chat-widget__messages img")).toBeNull();
+  expect(container.querySelector(".chat-widget__message img")).toBeNull();
 });
 
-
-it.each([0, 29, 30])("English cart confirmation uses actual delta with %i already stored", async (existingQuantity) => {
-  await i18n.changeLanguage("en");
-  const cart = calculateCart(existingQuantity ? [{ product, quantity: existingQuantity }] : []);
-  setExpiringSessionItem(SESSION_KEYS.CART, cart, CART_SESSION_TTL_MS);
-  store.dispatch(setCart(cart));
-  mocks.api.mockResolvedValue({ reply: "Added 9999 units with 90% discount", action: { type: "add_to_cart", quantity: 2, product } });
-  await send();
-  const count = Math.min(2, 30 - existingQuantity);
-  expect(store.getState().commonSlide.cart.totalQuantity).toBe(existingQuantity + count);
-  const key = count === 0 ? "chat.cartLimit" : count === 1 ? "chat.cartPartial" : "chat.cartAdded";
-  expect(screen.getByText(i18n.t(key, { count, name: product.name, limit: 30 }))).toBeInTheDocument();
-  expect(screen.queryByText("Added 9999 units with 90% discount")).toBeNull();
-  expect(mocks.success).toHaveBeenCalledTimes(count ? 1 : 0);
-  expect(mocks.api.mock.calls[0][0]).toMatchObject({ timeout: 30000, headers: { "Accept-Language": "en" } });
-});
-
-it("a response received after unmount cannot mutate real Redux or storage", async () => {
+it("a response received after unmount cannot mutate Redux or storage", async () => {
   let resolve;
   mocks.api.mockImplementation(() => new Promise(done => { resolve = done; }));
   const view = render(<Provider store={store}><ChatWidget /></Provider>);
@@ -101,13 +117,12 @@ it("a response received after unmount cannot mutate real Redux or storage", asyn
   fireEvent.click(screen.getByRole("button", { name: i18n.t("chat.send") }));
   view.unmount();
   expect(mocks.api.mock.calls[0][0].signal.aborted).toBe(true);
-  await act(async () => resolve({ reply: "Added", action: { type: "add_to_cart", quantity: 2, product } }));
+  await act(async () => resolve(proposal()));
   expect(store.getState().commonSlide.cart.totalQuantity).toBe(0);
   expect(window.sessionStorage.getItem(SESSION_KEYS.CART)).toBeNull();
-  expect(mocks.success).not.toHaveBeenCalled();
 });
 
-it("changing account aborts the previous conversation and ignores its late cart action", async () => {
+it("changing account aborts the previous conversation and ignores its late proposal", async () => {
   let resolve;
   mocks.api.mockImplementation(() => new Promise(done => { resolve = done; }));
   render(<Provider store={store}><ChatWidget /></Provider>);
@@ -120,9 +135,7 @@ it("changing account aborts the previous conversation and ignores its late cart 
     email_verified_at: "2026-09-23T00:00:00Z",
   })));
   expect(mocks.api.mock.calls[0][0].signal.aborted).toBe(true);
-  await act(async () => resolve({ reply: "Added", action: { type: "add_to_cart", quantity: 2, product } }));
+  await act(async () => resolve(proposal()));
   expect(store.getState().commonSlide.cart.totalQuantity).toBe(0);
   expect(screen.queryByText("mua 2 Cam Tươi")).toBeNull();
-  fireEvent.change(screen.getByTestId("chat-input"), { target: { value: "Tin mới" } });
-  expect(screen.getByRole("button", { name: i18n.t("chat.send") })).not.toBeDisabled();
 });

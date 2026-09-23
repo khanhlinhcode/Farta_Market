@@ -87,6 +87,7 @@ describe("ChatWidget", () => {
         data: {
           message: "Cam tươi giá bao nhiêu?",
           history: [],
+          cart: [],
         },
       })
     );
@@ -158,26 +159,24 @@ describe("ChatWidget", () => {
     ).not.toBeDisabled();
   });
 
-  it("adds a product to the cart when the chat API returns an add_to_cart action", async () => {
+  it("adds a verified product only after the user clicks the suggested action", async () => {
     const product = {
       id: 1,
       name: "Cam Tươi",
-      img: "/cam.png",
+      image_url: "/cam.png",
       price: 45000,
       inventory: 30,
+      inventory_status: "in_stock",
+      category: { id: 2, name: "Trái Cây" },
     };
 
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       jsonResponse({ status: "online" })
     );
     axiosMock.mockResolvedValue({
-      reply: "Đã thêm 2 Cam Tươi vào giỏ hàng.",
-      action: {
-        type: "add_to_cart",
-        product_id: 1,
-        quantity: 2,
-        product,
-      },
+      message: "Hãy xác nhận để thêm 2 Cam Tươi vào giỏ.",
+      products: [product],
+      suggested_actions: [{ type: "ADD_TO_CART", product_id: 1, quantity: 2 }],
     });
 
     render(<Provider store={store}><ChatWidget /></Provider>);
@@ -193,8 +192,93 @@ describe("ChatWidget", () => {
       screen.getByRole("button", { name: "Gửi tin nhắn" })
     );
 
-    await screen.findByText("Đã thêm 2 Cam Tươi vào giỏ hàng.");
+    await screen.findByText("Hãy xác nhận để thêm 2 Cam Tươi vào giỏ.");
+    expect(addToCartMock).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole("button", { name: "Thêm 2 vào giỏ" }));
 
-    expect(addToCartMock).toHaveBeenCalledWith(product, 2);
+    expect(addToCartMock).toHaveBeenCalledWith({
+      id: 1,
+      name: "Cam Tươi",
+      img: "/cam.png",
+      price: 45000,
+      inventory: 30,
+      category_id: 2,
+      category: { id: 2, name: "Trái Cây" },
+    }, 2);
+  });
+
+  it("renders verified product cards without deriving commerce data from prose", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ status: "online" }));
+    axiosMock.mockResolvedValue({
+      message: "Sản phẩm phù hợp trong danh mục: Trà Nhẹ.",
+      products: [{
+        id: 7,
+        name: "Trà Nhẹ",
+        image_url: "/tea.png",
+        price: 75000,
+        inventory: 6,
+        inventory_status: "in_stock",
+        category: { id: 3, name: "Đồ uống" },
+      }],
+      suggested_actions: [],
+    });
+
+    render(<Provider store={store}><ChatWidget /></Provider>);
+    await userEvent.click(screen.getByRole("button", { name: "Farta Assistant" }));
+    await userEvent.type(screen.getByRole("textbox", { name: "Nhập câu hỏi..." }), "Gợi ý trà nhẹ");
+    await userEvent.click(screen.getByRole("button", { name: "Gửi tin nhắn" }));
+
+    expect(await screen.findByTestId("chat-product-card")).toHaveTextContent("Trà Nhẹ");
+    expect(screen.getByTestId("chat-product-card")).toHaveTextContent("75.000 ₫");
+    expect(screen.getByTestId("chat-product-card")).toHaveTextContent("Còn 6 sản phẩm");
+  });
+
+  it("shows a recoverable provider error and retries the same question", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ status: "online" }));
+    axiosMock
+      .mockRejectedValueOnce({ response: { status: 503 } })
+      .mockResolvedValueOnce({ message: "Đã kết nối lại.", products: [], suggested_actions: [] });
+
+    render(<Provider store={store}><ChatWidget /></Provider>);
+    await userEvent.click(screen.getByRole("button", { name: "Farta Assistant" }));
+    await userEvent.type(screen.getByRole("textbox", { name: "Nhập câu hỏi..." }), "Gợi ý bữa sáng");
+    await userEvent.click(screen.getByRole("button", { name: "Gửi tin nhắn" }));
+
+    expect(await screen.findByText("Trợ lý AI đang tạm gián đoạn. Vui lòng thử lại sau.")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Thử lại" }));
+    expect(await screen.findByText("Đã kết nối lại.")).toBeInTheDocument();
+    expect(axiosMock).toHaveBeenCalledTimes(2);
+    expect(axiosMock.mock.calls[1][0].data.message).toBe("Gợi ý bữa sáng");
+  });
+
+  it("renders a no-results response without an empty product shell", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ status: "online" }));
+    axiosMock.mockResolvedValue({
+      message: "Farta Market chưa có thông tin phù hợp.",
+      products: [],
+      suggested_actions: [],
+    });
+
+    render(<Provider store={store}><ChatWidget /></Provider>);
+    await userEvent.click(screen.getByRole("button", { name: "Farta Assistant" }));
+    await userEvent.type(screen.getByRole("textbox", { name: "Nhập câu hỏi..." }), "Robot vũ trụ");
+    await userEvent.click(screen.getByRole("button", { name: "Gửi tin nhắn" }));
+
+    expect(await screen.findByText("Farta Market chưa có thông tin phù hợp.")).toBeInTheDocument();
+    expect(screen.queryByTestId("chat-product-card")).toBeNull();
+  });
+
+  it("fails closed on a malformed response and offers retry", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ status: "online" }));
+    axiosMock.mockResolvedValue({ message: "", products: [{ id: 1 }] });
+
+    render(<Provider store={store}><ChatWidget /></Provider>);
+    await userEvent.click(screen.getByRole("button", { name: "Farta Assistant" }));
+    await userEvent.type(screen.getByRole("textbox", { name: "Nhập câu hỏi..." }), "Xin chào");
+    await userEvent.click(screen.getByRole("button", { name: "Gửi tin nhắn" }));
+
+    expect(await screen.findByText("Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Thử lại" })).toBeEnabled();
+    expect(addToCartMock).not.toHaveBeenCalled();
   });
 });

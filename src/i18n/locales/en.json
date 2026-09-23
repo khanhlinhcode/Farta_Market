@@ -725,7 +725,7 @@
     "cartLimit": "{{name}} in your cart has reached the available quantity limit ({{limit}}).",
     "busy": "A request is already being processed. Please try again.",
     "title": "Farta Assistant",
-    "welcome": "Hi! I can help you find products or answer any questions 🛒",
+    "welcome": "Hi! I can help you find products, check your cart, and look up your orders.",
     "placeholder": "Type your question...",
     "error": "Sorry, something went wrong. Please try again.",
     "unavailable": "The AI assistant is temporarily unavailable. Please try again later.",
@@ -734,6 +734,14 @@
     "checking": "Checking connection",
     "online": "Online",
     "offline": "Temporarily unavailable",
-    "send": "Send message"
+    "send": "Send message",
+    "retry": "Try again",
+    "signInRequired": "Please sign in with a customer account to look up your orders.",
+    "forbidden": "This account cannot use customer order lookup.",
+    "productResults": "Verified products",
+    "inStock": "{{count}} in stock",
+    "outOfStock": "Out of stock",
+    "addToCart": "Add {{count}} to cart",
+    "added": "Added"
   }
 }
