@@ -1,5 +1,6 @@
 export const SESSION_KEYS = {
   CART: "cart",
+  CART_OWNER: "farta_cart_owner",
   WISHLIST_IDS: "farta_wishlist_ids",
 };
 

@@ -105,7 +105,7 @@ const ProductDetailPage = () => {
   const { data: relatedProducts = EMPTY_PRODUCTS } = useRelatedProductsUS(id);
   const { data: frequentlyBoughtProducts = EMPTY_PRODUCTS } =
     useFrequentlyBoughtWithUS(id);
-  const { addToCart } = useShoppingCart();
+  const { addToCart, requireCartAuth, authPending } = useShoppingCart();
   const currentUser = useSelector(selectCustomerUser);
   const [reviews, setReviews] = useState([]);
   const [reviewMeta, setReviewMeta] = useState({
@@ -327,6 +327,7 @@ const ProductDetailPage = () => {
   };
 
   const handleAddBundleToCart = () => {
+    if (!requireCartAuth().ok) return;
     const selectedProducts = frequentlyBoughtProducts.filter((item) =>
       bundleProductIds.includes(item.id)
     );
@@ -535,7 +536,7 @@ const ProductDetailPage = () => {
                 <h2>{t("productDetail.frequentlyBoughtTogether")}</h2>
                 <button
                   type="button"
-                  disabled={bundleProductIds.length === 0}
+                  disabled={bundleProductIds.length === 0 || authPending}
                   onClick={handleAddBundleToCart}
                 >
                   {t("productDetail.addSelectedBundle", {

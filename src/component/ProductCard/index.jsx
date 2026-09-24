@@ -18,7 +18,7 @@ import { translateProductName } from "utils/i18nLabels";
 
 const ProductCard = ({ product }) => {
   const { t } = useTranslation();
-  const { addToCart } = useShoppingCart();
+  const { addToCart, authPending } = useShoppingCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const isOutOfStock = Number(product.inventory || 0) <= 0;
   const reviewCount = Number(product.review_count || product.reviews_count || 0);
@@ -83,15 +83,19 @@ const ProductCard = ({ product }) => {
               <button
                 type="button"
                 className="featured__item__action featured__item__cart-button"
-                disabled={isOutOfStock}
+                disabled={isOutOfStock || authPending}
                 onClick={handleAddToCart}
                 title={
-                  isOutOfStock
+                  authPending
+                    ? t("cart.sessionChecking")
+                    : isOutOfStock
                     ? t("productCard.outOfStockNotice")
                     : t("productCard.addToCart")
                 }
                 aria-label={
-                  isOutOfStock
+                  authPending
+                    ? t("cart.sessionChecking")
+                    : isOutOfStock
                     ? t("productCard.outOfStockNotice")
                     : t("productCard.addToCart")
                 }

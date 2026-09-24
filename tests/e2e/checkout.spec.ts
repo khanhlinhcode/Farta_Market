@@ -1,6 +1,18 @@
 import { expect, test } from "@playwright/test";
 
+async function loginVerifiedCustomer(page) {
+  await page.goto("/dang-nhap");
+  await page.locator(".user-login__tabs").getByRole("button", { name: "Đăng nhập" }).click();
+  await page.getByLabel("Email").fill("qa.second-customer@example.test");
+  await page.locator('input[name="password"]').fill("SiviE2EPass123!");
+  await Promise.all([
+    page.waitForURL(url => url.pathname === "/"),
+    page.locator(".user-login__form").getByRole("button", { name: "Đăng nhập" }).click(),
+  ]);
+}
+
 test("user can complete purchase flow", async ({ page }) => {
+  await loginVerifiedCustomer(page);
   await page.goto("/san-pham?in_stock=1");
   await page.getByTestId("product-card").first().click();
   await page.getByTestId("add-to-cart").click();
@@ -28,21 +40,17 @@ test("user can complete purchase flow", async ({ page }) => {
 });
 
 test("a forged payment success URL cannot clear an unverified cart", async ({ page }) => {
-  await page.addInitScript(() => sessionStorage.setItem("cart", JSON.stringify({
-    expiresAt: Date.now() + 60 * 60 * 1000,
-    value: {
-      products: [{ product: { id: 1, name: "Session cart", price: 1, inventory: 10 }, quantity: 2 }],
-      totalPrice: 2,
-      totalQuantity: 2,
-    },
-  })));
+  await loginVerifiedCustomer(page);
+  await page.goto("/san-pham/chi-tiet/1");
+  await page.getByTestId("add-to-cart").click();
   await page.goto("/dat-hang-thanh-cong?orderId=999999&payment=sepay");
   await expect(page.locator(".order-success__panel")).toContainText("Chưa xác minh được đơn hàng hoặc thanh toán");
   const cart = await page.evaluate(() => JSON.parse(sessionStorage.getItem("cart") || "null")?.value);
-  expect(cart.totalQuantity).toBe(2);
+  expect(cart.totalQuantity).toBe(1);
 });
 
 test("checkout sends identifiers and server returns the canonical product price", async ({ page }) => {
+  await loginVerifiedCustomer(page);
   await page.goto("/san-pham/chi-tiet/1");
   await page.getByTestId("add-to-cart").click();
   await page.goto("/thanh-toan");

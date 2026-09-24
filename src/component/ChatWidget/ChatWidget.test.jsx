@@ -6,6 +6,7 @@ import "../../i18n";
 import i18n from "../../i18n";
 import { Provider } from "react-redux";
 import store from "../../redux/store";
+import { clearAuth, setAuthenticatedUser } from "../../redux/authSlice";
 
 const { addToCartMock, axiosMock } = vi.hoisted(() => ({
   addToCartMock: vi.fn(),
@@ -34,8 +35,10 @@ describe("ChatWidget", () => {
   beforeEach(async () => {
     await i18n.changeLanguage("vi");
     addToCartMock.mockReset();
-    addToCartMock.mockReturnValue({ addedCount: 2, totalQuantity: 2, maxInventory: 30 });
+    addToCartMock.mockReturnValue({ ok: true, addedCount: 2, totalQuantity: 2, maxInventory: 30 });
     axiosMock.mockReset();
+    store.dispatch(clearAuth());
+    store.dispatch(setAuthenticatedUser({ id: 1, role: "customer", email_verified_at: "2026-09-24T00:00:00Z" }));
     Element.prototype.scrollIntoView = vi.fn();
   });
 
@@ -194,7 +197,7 @@ describe("ChatWidget", () => {
 
     await screen.findByText("Hãy xác nhận để thêm 2 Cam Tươi vào giỏ.");
     expect(addToCartMock).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole("button", { name: "Thêm 2 vào giỏ" }));
+    await userEvent.click(screen.getByRole("button", { name: "Thêm 2 Cam Tươi vào giỏ hàng" }));
 
     expect(addToCartMock).toHaveBeenCalledWith({
       id: 1,
@@ -231,6 +234,26 @@ describe("ChatWidget", () => {
     expect(await screen.findByTestId("chat-product-card")).toHaveTextContent("Trà Nhẹ");
     expect(screen.getByTestId("chat-product-card")).toHaveTextContent("75.000 ₫");
     expect(screen.getByTestId("chat-product-card")).toHaveTextContent("Còn 6 sản phẩm");
+    expect(screen.getByTestId("chat-product-card").querySelector(".chat-widget__product-copy"))
+      .toHaveAccessibleName("Trà Nhẹ. 75.000 ₫. Còn 6 sản phẩm.");
+  });
+
+  it.each([
+    [419, "Phiên bảo mật đã hết hạn. Vui lòng tải lại trang rồi thử lại."],
+    [422, "Nội dung yêu cầu chưa hợp lệ. Vui lòng kiểm tra và thử lại."],
+    [429, "Bạn gửi tin nhắn quá nhanh. Vui lòng chờ một phút rồi thử lại."],
+  ])("keeps the service online for recoverable HTTP %i errors", async (status, message) => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ status: "online" }));
+    axiosMock.mockRejectedValue({ isAxiosError: true, response: { status } });
+
+    render(<Provider store={store}><ChatWidget /></Provider>);
+    await userEvent.click(screen.getByRole("button", { name: "Farta Assistant" }));
+    await screen.findByText("Đang trực tuyến");
+    await userEvent.type(screen.getByRole("textbox", { name: "Nhập câu hỏi..." }), "Kiểm tra lỗi");
+    await userEvent.click(screen.getByRole("button", { name: "Gửi tin nhắn" }));
+
+    expect(await screen.findByText(message)).toBeInTheDocument();
+    expect(screen.getByText("Đang trực tuyến")).toBeInTheDocument();
   });
 
   it("shows a recoverable provider error and retries the same question", async () => {
@@ -280,5 +303,25 @@ describe("ChatWidget", () => {
     expect(await screen.findByText("Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Thử lại" })).toBeEnabled();
     expect(addToCartMock).not.toHaveBeenCalled();
+  });
+
+  it("shows verified sources only for structurally valid citations", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ status: "online" }));
+    axiosMock.mockResolvedValue({
+      message: "Phí giao hàng tiêu chuẩn là 20.000đ.",
+      answer_status: "verified",
+      citations: [{ source_id: "site-settings", title: "Thông tin giao hàng", section: "Phí giao hàng" }],
+      products: [],
+      suggested_actions: [],
+    });
+    render(<Provider store={store}><ChatWidget /></Provider>);
+    await userEvent.click(screen.getByRole("button", { name: "Farta Assistant" }));
+    await userEvent.type(screen.getByRole("textbox", { name: "Nhập câu hỏi..." }), "Phí ship?");
+    await userEvent.click(screen.getByRole("button", { name: "Gửi tin nhắn" }));
+
+    const disclosure = await screen.findByText("Đã kiểm chứng");
+    await userEvent.click(disclosure);
+    expect(screen.getByText("Thông tin giao hàng")).toBeInTheDocument();
+    expect(screen.getByText("Phí giao hàng")).toBeInTheDocument();
   });
 });

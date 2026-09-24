@@ -208,6 +208,40 @@
   color: #ffffff;
 }
 
+.chat-widget__citations {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(28, 66, 52, 0.08);
+  color: #315d4d;
+  font-size: 11px;
+  max-width: 100%;
+  padding: 8px 10px;
+
+  summary {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    font-weight: 700;
+    gap: 6px;
+    list-style: none;
+
+    &::-webkit-details-marker { display: none; }
+    &:focus-visible { outline: 3px solid rgba(22, 122, 93, 0.28); outline-offset: 3px; }
+  }
+
+  ul {
+    display: grid;
+    gap: 6px;
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 8px 0 0;
+  }
+
+  li { display: grid; gap: 2px; }
+  strong { color: #1c2924; font-size: 11px; }
+  span { color: #4d645b; }
+}
+
 .chat-widget__products {
   display: grid;
   gap: 8px;
@@ -244,7 +278,9 @@
 .chat-widget__product-copy {
   display: flex;
   flex-direction: column;
+  gap: 2px;
   min-width: 0;
+  position: relative;
 
   strong {
     color: #1c2924;
@@ -254,6 +290,16 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+}
+
+.chat-widget__copy-separator {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
 .chat-widget__price {

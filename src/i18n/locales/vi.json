@@ -280,6 +280,8 @@
     "starRatingLabel": "Chọn {{value}} sao"
   },
   "cart": {
+    "loginRequired": "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.",
+    "sessionChecking": "Đang kiểm tra phiên đăng nhập. Vui lòng thử lại sau giây lát.",
     "adjusted": "Giỏ hàng đã được điều chỉnh theo tồn kho và giới hạn 100 sản phẩm mỗi dòng.",
     "nothingAdded": "Không thêm được sản phẩm: giỏ đã đạt giới hạn hoặc sản phẩm không khả dụng.",
     "addedCount": "Đã thêm {{count}} sản phẩm vào giỏ hàng.",
@@ -689,6 +691,9 @@
     "error": "Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.",
     "unavailable": "Trợ lý AI đang tạm gián đoạn. Vui lòng thử lại sau.",
     "timeout": "Trợ lý phản hồi quá lâu. Vui lòng gửi lại câu hỏi.",
+    "networkError": "Không thể kết nối tới trợ lý. Vui lòng kiểm tra mạng và thử lại.",
+    "sessionExpired": "Phiên bảo mật đã hết hạn. Vui lòng tải lại trang rồi thử lại.",
+    "invalidRequest": "Nội dung yêu cầu chưa hợp lệ. Vui lòng kiểm tra và thử lại.",
     "rateLimited": "Bạn gửi tin nhắn quá nhanh. Vui lòng chờ một phút rồi thử lại.",
     "checking": "Đang kiểm tra kết nối",
     "online": "Đang trực tuyến",
@@ -698,9 +703,17 @@
     "signInRequired": "Vui lòng đăng nhập tài khoản khách hàng để tra cứu đơn.",
     "forbidden": "Tài khoản này không có quyền sử dụng chức năng tra cứu đơn khách hàng.",
     "productResults": "Sản phẩm đã xác minh",
+    "productSummary": "{{name}}. {{price}}. {{stock}}.",
     "inStock": "Còn {{count}} sản phẩm",
     "outOfStock": "Hết hàng",
     "addToCart": "Thêm {{count}} vào giỏ",
+    "addToCartAria": "Thêm {{count}} {{name}} vào giỏ hàng",
+    "signInToAdd": "Đăng nhập để thêm vào giỏ",
+    "signInToAddAria": "Đăng nhập để thêm {{name}} vào giỏ hàng",
+    "checkingSession": "Đang kiểm tra đăng nhập",
+    "verified": "Đã kiểm chứng",
+    "verifiedSourcesLabel": "Mở danh sách nguồn đã kiểm chứng",
+    "sources": "Nguồn thông tin",
     "added": "Đã thêm"
   }
 }

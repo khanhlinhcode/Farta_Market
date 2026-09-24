@@ -10,6 +10,7 @@ import i18n from "../../../i18n";
 import ShoppingCartPage from ".";
 import { CART_SESSION_TTL_MS, SESSION_KEYS } from "utils/constant";
 import { getExpiringSessionItem, setExpiringSessionItem } from "utils/session";
+import { clearAuth, setAuthenticatedUser } from "../../../redux/authSlice";
 
 vi.mock("react-hot-toast", () => ({ default: notices }));
 const notices = vi.hoisted(() => Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }));
@@ -21,6 +22,9 @@ beforeEach(async () => {
   Object.defineProperty(window, "localStorage", { configurable: true, value: storage() });
   Object.defineProperty(window, "sessionStorage", { configurable: true, value: storage() });
   await i18n.changeLanguage("vi");
+  store.dispatch(clearAuth());
+  store.dispatch(setAuthenticatedUser({ id: 1, role: "customer", email_verified_at: "2026-09-24T00:00:00Z" }));
+  setExpiringSessionItem(SESSION_KEYS.CART_OWNER, 1, CART_SESSION_TTL_MS);
 });
 afterEach(cleanup);
 

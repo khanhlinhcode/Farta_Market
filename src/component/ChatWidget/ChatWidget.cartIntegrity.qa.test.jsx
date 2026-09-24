@@ -42,6 +42,12 @@ beforeEach(async () => {
   Object.defineProperty(window, "sessionStorage", { configurable: true, value: storage() });
   store.dispatch(setCart(calculateCart([])));
   store.dispatch(clearAuth());
+  store.dispatch(setAuthenticatedUser({
+    id: 1,
+    role: "customer",
+    email_verified_at: "2026-09-24T00:00:00Z",
+  }));
+  setExpiringSessionItem(SESSION_KEYS.CART_OWNER, 1, CART_SESSION_TTL_MS);
   await i18n.changeLanguage("vi");
   Element.prototype.scrollIntoView = vi.fn();
   vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: true, json: async () => ({ status: "online" }) });
@@ -61,7 +67,7 @@ it("does not mutate the cart until the user confirms the proposed action", async
   await send();
 
   expect(store.getState().commonSlide.cart.totalQuantity).toBe(0);
-  fireEvent.click(screen.getByRole("button", { name: "Thêm 2 vào giỏ" }));
+  fireEvent.click(screen.getByRole("button", { name: "Thêm 2 Cam Tươi vào giỏ hàng" }));
 
   expect(store.getState().commonSlide.cart.totalQuantity).toBe(2);
   expect(screen.getByText("Đã thêm 2 Cam Tươi vào giỏ hàng.")).toBeInTheDocument();
@@ -74,7 +80,7 @@ it.each([29, 30])("reports the real cart delta when %i units already exist", asy
   store.dispatch(setCart(previous));
   mocks.api.mockResolvedValue(proposal());
   await send();
-  fireEvent.click(screen.getByRole("button", { name: "Thêm 2 vào giỏ" }));
+  fireEvent.click(screen.getByRole("button", { name: "Thêm 2 Cam Tươi vào giỏ hàng" }));
 
   const cart = getExpiringSessionItem(SESSION_KEYS.CART);
   const added = 30 - existingQuantity;
@@ -138,4 +144,38 @@ it("changing account aborts the previous conversation and ignores its late propo
   await act(async () => resolve(proposal()));
   expect(store.getState().commonSlide.cart.totalQuantity).toBe(0);
   expect(screen.queryByText("mua 2 Cam Tươi")).toBeNull();
+});
+
+it("keeps a guest cart empty, sends no cart context, and offers a login CTA", async () => {
+  store.dispatch(clearAuth());
+  const stale = calculateCart([{ product, quantity: 3 }]);
+  setExpiringSessionItem(SESSION_KEYS.CART, stale, CART_SESSION_TTL_MS);
+  setExpiringSessionItem(SESSION_KEYS.CART_OWNER, 1, CART_SESSION_TTL_MS);
+  store.dispatch(setCart(stale));
+  window.history.replaceState({}, "", "/san-pham/chi-tiet/1");
+  mocks.api.mockResolvedValue({
+    ...proposal("Vui lòng đăng nhập để thêm sản phẩm vào giỏ."),
+    suggested_actions: [],
+    auth: { required: true, reason: "cart_mutation" },
+  });
+
+  await send();
+
+  expect(mocks.api.mock.calls[0][0].data.cart).toEqual([]);
+  expect(store.getState().commonSlide.cart.totalQuantity).toBe(0);
+  expect(window.sessionStorage.getItem(SESSION_KEYS.CART)).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Đăng nhập để thêm Cam Tươi vào giỏ hàng" }));
+  expect(window.location.pathname).toBe("/dang-nhap");
+  expect(new URLSearchParams(window.location.search).get("redirect")).toBe("/san-pham/chi-tiet/1");
+});
+
+it("cannot execute a stale suggested action after logout", async () => {
+  mocks.api.mockResolvedValue(proposal());
+  await send();
+  expect(screen.getByRole("button", { name: "Thêm 2 Cam Tươi vào giỏ hàng" })).toBeEnabled();
+
+  await act(async () => store.dispatch(clearAuth()));
+
+  expect(screen.queryByRole("button", { name: "Thêm 2 Cam Tươi vào giỏ hàng" })).toBeNull();
+  expect(store.getState().commonSlide.cart.totalQuantity).toBe(0);
 });

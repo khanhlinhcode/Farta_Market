@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from "react";
-import { useDispatch, useStore } from "react-redux";
+import { useCallback, useEffect, useRef } from "react";
+import { useDispatch, useSelector, useStore } from "react-redux";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { calculateCart, emptyCart, normalizeCart, setCart } from "../redux/cartSlice";
@@ -9,20 +9,63 @@ import {
   removeSessionItem,
   setExpiringSessionItem,
 } from "utils/session";
+import { selectAuthBootstrapped, selectCustomerUser } from "../redux/authSlice";
+import { ROUTERS } from "utils/router";
 
 const useShoppingCart = () => {
   const dispatch = useDispatch();
   const store = useStore();
   const { t } = useTranslation();
+  const currentUser = useSelector(selectCustomerUser);
+  const isBootstrapped = useSelector(selectAuthBootstrapped);
+  const redirectingRef = useRef(false);
+  const ownerId = Number(currentUser?.id || 0);
 
-  const persistCart = useCallback((products) => {
-    const cart = calculateCart(products);
-    setExpiringSessionItem(SESSION_KEYS.CART, cart, CART_SESSION_TTL_MS);
-    dispatch(setCart(cart));
-    return cart;
+  const clearCart = useCallback(() => {
+    removeSessionItem(SESSION_KEYS.CART);
+    removeSessionItem(SESSION_KEYS.CART_OWNER);
+    dispatch(setCart(emptyCart));
+    return emptyCart;
   }, [dispatch]);
 
+  const redirectToLogin = useCallback(() => {
+    if (redirectingRef.current || typeof window === "undefined") return;
+    redirectingRef.current = true;
+    const candidate = `${window.location.pathname || "/"}${window.location.search || ""}`;
+    const redirect = candidate.startsWith("/") && !candidate.startsWith("//") ? candidate : "/";
+    const target = `${ROUTERS.USER.LOGIN}?redirect=${encodeURIComponent(redirect)}`;
+    window.history.pushState({}, "", target);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }, []);
+
+  const requireCartAuth = useCallback(({ notify = true, redirect = true } = {}) => {
+    if (!isBootstrapped) {
+      if (notify) toast.error(t("cart.sessionChecking"));
+      return { ok: false, reason: "AUTH_PENDING", addedCount: 0 };
+    }
+    if (!currentUser) {
+      if (notify) toast.error(t("cart.loginRequired"));
+      if (redirect) redirectToLogin();
+      return { ok: false, reason: "AUTH_REQUIRED", addedCount: 0 };
+    }
+
+    return { ok: true, reason: null };
+  }, [currentUser, isBootstrapped, redirectToLogin, t]);
+
+  const persistCart = useCallback((products) => {
+    if (!isBootstrapped || !currentUser) {
+      return emptyCart;
+    }
+    const cart = calculateCart(products);
+    setExpiringSessionItem(SESSION_KEYS.CART, cart, CART_SESSION_TTL_MS);
+    setExpiringSessionItem(SESSION_KEYS.CART_OWNER, ownerId, CART_SESSION_TTL_MS);
+    dispatch(setCart(cart));
+    return cart;
+  }, [currentUser, dispatch, isBootstrapped, ownerId]);
+
   const getCart = useCallback(() => {
+    if (!isBootstrapped || !currentUser) return emptyCart;
+    if (Number(getExpiringSessionItem(SESSION_KEYS.CART_OWNER, 0)) !== ownerId) return emptyCart;
     const stored = getExpiringSessionItem(SESSION_KEYS.CART, emptyCart);
     const cart = normalizeCart(stored);
     if (JSON.stringify(stored) !== JSON.stringify(cart)) {
@@ -30,16 +73,24 @@ const useShoppingCart = () => {
       toast(t("cart.adjusted"));
     }
     return cart;
-  }, [persistCart, t]);
+  }, [currentUser, isBootstrapped, ownerId, persistCart, t]);
 
   useEffect(() => {
+    if (!isBootstrapped) return;
+    redirectingRef.current = false;
+    if (!currentUser || Number(getExpiringSessionItem(SESSION_KEYS.CART_OWNER, 0)) !== ownerId) {
+      clearCart();
+      return;
+    }
     const cart = getCart();
     if (JSON.stringify(store.getState().commonSlide.cart) !== JSON.stringify(cart)) {
       dispatch(setCart(cart));
     }
-  }, [dispatch, getCart, store]);
+  }, [clearCart, currentUser, dispatch, getCart, isBootstrapped, ownerId, store]);
 
   const addToCart = (product, quantity, { notify = true } = {}) => {
+    const gate = requireCartAuth({ notify });
+    if (!gate.ok) return { ...gate, cart: emptyCart, totalQuantity: 0, maxInventory: 0 };
     const cart = getCart();
     const maxInventory = getCartLineLimit(product?.inventory);
     const id = Number(product?.id);
@@ -67,25 +118,35 @@ const useShoppingCart = () => {
         count: addedCount, requested: quantity,
       }));
     }
-    return { cart: newCart, addedCount, totalQuantity, maxInventory };
+    return { ok: true, reason: null, cart: newCart, addedCount, totalQuantity, maxInventory };
   };
 
-  const removeCart = (id) => persistCart(getCart().products.filter(({ product }) => product.id !== Number(id)));
+  const removeCart = (id) => {
+    const gate = requireCartAuth();
+    if (!gate.ok) return { ...gate, cart: emptyCart, addedCount: 0 };
+    return { ok: true, reason: null, cart: persistCart(getCart().products.filter(({ product }) => product.id !== Number(id))), addedCount: 0 };
+  };
 
   const updateCartQuantity = (id, quantity) => {
+    const gate = requireCartAuth();
+    if (!gate.ok) return { ...gate, cart: emptyCart, addedCount: 0 };
     const cart = getCart();
-    if (!Number.isInteger(quantity) || quantity < 1) return cart;
-    return persistCart(cart.products.map((item) => item.product.id === Number(id)
+    if (!Number.isInteger(quantity) || quantity < 1) return { ok: false, reason: "INVALID_QUANTITY", cart, addedCount: 0 };
+    return { ok: true, reason: null, cart: persistCart(cart.products.map((item) => item.product.id === Number(id)
       ? { ...item, quantity: Math.min(quantity, getCartLineLimit(item.product.inventory)) }
-      : item));
+      : item)), addedCount: 0 };
   };
 
-  const clearCart = () => {
-    removeSessionItem(SESSION_KEYS.CART);
-    dispatch(setCart(emptyCart));
-    return emptyCart;
+  return {
+    addToCart,
+    removeCart,
+    updateCartQuantity,
+    clearCart,
+    getCart,
+    requireCartAuth,
+    canMutateCart: isBootstrapped && Boolean(currentUser),
+    authPending: !isBootstrapped,
+    emptyCart,
   };
-
-  return { addToCart, removeCart, updateCartQuantity, clearCart, getCart, emptyCart };
 };
 export default useShoppingCart;
