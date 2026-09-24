@@ -11,6 +11,7 @@ import { setExpiringSessionItem } from "utils/session";
 import "../../../i18n";
 import CheckoutPage from ".";
 import * as orderApi from "api/orderPage";
+import { clearAuth, setAuthenticatedUser } from "../../../redux/authSlice";
 
 const createStorageMock = () => {
   const values = new Map();
@@ -52,6 +53,9 @@ describe("CheckoutFlow", () => {
     window.localStorage.clear();
     window.localStorage.setItem("lang", "vi");
     window.sessionStorage.clear();
+    store.dispatch(clearAuth());
+    store.dispatch(setAuthenticatedUser({ id: 1, role: "customer", email_verified_at: "2026-09-24T00:00:00Z" }));
+    setExpiringSessionItem(SESSION_KEYS.CART_OWNER, 1, CART_SESSION_TTL_MS);
     setExpiringSessionItem(
       SESSION_KEYS.CART,
       {

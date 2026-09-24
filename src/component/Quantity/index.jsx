@@ -11,7 +11,7 @@ const Quantity = ({
   onChange,
 }) => {
   const { t } = useTranslation();
-  const { addToCart } = useShoppingCart();
+  const { addToCart, authPending } = useShoppingCart();
   const max = Math.min(getCartLineLimit(product?.inventory), maxQuantity === undefined ? MAX_CART_LINE_QUANTITY : getCartLineLimit(maxQuantity));
   const initial = Number.isInteger(initQuantity) && initQuantity > 0 ? initQuantity : 1;
   const [quantity, setQuantity] = useState(Math.min(initial, max));
@@ -58,12 +58,14 @@ const Quantity = ({
           type="button"
           className="button-submit"
           data-testid="add-to-cart"
-          disabled={!product || max === 0}
+          disabled={!product || max === 0 || authPending}
           onClick={() => {
             addToCart(product, quantity);
           }}
         >
-          {Number(product?.inventory || 0) > 0
+          {authPending
+            ? t("cart.sessionChecking")
+            : Number(product?.inventory || 0) > 0
             ? t("productDetail.addToCart")
             : t("productDetail.outOfStock")}
         </button>

@@ -4,6 +4,7 @@ import {
   FiPackage,
   FiRefreshCw,
   FiSend,
+  FiShield,
   FiShoppingCart,
   FiX,
 } from "react-icons/fi";
@@ -13,6 +14,7 @@ import axios from "api/axios";
 import useShoppingCart from "hooks/useShoppingCart";
 import { getApiBaseUrl } from "../../config/api";
 import "./style.scss";
+import { selectAuthBootstrapped, selectCustomerUser } from "../../redux/authSlice";
 
 const CHAT_TIMEOUT_MS = 30000;
 const HEALTH_TIMEOUT_MS = 5000;
@@ -46,14 +48,33 @@ const normalizeResponse = (data) => {
           Number(action.quantity) <= 100
       ).slice(0, 3)
     : [];
+  const citations = data?.answer_status === "verified" && Array.isArray(data.citations)
+    ? data.citations.filter(
+        (citation) =>
+          typeof citation?.source_id === "string" && citation.source_id.trim() &&
+          typeof citation?.title === "string" && citation.title.trim() &&
+          typeof citation?.section === "string" && citation.section.trim()
+      ).slice(0, 5)
+    : [];
 
-  return { content: content.trim(), products, actions, source: data.source };
+  return {
+    content: content.trim(),
+    products,
+    actions,
+    source: data.source,
+    authRequired: data?.auth?.required === true,
+    authReason: data?.auth?.reason,
+    answerStatus: citations.length > 0 ? "verified" : data?.answer_status,
+    citations,
+  };
 };
 
 const ChatWidget = () => {
   const { t, i18n } = useTranslation();
-  const { addToCart } = useShoppingCart();
-  const ownerId = useSelector((state) => state.auth?.user?.id || 0);
+  const { addToCart, requireCartAuth, authPending } = useShoppingCart();
+  const currentUser = useSelector(selectCustomerUser);
+  const isBootstrapped = useSelector(selectAuthBootstrapped);
+  const ownerId = Number(currentUser?.id || 0);
   const cartLines = useSelector((state) => state.commonSlide?.cart?.products || []);
   const ownerRef = useRef(ownerId);
   ownerRef.current = ownerId;
@@ -73,7 +94,9 @@ const ChatWidget = () => {
   const pendingActionsRef = useRef(new Set());
 
   const cartContext = useMemo(
-    () =>
+    () => {
+      if (!isBootstrapped || !currentUser) return [];
+      return (
       cartLines
         .map((line) => ({
           product_id: Number(line?.product?.id),
@@ -87,8 +110,10 @@ const ChatWidget = () => {
             line.quantity > 0 &&
             line.quantity <= 100
         )
-        .slice(0, MAX_CART_CONTEXT_ITEMS),
-    [cartLines]
+        .slice(0, MAX_CART_CONTEXT_ITEMS)
+      );
+    },
+    [cartLines, currentUser, isBootstrapped]
   );
 
   useEffect(() => {
@@ -223,17 +248,25 @@ const ChatWidget = () => {
       appendAssistantMessage(responseMessage);
     } catch (error) {
       const status = error?.response?.status;
+      const networkFailure = !error?.response
+        && (error?.isAxiosError === true || error?.code === "ERR_NETWORK");
       if (status === 401) errorMessage = t("chat.signInRequired");
       else if (status === 403) errorMessage = t("chat.forbidden");
+      else if (status === 419) errorMessage = t("chat.sessionExpired");
+      else if (status === 422) errorMessage = t("chat.invalidRequest");
       else if (status === 429) errorMessage = t("chat.rateLimited");
-      else if (status === 503) errorMessage = t("chat.unavailable");
+      else if (status >= 500) errorMessage = t("chat.unavailable");
       else if (status === 409) errorMessage = t("chat.busy");
+      else if (networkFailure) errorMessage = t("chat.networkError");
       if (didTimeout || ["ECONNABORTED", "ETIMEDOUT"].includes(error?.code)) {
         errorMessage = t("chat.timeout");
       }
 
       if (!isMountedRef.current || ownerRef.current !== requestOwner || (controller.signal.aborted && !didTimeout)) return;
-      setServiceStatus("offline");
+      const serviceUnavailable = didTimeout
+        || networkFailure
+        || status >= 500;
+      setServiceStatus(serviceUnavailable ? "offline" : "online");
       appendAssistantMessage({ content: errorMessage, retryMessage: message, isError: true });
     } finally {
       window.clearTimeout(timeoutId);
@@ -259,6 +292,10 @@ const ChatWidget = () => {
       category: product.category ?? null,
     };
     const result = addToCart(cartProduct, Number(action.quantity));
+    if (!result?.ok) {
+      pendingActionsRef.current.delete(actionKey);
+      return;
+    }
     const addedCount = result?.addedCount ?? 0;
     const interpolation = {
       count: addedCount,
@@ -325,6 +362,22 @@ const ChatWidget = () => {
               >
                 <div className={`chat-widget__message${message.isError ? " is-error" : ""}`}>{message.content}</div>
 
+                {message.answerStatus === "verified" && message.citations?.length > 0 && (
+                  <details className="chat-widget__citations">
+                    <summary aria-label={t("chat.verifiedSourcesLabel")}>
+                      <FiShield aria-hidden="true" />{t("chat.verified")}
+                    </summary>
+                    <ul aria-label={t("chat.sources")}>
+                      {message.citations.map((citation) => (
+                        <li key={`${citation.source_id}:${citation.section}`}>
+                          <strong>{citation.title}</strong>
+                          <span>{citation.section}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+
                 {message.products?.length > 0 && (
                   <div className="chat-widget__products" aria-label={t("chat.productResults")}>
                     {message.products.map((product) => {
@@ -341,22 +394,52 @@ const ChatWidget = () => {
                               <img src={product.image_url} alt="" loading="lazy" onError={(event) => { event.currentTarget.hidden = true; }} />
                             )}
                           </div>
-                          <div className="chat-widget__product-copy">
-                            <strong>{product.name}</strong>
-                            <span className="chat-widget__price">{formatPrice(product.price)}</span>
-                            <span className={`chat-widget__stock ${outOfStock ? "is-empty" : "is-available"}`}>
+                          <div
+                            className="chat-widget__product-copy"
+                            aria-label={t("chat.productSummary", {
+                              name: product.name,
+                              price: formatPrice(product.price),
+                              stock: outOfStock ? t("chat.outOfStock") : t("chat.inStock", { count: product.inventory }),
+                            })}
+                          >
+                            <strong aria-hidden="true">{product.name}</strong>
+                            <span className="chat-widget__copy-separator" aria-hidden="true"> · </span>
+                            <span className="chat-widget__price" aria-hidden="true">{formatPrice(product.price)}</span>
+                            <span className="chat-widget__copy-separator" aria-hidden="true"> · </span>
+                            <span className={`chat-widget__stock ${outOfStock ? "is-empty" : "is-available"}`} aria-hidden="true">
                               {outOfStock ? t("chat.outOfStock") : t("chat.inStock", { count: product.inventory })}
                             </span>
                           </div>
-                          {action && (
+                          {(action || message.authRequired) && (
                             <button
                               type="button"
                               className="chat-widget__cart-action"
-                              disabled={outOfStock || action.completed}
-                              onClick={() => confirmAction(index, action, product)}
+                              disabled={outOfStock || authPending || action?.completed}
+                              onClick={() => {
+                                if (!currentUser) {
+                                  requireCartAuth?.();
+                                  return;
+                                }
+                                if (action) confirmAction(index, action, product);
+                              }}
+                              aria-label={
+                                authPending
+                                  ? t("chat.checkingSession")
+                                  : !currentUser
+                                    ? t("chat.signInToAddAria", { name: product.name })
+                                    : action?.completed
+                                      ? t("chat.added")
+                                      : t("chat.addToCartAria", { count: action?.quantity, name: product.name })
+                              }
                             >
                               <FiShoppingCart aria-hidden="true" />
-                              {action.completed ? t("chat.added") : t("chat.addToCart", { count: action.quantity })}
+                              {authPending
+                                ? t("chat.checkingSession")
+                                : !currentUser
+                                  ? t("chat.signInToAdd")
+                                  : action?.completed
+                                    ? t("chat.added")
+                                    : t("chat.addToCart", { count: action?.quantity })}
                             </button>
                           )}
                         </article>

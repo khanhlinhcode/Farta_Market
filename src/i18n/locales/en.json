@@ -321,6 +321,8 @@
     "starRatingLabel": "Select {{value}} star rating"
   },
   "cart": {
+    "loginRequired": "Please sign in to add products to your cart.",
+    "sessionChecking": "Checking your sign-in session. Please try again in a moment.",
     "adjusted": "Your cart was adjusted to stock availability and the limit of 100 items per line.",
     "nothingAdded": "No items added: your cart reached its limit or the product is unavailable.",
     "addedCount": "Added {{count}} item(s) to your cart.",
@@ -730,6 +732,9 @@
     "error": "Sorry, something went wrong. Please try again.",
     "unavailable": "The AI assistant is temporarily unavailable. Please try again later.",
     "timeout": "The assistant took too long to respond. Please try again.",
+    "networkError": "Unable to reach the assistant. Check your connection and try again.",
+    "sessionExpired": "Your secure session expired. Reload the page and try again.",
+    "invalidRequest": "The request is not valid. Check it and try again.",
     "rateLimited": "You are sending messages too quickly. Please wait a minute and try again.",
     "checking": "Checking connection",
     "online": "Online",
@@ -739,9 +744,17 @@
     "signInRequired": "Please sign in with a customer account to look up your orders.",
     "forbidden": "This account cannot use customer order lookup.",
     "productResults": "Verified products",
+    "productSummary": "{{name}}. {{price}}. {{stock}}.",
     "inStock": "{{count}} in stock",
     "outOfStock": "Out of stock",
     "addToCart": "Add {{count}} to cart",
+    "addToCartAria": "Add {{count}} {{name}} to cart",
+    "signInToAdd": "Sign in to add to cart",
+    "signInToAddAria": "Sign in to add {{name}} to cart",
+    "checkingSession": "Checking sign-in",
+    "verified": "Verified",
+    "verifiedSourcesLabel": "Open verified sources",
+    "sources": "Information sources",
     "added": "Added"
   }
 }

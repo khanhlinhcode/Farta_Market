@@ -138,15 +138,23 @@ expires or fails, the cart remains available for retry.
 
 ## Chat behavior
 
-The widget sends the current question, bounded display history, and at most 20
-cart references containing only `product_id` and `quantity`. Product names,
+The widget sends the current question and bounded display history. It sends at
+most 20 cart references containing only `product_id` and `quantity` **only**
+after auth bootstrap confirms an email-verified customer. Product names,
 prices, images, inventory, and order/payment status displayed in chat come from
 the backend's structured response rather than parsed assistant prose.
 
-`suggested_actions` are proposals. The widget renders a visible add-to-cart
-button and does not mutate `sessionStorage` until the customer clicks it. The
-button then uses the same inventory-capped cart hook as the rest of the
-storefront and reports the actual quantity added. Network, timeout, rate-limit,
+`suggested_actions` are proposals. All cart mutation paths share the auth gate
+in `useShoppingCart`. During bootstrap actions are temporarily disabled; guests
+see a login CTA and are redirected with a safe current-page return URL. A guest
+cannot restore, write, update, or remove the session cart. Logout, session loss,
+or owner change clears both cart data and its owner marker. There is no automatic
+replay after login.
+
+For knowledge answers, the widget shows “Đã kiểm chứng / Verified” only when the
+backend supplies `answer_status=verified` and structurally valid citations. The
+native source disclosure is keyboard accessible and announced to assistive
+technology. Network, timeout, rate-limit,
 authentication, malformed-response, no-result, and provider-unavailable states
 remain recoverable through clear messages and retry controls.
 
