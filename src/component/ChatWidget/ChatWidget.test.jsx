@@ -320,6 +320,8 @@ describe("ChatWidget", () => {
     await userEvent.click(screen.getByRole("button", { name: "Gửi tin nhắn" }));
 
     const disclosure = await screen.findByText("Đã kiểm chứng");
+    expect(disclosure).toHaveTextContent(/^Đã kiểm chứng$/);
+    expect(disclosure).not.toHaveTextContent("Đã kiểm chứng -");
     await userEvent.click(disclosure);
     expect(screen.getByText("Thông tin giao hàng")).toBeInTheDocument();
     expect(screen.getByText("Phí giao hàng")).toBeInTheDocument();
