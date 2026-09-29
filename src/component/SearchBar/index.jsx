@@ -153,6 +153,7 @@ const SearchBar = () => {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
+          aria-label={t("navbar.search")}
           value={query}
           onChange={handleChange}
           onFocus={() => {

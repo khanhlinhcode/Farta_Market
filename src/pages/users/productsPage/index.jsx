@@ -333,6 +333,7 @@ const ProductsPage = () => {
                 <form className="product-filter-search" onSubmit={handleKeywordSubmit}>
                   <input
                     type="text"
+                    aria-label={t("products.search")}
                     value={draftKeyword}
                     onChange={(e) => setDraftKeyword(e.target.value)}
                     placeholder={t("products.searchPlaceholder")}
@@ -365,6 +366,7 @@ const ProductsPage = () => {
                     <p>{t("products.from")}:</p>
                     <input
                       type="number"
+                      aria-label={`${t("products.priceRange")}: ${t("products.from")}`}
                       min={0}
                       value={filters.minPrice}
                       onChange={(e) => updateFilter("min_price", e.target.value)}
@@ -374,6 +376,7 @@ const ProductsPage = () => {
                     <p>{t("products.to")}:</p>
                     <input
                       type="number"
+                      aria-label={`${t("products.priceRange")}: ${t("products.to")}`}
                       min={0}
                       value={filters.maxPrice}
                       onChange={(e) => updateFilter("max_price", e.target.value)}

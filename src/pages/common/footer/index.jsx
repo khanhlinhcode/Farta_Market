@@ -168,6 +168,7 @@ const Footer = () => {
                 <div className="input-group">
                   <input
                     type="email"
+                    aria-label={t("footer.subscribeText")}
                     value={email}
                     onChange={(event) => {
                       setEmail(event.target.value);
@@ -180,7 +181,9 @@ const Footer = () => {
                   </button>
                 </div>
                 {subscribeMessage && (
-                  <p className="footer__message">{subscribeMessage}</p>
+                  <p className="footer__message" aria-live="polite">
+                    {subscribeMessage}
+                  </p>
                 )}
               </form>
             </div>

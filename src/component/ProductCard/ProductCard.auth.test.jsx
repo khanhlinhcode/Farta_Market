@@ -42,3 +42,33 @@ it("guest add from ProductCard never changes Redux or sessionStorage", () => {
   expect(store.getState().commonSlide.cart).toEqual(emptyCart);
   expect(window.sessionStorage.getItem(SESSION_KEYS.CART)).toBeNull();
 });
+
+it("exposes the whole card as one accessible product-detail link", () => {
+  const { container } = render(
+    <Provider store={store}>
+      <MemoryRouter>
+        <ProductCard product={{ id: 1, name: "Cam Tươi", img: "/cam.png", price: 45000, inventory: 5 }} />
+      </MemoryRouter>
+    </Provider>
+  );
+
+  const card = container.querySelector(".featured__item");
+  const cardLink = screen.getByRole("link", { name: "Xem chi tiết Cam Tươi" });
+
+  expect(card).toContainElement(cardLink);
+  expect(cardLink).toHaveClass("featured__item__primary-link");
+  expect(cardLink).toHaveAttribute("href", "/san-pham/chi-tiet/1");
+});
+
+it("uses a product heading and non-heading price", () => {
+  const { container } = render(
+    <Provider store={store}>
+      <MemoryRouter>
+        <ProductCard product={{ id: 1, name: "Cam Tươi", img: "/cam.png", price: 45000, inventory: 5 }} />
+      </MemoryRouter>
+    </Provider>
+  );
+
+  expect(screen.getByRole("heading", { level: 3, name: "Cam Tươi" })).toBeInTheDocument();
+  expect(container.querySelector(".featured__item__price")).toHaveTextContent(/45\.000\s*₫/);
+});

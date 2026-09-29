@@ -70,7 +70,7 @@
 
 .chat-widget__panel {
   animation: chat-widget-slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1);
-  background: var(--glass-3-bg);
+  background: var(--bg-elevated);
   border: 1px solid var(--glass-3-border);
   border-radius: var(--radius-lg);
   bottom: 88px;
@@ -448,16 +448,16 @@
 
 @media (max-width: 767px) {
   .chat-widget__panel {
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    bottom: 0;
-    height: 76dvh;
-    max-height: 76dvh;
-    right: 0;
-    width: 100vw;
+    border-radius: var(--radius-md);
+    bottom: max(12px, env(safe-area-inset-bottom));
+    height: min(76dvh, calc(100dvh - 24px));
+    max-height: calc(100dvh - 24px);
+    right: max(12px, env(safe-area-inset-right));
+    width: min(380px, calc(100vw - 24px));
   }
 
   .chat-widget__bubble {
-    bottom: 18px;
+    bottom: max(88px, calc(72px + env(safe-area-inset-bottom)));
     right: 16px;
   }
 

@@ -35,6 +35,7 @@ import {
   AiOutlineDownCircle,
   AiOutlineUpCircle,
   AiOutlineClose,
+  AiOutlineAppstore,
 } from "react-icons/ai";
 
 const CONTACT_EMAIL = "FartaMarket@gmail.com";
@@ -502,21 +503,12 @@ const Header = () => {
           <div className="col-lg-6 header__main__nav">
             <nav className="header__menu">
               <ul>
-                {menus?.map((menu, menuKey) => (
+                {menus?.map((menu) => (
                   <li
                     key={`${menu.key}-${menu.href || menu.path}`}
                     className={isMenuActive(menu) ? "active" : ""}
                   >
                     {renderMenuLink(menu, menu.name)}
-                    {menu.child?.length > 0 && (
-                      <ul className="header__menu__dropdown">
-                        {menu.child.map((childItem, childKey) => (
-                          <li key={`${menuKey}-${childKey}`}>
-                            <Link to={childItem.path}>{childItem.name}</Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
                   </li>
                 ))}
               </ul>
@@ -540,6 +532,7 @@ const Header = () => {
               <button
                 ref={menuButtonRef}
                 type="button"
+                className="header-mobile-menu-button"
                 aria-label={t("navbar.openMenu")}
                 aria-expanded={isShowHumberger}
                 aria-controls="mobile-navigation"
@@ -561,7 +554,7 @@ const Header = () => {
               aria-expanded={isShowCategories}
               aria-controls="product-category-list"
             >
-              <AiOutlineMenu aria-hidden="true" />
+              <AiOutlineAppstore aria-hidden="true" />
               <p>{t("navbar.productList")}</p>
             </button>
             <ul id="product-category-list" className={isShowCategories ? "" : "hidden"}>

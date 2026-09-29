@@ -563,7 +563,7 @@ const ProductDetailPage = () => {
           <div className="section-title">
             <h2>{t("productDetail.relatedProducts")}</h2>
           </div>
-          <div className="row">
+          <div className="row product-card-row">
             {relatedProducts.slice(0, 4).map((item) => (
               <div key={item.id} className="col-lg-3 col-md-4 col-sm-6 col-xs-12">
                 <ProductCard product={item} />

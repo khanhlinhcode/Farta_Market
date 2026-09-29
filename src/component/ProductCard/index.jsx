@@ -26,6 +26,7 @@ const ProductCard = ({ product }) => {
   const wishlisted = isWishlisted(product.id);
   const productName = translateProductName(product, t);
   const productImage = resolveProductImage(product.img);
+  const productPath = generatePath(ROUTERS.USER.PRODUCT, { id: product.id });
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
@@ -43,7 +44,13 @@ const ProductCard = ({ product }) => {
 
   return (
     <>
-      <div className="featured__item pl-r-10">
+      <article className="featured__item pl-r-10">
+        <Link
+          className="featured__item__primary-link"
+          to={productPath}
+          aria-label={t("productCard.viewDetails", { name: productName })}
+          data-testid="product-card"
+        />
         <div
           className={`featured__item__pic${imageLoaded ? " is-loaded" : " is-loading"}`}
         >
@@ -72,7 +79,7 @@ const ProductCard = ({ product }) => {
             <li>
               <Link
                 className="featured__item__action"
-                to={generatePath(ROUTERS.USER.PRODUCT, { id: product.id })}
+                to={productPath}
                 title={t("productDetail.breadcrumb")}
                 aria-label={t("productDetail.breadcrumb")}
               >
@@ -115,14 +122,9 @@ const ProductCard = ({ product }) => {
           </span>
         </div>
         <div className="featured__item__text">
-          <h6>
-            <Link
-              to={generatePath(ROUTERS.USER.PRODUCT, { id: product.id })}
-              data-testid="product-card"
-            >
-              {productName}
-            </Link>
-          </h6>
+          <h3>
+            <span className="featured__item__name">{productName}</span>
+          </h3>
           <div className="featured__item__rating">
             {reviewCount > 0 ? (
               <>
@@ -133,9 +135,9 @@ const ProductCard = ({ product }) => {
               <small>{t("reviews.noReviewsShort")}</small>
             )}
           </div>
-          <h5>{formatter(product.price)}</h5>
+          <p className="featured__item__price">{formatter(product.price)}</p>
         </div>
-      </div>
+      </article>
     </>
   );
 };

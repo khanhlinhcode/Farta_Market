@@ -198,6 +198,7 @@
     "outOfStockNotice": "Product is out of stock",
     "addedToCart": "Added to cart",
     "addToCart": "Add to cart",
+    "viewDetails": "View details for {{name}}",
     "outOfStock": "Out of stock",
     "stockRemaining": "{{count}} left"
   },

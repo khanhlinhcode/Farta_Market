@@ -132,7 +132,7 @@ const HomPage = () => {
 
         {tabPanels.map((item, key) => (
           <TabPanel key={key}>
-            <div className="row">{item}</div>
+            <div className="row product-card-row">{item}</div>
           </TabPanel>
         ))}
       </Tabs>
@@ -151,7 +151,10 @@ const HomPage = () => {
           ))}
         </div>
         <div className="homepage-loading__heading skeleton-pulse" aria-hidden="true" />
-        <div className="row homepage-loading__products" aria-hidden="true">
+        <div
+          className="row product-card-row homepage-loading__products"
+          aria-hidden="true"
+        >
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               className="col-lg-3 col-md-4 col-sm-6 col-xs-12"
@@ -216,7 +219,7 @@ const HomPage = () => {
             <div className="section-title">
               <h2>{localizedValue(settings, "recommended_title", i18n.resolvedLanguage, t("home.recommendedProducts"))}</h2>
             </div>
-            <div className="row">
+            <div className="row product-card-row">
               {recommendedProducts.slice(0, 4).map((product) => (
                 <div
                   className="col-lg-3 col-md-4 col-sm-6 col-xs-12"

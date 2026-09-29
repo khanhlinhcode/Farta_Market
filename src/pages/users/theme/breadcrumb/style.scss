@@ -7,7 +7,7 @@
   padding: 45px 0px 40px;
   justify-content: center;
   line-height: 30px;
-  background: map.get($theme-colors, "main");
+  background: var(--brand-primary-active);
   text-align: center;
 
   .breadcrumb__text {
@@ -22,17 +22,16 @@
       column-gap: 10px;
 
       li {
-        text-decoration: underline;
-        color: map.get($theme-colors, "description");
+        color: var(--brand-primary-foreground);
+        font-weight: 600;
 
         a {
-          text-decoration: none;
-          color: #ffffff;
+          color: inherit;
+          text-decoration: underline;
         }
         &.link {
-          text-decoration: none;
           :hover {
-            color: map.get($theme-colors, "description");
+            color: var(--brand-primary-foreground-muted);
           }
         }
       }

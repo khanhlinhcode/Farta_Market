@@ -157,6 +157,7 @@
     "outOfStockNotice": "Sản phẩm đã hết hàng",
     "addedToCart": "Đã thêm vào giỏ",
     "addToCart": "Thêm vào giỏ",
+    "viewDetails": "Xem chi tiết {{name}}",
     "outOfStock": "Hết hàng",
     "stockRemaining": "Còn {{count}}"
   },
