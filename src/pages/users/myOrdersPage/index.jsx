@@ -121,7 +121,7 @@ const MyOrdersPage = () => {
   return (
     <>
       <Breadcrumb name={t("myOrders.title")} />
-      <main className="my-orders">
+      <div className="my-orders">
         <div className="container">
           <div className="my-orders__header">
             <div>
@@ -268,7 +268,7 @@ const MyOrdersPage = () => {
             </div>
           )}
         </div>
-      </main>
+      </div>
       <ConfirmModal
         isOpen={Boolean(pendingCancelId)}
         title={t("myOrders.confirmCancelTitle")}

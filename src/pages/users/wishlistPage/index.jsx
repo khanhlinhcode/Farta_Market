@@ -94,7 +94,7 @@ const WishlistPage = () => {
   return (
     <>
       <Breadcrumb name={t("wishlist.title")} />
-      <main className="wishlist-page">
+      <div className="wishlist-page">
         <div className="container">
           <div className="wishlist-page__header">
             <div>
@@ -190,7 +190,7 @@ const WishlistPage = () => {
             })}
           </div>
         </div>
-      </main>
+      </div>
     </>
   );
 };

@@ -10,7 +10,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { ROUTERS } from "utils/router";
 import { useGetSiteContentUS } from "api/homePage";
-import { localizedValue } from "utils/siteContent";
+import { localizedValue, resolveCustomerPhone } from "utils/siteContent";
 
 const socialLinks = [
   {
@@ -47,10 +47,10 @@ const Footer = () => {
   const profilePath = ROUTERS.USER.PROFILE.startsWith("/")
     ? ROUTERS.USER.PROFILE
     : `/${ROUTERS.USER.PROFILE}`;
-  const { data: siteContent } = useGetSiteContentUS();
+  const { data: siteContent, isLoading: isSiteContentLoading } = useGetSiteContentUS();
   const settings = siteContent?.settings || {};
   const address = localizedValue(settings, "address", i18n.resolvedLanguage, t("footer.addressValue"));
-  const phone = settings.contact_phone || "0977232232";
+  const phone = isSiteContentLoading ? "" : resolveCustomerPhone(settings);
   const contactEmail = settings.contact_email || "FartaMarket@gmail.com";
   const brandName = settings.brand_name || t("brand.name");
   const footerDescription = localizedValue(settings, "footer_description", i18n.resolvedLanguage);
@@ -93,7 +93,15 @@ const Footer = () => {
                 </li>
                 <li>
                   {t("footer.phoneLabel")}:{" "}
-                  <a href={`tel:${phone}`}>{phone}</a>
+                  {phone ? (
+                    <a href={`tel:${phone}`}>{phone}</a>
+                  ) : (
+                    <span
+                      className="phone-loading-placeholder"
+                      aria-label={t("common.loading")}
+                      aria-busy="true"
+                    />
+                  )}
                 </li>
                 <li>
                   {t("footer.emailLabel")}:{" "}
@@ -122,7 +130,13 @@ const Footer = () => {
               <h6>{t("footer.shop")}</h6>
               <ul>
                 <li>
-                  <a href={`tel:${phone}`}>{t("footer.contact")}</a>
+                  {phone ? (
+                    <a href={`tel:${phone}`}>{t("footer.contact")}</a>
+                  ) : (
+                    <span className="footer__link-placeholder" aria-hidden="true">
+                      {t("footer.contact")}
+                    </span>
+                  )}
                 </li>
                 <li>
                   <Link to={ROUTERS.USER.HOME}>{t("footer.about")}</Link>

@@ -21,7 +21,7 @@ const LanguageSwitcher = () => {
   };
 
   return (
-    <div className="language-switcher" aria-label="Language switcher">
+    <div className="language-switcher" role="group" aria-label="Language switcher">
       {LANGUAGES.map((language) => (
         <button
           type="button"
@@ -31,6 +31,8 @@ const LanguageSwitcher = () => {
               ? "language-switcher__button active"
               : "language-switcher__button"
           }
+          aria-label={language.code === "vi" ? "Tiếng Việt" : "English"}
+          aria-pressed={currentLanguage.startsWith(language.code)}
           onClick={() => handleChangeLanguage(language.code)}
         >
           {language.label}

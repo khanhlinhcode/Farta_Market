@@ -2,7 +2,7 @@
 @use "style/pages/all" as *;
 
 .wishlist-page {
-  background: #f7faf9;
+  background: var(--color-bg);
   padding: 36px 0 64px;
 
   &__header {
@@ -23,9 +23,9 @@
     }
 
     button {
-      background: #ffffff;
+      background: var(--glass-1-bg);
       border: 1px solid #b7ddd7;
-      border-radius: 6px;
+      border-radius: var(--radius-control);
       color: map.get($theme-colors, "main");
       cursor: pointer;
       font-weight: 800;
@@ -36,9 +36,9 @@
 
   &__state,
   &__empty {
-    background: #ffffff;
-    border: 1px solid #e6ecea;
-    border-radius: 8px;
+    background: var(--glass-1-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
     color: #667085;
     padding: 28px;
     text-align: center;
@@ -66,7 +66,7 @@
 
     a {
       background: map.get($theme-colors, "main");
-      border-radius: 6px;
+      border-radius: var(--radius-control);
       color: #ffffff;
       display: inline-flex;
       font-weight: 800;
@@ -85,9 +85,9 @@
 }
 
 .wishlist-card {
-  background: #ffffff;
-  border: 1px solid #e6ecea;
-  border-radius: 8px;
+  background: var(--glass-1-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -139,9 +139,9 @@
     a,
     button {
       align-items: center;
-      background: #ffffff;
+      background: var(--color-surface);
       border: 1px solid #d0e5e1;
-      border-radius: 6px;
+      border-radius: var(--radius-control);
       color: #344054;
       cursor: pointer;
       display: inline-flex;
@@ -192,5 +192,11 @@
     &__grid {
       grid-template-columns: 1fr;
     }
+  }
+}
+
+@media (min-width: 390px) and (max-width: 767px) {
+  .wishlist-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

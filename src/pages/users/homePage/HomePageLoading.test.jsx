@@ -25,7 +25,7 @@ it("reserves the full home layout while API data is loading", () => {
     </MemoryRouter>
   );
 
-  expect(screen.getByRole("main", { name: "common.loading" }))
+  expect(screen.getByLabelText("common.loading"))
     .toHaveAttribute("aria-busy", "true");
   expect(container.querySelectorAll(".homepage-loading__category")).toHaveLength(4);
   expect(container.querySelectorAll(".product-card-skeleton")).toHaveLength(4);

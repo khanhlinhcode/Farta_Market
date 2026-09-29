@@ -1,7 +1,19 @@
 @use "sass:map";
 @use "style/pages/all" as *;
 .featured__item {
-  margin-bottom: 50px;
+  background: var(--glass-1-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 24px);
+  margin-bottom: 24px;
+  overflow: hidden;
+
+  &.pl-r-10 {
+    padding-left: 0;
+    padding-right: 0;
+  }
 
   &:hover {
     .featured__item__pic__hover {
@@ -10,7 +22,7 @@
   }
 
   .featured__item__pic {
-    background: #e8eceb;
+    background: var(--color-surface-soft);
     height: 270px;
     position: relative;
     overflow: hidden;
@@ -41,7 +53,7 @@
       top: 120%;
       width: 100%;
       text-align: center;
-      transition: all, 0.5s;
+      transition: top 0.3s ease, bottom 0.3s ease;
       display: flex;
       justify-content: center;
       gap: 10px;
@@ -56,17 +68,20 @@
 
         .featured__item__action {
           align-items: center;
-          background: #ffffff;
-          border: 1px solid #ebebeb;
+          -webkit-backdrop-filter: blur(18px) saturate(135%);
+          backdrop-filter: blur(18px) saturate(135%);
+          background: var(--glass-2-bg);
+          border: 1px solid var(--glass-2-border);
           border-radius: 50%;
           color: #565555;
           display: inline-flex;
-          height: 42px;
+          height: 44px;
           justify-content: center;
           padding: 0;
-          transition: all, 0.3s;
+          transition: background 0.2s ease, border-color 0.2s ease,
+            color 0.2s ease;
           cursor: pointer !important;
-          width: 42px;
+          width: 44px;
 
           svg {
             color: currentColor;
@@ -77,10 +92,9 @@
           }
 
           &:hover:not(:disabled) {
-            background: #7fad39;
-            border-color: #7fad39;
+            background: var(--color-primary);
+            border-color: var(--color-primary);
             color: #ffffff;
-            transform: rotate(360deg);
           }
 
           &.featured__item__wishlist-button.is-active {
@@ -124,6 +138,10 @@
     }
   }
   .featured__item__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 0 14px 16px;
     text-align: center;
 
     h6 {
@@ -133,7 +151,11 @@
 
       a {
         color: map.get($theme-colors, "nomal-text");
+        display: -webkit-box;
+        overflow: hidden;
         text-decoration: none;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
       }
     }
     h5 {
@@ -170,6 +192,54 @@
       font-weight: 700;
       margin-top: 8px;
       min-height: 18px;
+    }
+  }
+}
+
+@media (hover: none), (max-width: 768px) {
+  .featured__item {
+    height: calc(100% - 16px);
+    margin-bottom: 16px;
+
+    &:hover .featured__item__pic__hover {
+      top: auto !important;
+    }
+
+    .featured__item__pic {
+      aspect-ratio: 1;
+      height: auto;
+
+      .featured__item__pic__hover {
+        bottom: 8px;
+        gap: 8px;
+        top: auto;
+
+        li:nth-child(2) {
+          display: none;
+        }
+      }
+    }
+
+    .featured__item__text {
+      align-items: flex-start;
+      padding: 0 12px 14px;
+      text-align: left;
+
+      h6 {
+        font-size: 14px;
+        line-height: 1.45;
+        min-height: 41px;
+        width: 100%;
+      }
+
+      h5 {
+        font-size: 16px;
+        margin-top: 8px;
+      }
+
+      .featured__item__rating {
+        justify-content: flex-start;
+      }
     }
   }
 }

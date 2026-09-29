@@ -6,10 +6,12 @@
   padding: 48px 16px;
 
   &__card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 14px;
-    box-shadow: var(--shadow-apple);
+    -webkit-backdrop-filter: blur(12px) saturate(125%);
+    backdrop-filter: blur(12px) saturate(125%);
+    background: var(--glass-1-bg);
+    border: 0;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
     box-sizing: border-box;
     padding: 30px;
     text-align: center;
@@ -75,7 +77,7 @@
   }
 
   &__message {
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: 14px;
     line-height: 1.55;
     margin: 22px 0 0;
@@ -102,7 +104,7 @@
     button,
     a {
       align-items: center;
-      border-radius: 7px;
+      border-radius: var(--radius-control);
       display: inline-flex;
       font-size: 14px;
       font-weight: 800;

@@ -6,7 +6,7 @@ import { formatter } from "utils/formatter";
 import { useGetCategoriesUS, useGetSiteContentUS } from "api/homePage";
 import { LanguageSwitcher, SearchBar } from "component";
 import { useDispatch, useSelector } from "react-redux";
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useShoppingCart from "hooks/useShoppingCart";
@@ -14,7 +14,11 @@ import bannerImg from "assets/users/images/hero/Banner.png";
 import { translateCategoryName } from "utils/i18nLabels";
 import { clearUserSession, getUserName } from "utils/userAuth";
 import { logoutUserAPI } from "api/auth";
-import { isExternalUrl, localizedValue } from "utils/siteContent";
+import {
+  isExternalUrl,
+  localizedValue,
+  resolveCustomerPhone,
+} from "utils/siteContent";
 import {
   clearCustomerUser,
   selectCustomerUser,
@@ -30,9 +34,14 @@ import {
   AiOutlinePhone,
   AiOutlineDownCircle,
   AiOutlineUpCircle,
+  AiOutlineClose,
 } from "react-icons/ai";
 
 const CONTACT_EMAIL = "FartaMarket@gmail.com";
+const isCompactViewport = () =>
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(max-width: 991px)").matches;
 const SOCIAL_LINKS = [
   {
     label: "Facebook",
@@ -69,7 +78,13 @@ const Header = () => {
   const [isShowHumberger, setShowHumberger] = useState(false);
   const [activeMobileMenu, setActiveMobileMenu] = useState(null);
   const [isHome, setIsHome] = useState(location.pathname.length <= 1);
-  const [isShowCategories, setShowCategories] = useState(isHome);
+  const [isCompactNavigation, setIsCompactNavigation] = useState(isCompactViewport);
+  const [isShowCategories, setShowCategories] = useState(
+    () => isHome && !isCompactViewport()
+  );
+  const drawerRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const menuButtonRef = useRef(null);
   const { cart: cartRedux } = useSelector((state) => state.commonSlide);
   const currentUser = useSelector(selectCustomerUser);
   const isLoggedIn = Boolean(currentUser);
@@ -79,15 +94,64 @@ const Header = () => {
   useEffect(() => {
     const isHome = location.pathname.length <= 1;
     setIsHome(isHome);
-    setShowCategories(isHome);
-  }, [location]);
+    setShowCategories(isHome && !isCompactNavigation);
+  }, [isCompactNavigation, location.pathname]);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return undefined;
+
+    const mediaQuery = window.matchMedia("(max-width: 991px)");
+    const handleViewportChange = (event) => setIsCompactNavigation(event.matches);
+    mediaQuery.addEventListener?.("change", handleViewportChange);
+
+    return () => mediaQuery.removeEventListener?.("change", handleViewportChange);
+  }, []);
+
+  useEffect(() => {
+    if (!isShowHumberger) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const drawer = drawerRef.current;
+    const focusable = drawer?.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusable?.[0];
+    const lastFocusable = focusable?.[focusable.length - 1];
+    const focusTimer = window.setTimeout(() => closeButtonRef.current?.focus(), 0);
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setShowHumberger(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !firstFocusable || !lastFocusable) return;
+      if (event.shiftKey && document.activeElement === firstFocusable) {
+        event.preventDefault();
+        lastFocusable.focus();
+      } else if (!event.shiftKey && document.activeElement === lastFocusable) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+      window.clearTimeout(focusTimer);
+      menuButtonRef.current?.focus();
+    };
+  }, [isShowHumberger]);
 
   const { data: categories } = useGetCategoriesUS();
   const { data: siteContent, isLoading: isSiteContentLoading } = useGetSiteContentUS();
   const settings = siteContent?.settings || {};
   const contactEmail = settings.contact_email || CONTACT_EMAIL;
-  const contactPhone = settings.contact_phone || "0977232232";
-  const supportPhone = settings.support_phone || contactPhone;
+  const customerPhone = isSiteContentLoading
+    ? ""
+    : resolveCustomerPhone(settings);
   const freeShippingThreshold = Number(settings.free_shipping_threshold ?? 200000);
   const brandName = settings.brand_name || t("brand.name");
   const socialLinks = SOCIAL_LINKS.map((item) => ({
@@ -151,10 +215,11 @@ const Header = () => {
       {
         key: "contact",
         name: t("navbar.contact"),
-        href: `tel:${contactPhone}`,
+        href: customerPhone ? `tel:${customerPhone}` : "",
+        pending: !customerPhone,
       },
     ];
-  }, [categories, contactPhone, t]);
+  }, [categories, customerPhone, t]);
 
   const handleUserLogout = async () => {
     try {
@@ -171,7 +236,7 @@ const Header = () => {
   };
 
   const isMenuActive = (menu) => {
-    if (menu.href) {
+    if (menu.href || menu.pending) {
       return false;
     }
 
@@ -206,6 +271,14 @@ const Header = () => {
   };
 
   const renderMenuLink = (menu, children, onClick) => {
+    if (menu.pending) {
+      return (
+        <span className="header__menu__pending" aria-busy="true">
+          {children}
+        </span>
+      );
+    }
+
     if (menu.href) {
       return (
         <a href={menu.href} onClick={onClick}>
@@ -223,15 +296,33 @@ const Header = () => {
 
   return (
     <>
-      <div
+      <button
+        type="button"
         className={`hunberger__menu__overlay${
           isShowHumberger ? " active" : ""
         }`}
+        aria-label={t("navbar.closeMenu")}
+        tabIndex={-1}
         onClick={() => setShowHumberger(false)}
       />
       <div
+        ref={drawerRef}
+        id="mobile-navigation"
         className={`hunberger__menu__wrapper${isShowHumberger ? " show" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("navbar.mobileMenu")}
+        aria-hidden={!isShowHumberger}
       >
+        <button
+          ref={closeButtonRef}
+          type="button"
+          className="hunberger__menu__close"
+          aria-label={t("navbar.closeMenu")}
+          onClick={() => setShowHumberger(false)}
+        >
+          <AiOutlineClose aria-hidden="true" />
+        </button>
         <div className="header__logo">
           <Link to={ROUTERS.USER.HOME} onClick={() => setShowHumberger(false)}>
             <h1>{brandName}</h1>
@@ -280,31 +371,31 @@ const Header = () => {
           <ul>
             {menus.map((menu, menuKey) => (
               <li key={`${menu.key}-${menu.href || menu.path}`}>
-                {renderMenuLink(
-                  menu,
-                  <>
-                    {menu.name}
-                    {menu.child &&
-                      (activeMobileMenu === menu.path ? (
-                        <AiOutlineDownCircle />
-                      ) : (
-                        <AiOutlineUpCircle />
-                      ))}
-                  </>,
-                  (e) => {
-                    if (menu.child?.length) {
-                      e.preventDefault();
+                {menu.child?.length ? (
+                  <button
+                    type="button"
+                    className="hunberger__menu__toggle"
+                    aria-expanded={activeMobileMenu === menu.path}
+                    aria-controls={`mobile-submenu-${menu.key}`}
+                    onClick={() =>
                       setActiveMobileMenu(
                         activeMobileMenu === menu.path ? null : menu.path
-                      );
-                      return;
+                      )
                     }
-
-                    setShowHumberger(false);
-                  }
+                  >
+                    {menu.name}
+                    {activeMobileMenu === menu.path ? (
+                      <AiOutlineUpCircle aria-hidden="true" />
+                    ) : (
+                      <AiOutlineDownCircle aria-hidden="true" />
+                    )}
+                  </button>
+                ) : (
+                  renderMenuLink(menu, menu.name, () => setShowHumberger(false))
                 )}
                 {menu.child && (
                   <ul
+                    id={`mobile-submenu-${menu.key}`}
                     className={`header__menu__dropdown ${
                       activeMobileMenu === menu.path ? "show__submenu" : ""
                     }`}
@@ -384,9 +475,13 @@ const Header = () => {
                   ) : (
                     <>
                       <BiUser />
-                      <span onClick={() => navigate(ROUTERS.USER.LOGIN)}>
-                      {t("navbar.login")}
-                      </span>
+                      <button
+                        type="button"
+                        className="header-login-button"
+                        onClick={() => navigate(ROUTERS.USER.LOGIN)}
+                      >
+                        {t("navbar.login")}
+                      </button>
                     </>
                   )}
                 </li>
@@ -442,7 +537,16 @@ const Header = () => {
               </div>
             </div>
             <div className="humberger__open">
-              <AiOutlineMenu onClick={() => setShowHumberger(true)} />
+              <button
+                ref={menuButtonRef}
+                type="button"
+                aria-label={t("navbar.openMenu")}
+                aria-expanded={isShowHumberger}
+                aria-controls="mobile-navigation"
+                onClick={() => setShowHumberger(true)}
+              >
+                <AiOutlineMenu aria-hidden="true" />
+              </button>
             </div>
           </div>
         </div>
@@ -450,14 +554,17 @@ const Header = () => {
       <div className="container">
         <div className="row hero__categories_container">
           <div className="col-lg-3 col-md-12 col-sm-12 col-xs-12 hero__categories">
-            <div
+            <button
+              type="button"
               className="hero__categories__all"
               onClick={() => setShowCategories(!isShowCategories)}
+              aria-expanded={isShowCategories}
+              aria-controls="product-category-list"
             >
-              <AiOutlineMenu />
+              <AiOutlineMenu aria-hidden="true" />
               <p>{t("navbar.productList")}</p>
-            </div>
-            <ul className={isShowCategories ? "" : "hidden"}>
+            </button>
+            <ul id="product-category-list" className={isShowCategories ? "" : "hidden"}>
               {categories?.map((category) => (
                 <li key={category.id}>
                   <Link to={`${ROUTERS.USER.PRODUCTS}?category_id=${category.id}`}>
@@ -477,7 +584,17 @@ const Header = () => {
                   <AiOutlinePhone />
                 </div>
                 <div className="hero__search__phone__text">
-                  <p><a href={`tel:${supportPhone}`}>{supportPhone}</a></p>
+                  <p>
+                    {customerPhone ? (
+                      <a href={`tel:${customerPhone}`}>{customerPhone}</a>
+                    ) : (
+                      <span
+                        className="phone-loading-placeholder"
+                        aria-label={t("common.loading")}
+                        aria-busy="true"
+                      />
+                    )}
+                  </p>
                   <span>{t("navbar.support")}</span>
                 </div>
               </div>

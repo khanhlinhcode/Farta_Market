@@ -100,7 +100,7 @@ const UserLoginPage = () => {
   };
 
   return (
-    <main className="user-login">
+    <div className="user-login">
       <section className="user-login__card">
         <div className="user-login__brand">
           <AuthBrand />
@@ -223,7 +223,7 @@ const UserLoginPage = () => {
 
         </div>
       </section>
-    </main>
+    </div>
   );
 };
 

@@ -140,7 +140,7 @@ const HomPage = () => {
   };
   if (isLoading) {
     return (
-      <main
+      <div
         className="container homepage-state homepage-state--loading"
         aria-busy="true"
         aria-label={t("common.loading")}
@@ -165,7 +165,7 @@ const HomPage = () => {
           <div className="homepage-loading__banner skeleton-pulse" />
           <div className="homepage-loading__banner skeleton-pulse" />
         </div>
-      </main>
+      </div>
     );
   }
 

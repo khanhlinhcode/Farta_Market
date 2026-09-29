@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ProductCard, ProductCardSkeleton } from "component";
 import { useGetCategoriesUS, useGetProductsUS } from "api/homePage";
@@ -78,6 +78,8 @@ const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [draftKeyword, setDraftKeyword] = useState(searchParams.get("q") || "");
   const [showFilter, setShowFilter] = useState(false);
+  const filterButtonRef = useRef(null);
+  const filterDrawerRef = useRef(null);
   const { data: categories = [] } = useGetCategoriesUS();
   const sortOptions = useMemo(
     () =>
@@ -153,6 +155,44 @@ const ProductsPage = () => {
   useEffect(() => {
     setDraftKeyword(filters.keyword);
   }, [filters.keyword]);
+
+  useEffect(() => {
+    if (!showFilter) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const drawer = filterDrawerRef.current;
+    const focusable = drawer?.querySelectorAll(
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusable?.[0];
+    const lastFocusable = focusable?.[focusable.length - 1];
+    const focusTimer = window.setTimeout(() => firstFocusable?.focus(), 0);
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setShowFilter(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !firstFocusable || !lastFocusable) return;
+      if (event.shiftKey && document.activeElement === firstFocusable) {
+        event.preventDefault();
+        lastFocusable.focus();
+      } else if (!event.shiftKey && document.activeElement === lastFocusable) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+      window.clearTimeout(focusTimer);
+      filterButtonRef.current?.focus();
+    };
+  }, [showFilter]);
 
   const updateFilter = (key, value) => {
     setSearchParams((prev) => {
@@ -250,8 +290,9 @@ const ProductsPage = () => {
   return (
     <>
       <Breadcrumb name={t("products.title")} />
-      <div className="container">
+      <div className="container products-page">
         <button
+          ref={filterButtonRef}
           type="button"
           className="product-filter-toggle"
           aria-expanded={showFilter}
@@ -270,8 +311,12 @@ const ProductsPage = () => {
         <div className="row">
           <div className="col-lg-3 col-md-12 col-sm-12 col-xs-12">
             <aside
+              ref={filterDrawerRef}
               id="product-filter-sidebar"
               className={`sidebar${showFilter ? " open" : ""}`}
+              role={showFilter ? "dialog" : undefined}
+              aria-modal={showFilter ? "true" : undefined}
+              aria-label={t("products.filter")}
             >
               <div className="product-filter-mobile-header">
                 <h2>{t("products.filter")}</h2>

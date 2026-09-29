@@ -248,7 +248,7 @@ const ProfilePage = () => {
   return (
     <>
       <Breadcrumb name={t("profile.title")} />
-      <main className="profile-page">
+      <div className="profile-page">
         <div className="container">
           <div className="profile-page__header">
             <div>
@@ -436,7 +436,7 @@ const ProfilePage = () => {
             </section>
           )}
         </div>
-      </main>
+      </div>
 
       {isAddressModalOpen ? (
         <div className="profile-page__modal" role="dialog" aria-modal="true">

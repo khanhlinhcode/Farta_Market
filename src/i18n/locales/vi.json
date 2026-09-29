@@ -30,7 +30,10 @@
     "searchButton": "Tìm kiếm",
     "myOrders": "Đơn hàng của tôi",
     "wishlist": "Yêu thích",
-    "support": "Hỗ trợ 24/7"
+    "support": "Hỗ trợ 24/7",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu",
+    "mobileMenu": "Điều hướng chính"
   },
   "home": {
     "hero": {
@@ -297,6 +300,9 @@
     "remove": "Xóa",
     "checkout": "Thanh toán",
     "empty": "Giỏ hàng đang trống.",
+    "emptyHint": "Khám phá sản phẩm và thêm những món bạn cần vào giỏ hàng.",
+    "continueShopping": "Tiếp tục mua sắm",
+    "removeItem": "Xóa {{name}} khỏi giỏ hàng",
     "discountCode": "Mã giảm giá",
     "discountPlaceholder": "Nhập mã giảm giá",
     "apply": "Áp dụng",

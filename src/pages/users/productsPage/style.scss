@@ -1,7 +1,8 @@
 @use "sass:map";
 @use "style/pages/theme" as *;
-.container {
-  padding: 30px 0;
+.products-page {
+  padding-bottom: 32px;
+  padding-top: 32px;
 
   .sidebar {
     padding-right: 20px;
@@ -25,13 +26,14 @@
         gap: 10px;
         flex-wrap: wrap;
         .tag {
-          border: none;
+          background: var(--color-surface-soft);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-sm);
           font-size: 12px;
           color: #6f6f6f;
           display: inline-block;
           padding: 8px 25px 6px;
           cursor: pointer;
-          background: #f5f5f5;
           margin-bottom: 0;
 
           &:hover,
@@ -79,7 +81,7 @@
 
   button {
     border: none;
-    border-radius: 3px;
+    border-radius: var(--radius-control);
     background: map.get($theme-colors, "main");
     color: #ffffff;
     cursor: pointer;
@@ -94,8 +96,9 @@
   margin-top: 8px;
 }
 .product-filter-reset {
-  background: #f5f5f5;
-  border: 1px solid #ebebeb;
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
   color: map.get($theme-colors, "nomal-text");
   cursor: pointer;
   font-weight: 700;
@@ -131,9 +134,9 @@
   justify-content: flex-end;
 
   button {
-    background: #edf7f5;
+    background: var(--brand-primary-soft);
     border: 1px solid #c9e8e2;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     color: map.get($theme-colors, "main");
     cursor: pointer;
     padding: 8px 10px;
@@ -151,7 +154,7 @@
 }
 .product-grid {
   display: grid;
-  gap: 24px 16px;
+  gap: 16px 12px;
   grid-template-columns: 1fr;
 }
 
@@ -166,8 +169,9 @@
   margin-top: 24px;
 
   button {
-    border: 1px solid #ebebeb;
-    background: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
     color: map.get($theme-colors, "nomal-text");
     cursor: pointer;
     min-width: 40px;
@@ -182,17 +186,23 @@
     }
 
     &:disabled {
-      background: #f5f5f5;
-      border-color: #ebebeb;
+      background: var(--color-surface-soft);
+      border-color: var(--color-border);
       color: #b2b2b2;
       cursor: not-allowed;
     }
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 360px) {
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -202,7 +212,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991px) {
   .product-filter-toggle {
     align-items: center;
     background: map.get($theme-colors, "main");
@@ -214,11 +224,14 @@
     font-weight: 700;
     gap: 8px;
     margin-bottom: 18px;
+    min-height: 44px;
+    border-radius: var(--radius-control);
     padding: 10px 14px;
   }
 
   .product-filter-overlay {
-    background: rgba(0, 0, 0, 0.42);
+    background: var(--overlay-bg);
+    backdrop-filter: blur(4px);
     border: 0;
     cursor: pointer;
     inset: 0;
@@ -237,8 +250,12 @@
     }
   }
 
-  .container .sidebar {
-    background: #ffffff;
+  .products-page .sidebar {
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    backdrop-filter: blur(24px) saturate(140%);
+    background: var(--glass-3-bg);
+    border-right: 1px solid var(--glass-3-border);
+    box-shadow: var(--glass-3-shadow);
     box-sizing: border-box;
     height: 100dvh;
     left: 0;
@@ -248,12 +265,14 @@
     position: fixed;
     top: 0;
     transform: translateX(-105%);
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, visibility 0.2s;
+    visibility: hidden;
     width: 320px;
     z-index: 1200;
 
     &.open {
       transform: translateX(0);
+      visibility: visible;
     }
   }
 

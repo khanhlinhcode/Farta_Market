@@ -80,7 +80,7 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <main className="verify-email">
+    <div className="verify-email">
       <section className="verify-email__card" aria-labelledby="verify-email-title">
         <div className="verify-email__brand">
           <AuthBrand />
@@ -138,6 +138,6 @@ export default function VerifyEmailPage() {
           <p className="verify-email__tip">{t("auth.verificationInboxTip")}</p>
         )}
       </section>
-    </main>
+    </div>
   );
 }

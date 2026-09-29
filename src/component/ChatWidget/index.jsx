@@ -88,10 +88,16 @@ const ChatWidget = () => {
   const [serviceStatus, setServiceStatus] = useState("checking");
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const bubbleRef = useRef(null);
   const isOpenRef = useRef(false);
   const isMountedRef = useRef(true);
   const requestControllerRef = useRef(null);
   const pendingActionsRef = useRef(new Set());
+
+  const closePanel = () => {
+    setIsOpen(false);
+    window.requestAnimationFrame(() => bubbleRef.current?.focus());
+  };
 
   const cartContext = useMemo(
     () => {
@@ -155,7 +161,7 @@ const ChatWidget = () => {
 
   useEffect(() => {
     const closeOnEscape = (event) => {
-      if (event.key === "Escape") setIsOpen(false);
+      if (event.key === "Escape") closePanel();
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
@@ -348,7 +354,7 @@ const ChatWidget = () => {
               <strong id="chat-widget-title">{t("chat.title")}</strong>
               <span className={`is-${serviceStatus}`}><i aria-hidden="true" />{statusLabel}</span>
             </div>
-            <button type="button" className="chat-widget__close" onClick={() => setIsOpen(false)} aria-label={t("common.close")}>
+            <button type="button" className="chat-widget__close" onClick={closePanel} aria-label={t("common.close")}>
               <FiX />
             </button>
           </header>
@@ -483,6 +489,7 @@ const ChatWidget = () => {
 
       <button
         type="button"
+        ref={bubbleRef}
         className={`chat-widget__bubble${isOpen ? " is-open" : ""}`}
         data-testid="chat-bubble"
         onClick={() => setIsOpen((open) => !open)}

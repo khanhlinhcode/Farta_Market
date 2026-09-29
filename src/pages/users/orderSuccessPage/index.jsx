@@ -146,7 +146,7 @@ const OrderSuccessPage = () => {
     return (
       <>
         <Breadcrumb name={t("order.sepayTitle")} />
-        <main className="order-success">
+        <div className="order-success">
           <div className="container">
             <section
               className="order-success__panel order-success__panel--payment"
@@ -214,7 +214,7 @@ const OrderSuccessPage = () => {
               </div>
             </section>
           </div>
-        </main>
+        </div>
       </>
     );
   }
@@ -226,7 +226,7 @@ const OrderSuccessPage = () => {
     return (
       <>
         <Breadcrumb name={t("order.paymentExpiredTitle")} />
-        <main className="order-success">
+        <div className="order-success">
           <div className="container">
             <section className="order-success__panel" role="alert">
               <h1>{t("order.paymentExpiredTitle")}</h1>
@@ -234,7 +234,7 @@ const OrderSuccessPage = () => {
               <Link to={ROUTERS.USER.MY_ORDERS}>{t("order.viewOrder")}</Link>
             </section>
           </div>
-        </main>
+        </div>
       </>
     );
   }
@@ -246,7 +246,7 @@ const OrderSuccessPage = () => {
     return (
       <>
         <Breadcrumb name={t("order.verificationTitle")} />
-        <main className="order-success">
+        <div className="order-success">
           <div className="container">
             <section className="order-success__panel">
               <h1>{t("order.verificationTitle")}</h1>
@@ -256,7 +256,7 @@ const OrderSuccessPage = () => {
               <Link to={ROUTERS.USER.MY_ORDERS}>{t("order.viewOrder")}</Link>
             </section>
           </div>
-        </main>
+        </div>
       </>
     );
   }
@@ -264,7 +264,7 @@ const OrderSuccessPage = () => {
   return (
     <>
       <Breadcrumb name={t("order.successTitle")} />
-      <main className="order-success">
+      <div className="order-success">
         <div className="container">
           <section className="order-success__panel">
             <div className="order-success__icon" aria-hidden="true">
@@ -314,7 +314,7 @@ const OrderSuccessPage = () => {
             </div>
           </section>
         </div>
-      </main>
+      </div>
     </>
   );
 };

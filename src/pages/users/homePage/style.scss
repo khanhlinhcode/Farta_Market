@@ -13,7 +13,7 @@
       background-repeat: no-repeat;
       background-size: cover;
       background-position: top center;
-      border-radius: 5px;
+      border-radius: var(--radius-lg);
       color: inherit;
       cursor: pointer;
       overflow: hidden;
@@ -21,7 +21,7 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
 
       &:hover {
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-md);
         transform: translateY(-2px);
       }
 
@@ -161,6 +161,7 @@
     cursor: pointer;
     font-size: 15px;
     font-weight: 600;
+    min-height: 44px;
     padding: 10px 22px;
     transition: opacity 0.15s ease;
 
@@ -168,6 +169,11 @@
       opacity: 0.88;
     }
   }
+}
+
+.react-multiple-carousel__arrow {
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .banner {
@@ -180,11 +186,12 @@
     background: #e8eceb;
     display: block;
     flex: 1;
+    border-radius: var(--radius-lg);
     overflow: hidden;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-md);
       transform: translateY(-2px);
     }
 
@@ -230,5 +237,17 @@
 @include Responsive($SMALL_DEVICE) {
   .homepage-loading__categories {
     grid-template-columns: 1fr;
+  }
+
+  .banner {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 360px) and (max-width: 575px) {
+  .featured .col-xs-12,
+  .homepage-loading__products .col-xs-12 {
+    flex: 0 0 50%;
+    max-width: 50%;
   }
 }

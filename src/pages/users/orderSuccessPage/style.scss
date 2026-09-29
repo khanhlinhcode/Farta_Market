@@ -2,14 +2,14 @@
 @use "style/pages/all" as *;
 
 .order-success {
-  background: #f7faf9;
+  background: var(--color-bg);
   padding: 48px 0 72px;
 
   &__panel {
-    background: #ffffff;
-    border: 1px solid #e6ecea;
-    border-radius: 8px;
-    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.06);
+    background: var(--glass-1-bg);
+    border: 0;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
     margin: 0 auto;
     max-width: 760px;
     padding: 42px;
@@ -131,7 +131,7 @@
       align-items: center;
       background: #f7fbfa;
       border: 1px solid #e6f0ed;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       display: flex;
       gap: 16px;
       justify-content: space-between;
@@ -159,7 +159,7 @@
     align-items: center;
     background: map.get($theme-colors, "main");
     border: 1px solid map.get($theme-colors, "main");
-    border-radius: 6px;
+    border-radius: var(--radius-control);
     color: #ffffff;
     display: inline-flex;
     font-weight: 800;
@@ -170,7 +170,7 @@
     text-decoration: none;
 
     &--ghost {
-      background: #ffffff;
+      background: var(--color-surface);
       color: map.get($theme-colors, "main");
     }
   }

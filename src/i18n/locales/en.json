@@ -31,7 +31,10 @@
     "filter": "Filter",
     "myOrders": "My orders",
     "wishlist": "Wishlist",
-    "support": "24/7 Support"
+    "support": "24/7 Support",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mobileMenu": "Main navigation"
   },
   "home": {
     "hero": {
@@ -338,6 +341,9 @@
     "remove": "Remove",
     "checkout": "Checkout",
     "empty": "Your cart is empty.",
+    "emptyHint": "Explore products and add the items you need to your cart.",
+    "continueShopping": "Continue shopping",
+    "removeItem": "Remove {{name}} from cart",
     "discountCode": "Discount Code",
     "discountPlaceholder": "Enter discount code",
     "apply": "Apply",

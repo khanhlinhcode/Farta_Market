@@ -3,8 +3,8 @@ import Breadcrumb from "../theme/breadcrumb";
 import "./style.scss";
 import { formatter } from "utils/formatter";
 import { ConfirmModal, Quantity } from "component";
-import { AiOutlineClose } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
+import { AiOutlineClose, AiOutlineShoppingCart } from "react-icons/ai";
+import { Link, useNavigate } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 import { useState } from "react";
 import useShoppingCart from "hooks/useShoppingCart";
@@ -50,8 +50,8 @@ const ShoppingCartPage = () => {
                       />
                       <h4>{translateProductName(product, t)}</h4>
                     </td>
-                    <td>{formatter(product.price)}</td>
-                    <td>
+                    <td data-label={t("cart.price")}>{formatter(product.price)}</td>
+                    <td data-label={t("cart.quantity")}>
                       <Quantity
                         product={product}
                         initQuantity={quantity}
@@ -62,12 +62,19 @@ const ShoppingCartPage = () => {
                         }
                       />
                     </td>
-                    <td>{formatter(product.price * quantity)}</td>
-                    <td
-                      className="icon_close"
-                      onClick={() => setPendingRemoveId(product.id)}
-                    >
-                      <AiOutlineClose />
+                    <td data-label={t("cart.lineTotal")}>
+                      {formatter(product.price * quantity)}
+                    </td>
+                    <td className="icon_close">
+                      <button
+                        type="button"
+                        aria-label={t("cart.removeItem", {
+                          name: translateProductName(product, t),
+                        })}
+                        onClick={() => setPendingRemoveId(product.id)}
+                      >
+                        <AiOutlineClose aria-hidden="true" />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -99,8 +106,13 @@ const ShoppingCartPage = () => {
           </div>
         </div>
       ) : (
-        <div className="container">
-          <div className="product-list-state">{t("cart.empty")}</div>
+        <div className="container cart-empty-page">
+          <section className="cart-empty" aria-labelledby="cart-empty-title">
+            <AiOutlineShoppingCart aria-hidden="true" />
+            <h2 id="cart-empty-title">{t("cart.empty")}</h2>
+            <p>{t("cart.emptyHint")}</p>
+            <Link to={ROUTERS.USER.PRODUCTS}>{t("cart.continueShopping")}</Link>
+          </section>
         </div>
       )}
       <ConfirmModal

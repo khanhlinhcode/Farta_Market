@@ -2,7 +2,7 @@
 @use "style/pages/all" as *;
 
 .my-orders {
-  background: #f7faf9;
+  background: var(--color-bg);
   padding: 36px 0 64px;
 
   &__header {
@@ -23,9 +23,9 @@
     }
 
     button {
-      background: #ffffff;
+      background: var(--glass-1-bg);
       border: 1px solid #b7ddd7;
-      border-radius: 6px;
+      border-radius: var(--radius-control);
       color: map.get($theme-colors, "main");
       cursor: pointer;
       font-weight: 700;
@@ -35,9 +35,9 @@
   }
 
   &__state {
-    background: #ffffff;
-    border: 1px solid #e6ecea;
-    border-radius: 8px;
+    background: var(--glass-1-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     color: #667085;
     margin-bottom: 14px;
     padding: 20px;
@@ -55,9 +55,9 @@
   }
 
   &__card {
-    background: #ffffff;
-    border: 1px solid #e6ecea;
-    border-radius: 8px;
+    background: var(--glass-1-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
     overflow: hidden;
   }
 
@@ -125,9 +125,9 @@
 
   &__timeline {
     align-items: center;
-    background: #ffffff;
-    border: 1px solid #e6ecea;
-    border-radius: 8px;
+    background: var(--color-surface-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     display: grid;
     gap: 10px;
     grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -186,8 +186,8 @@
 
   &__line {
     align-items: center;
-    background: #f7fbfa;
-    border-radius: 6px;
+    background: var(--color-surface-soft);
+    border-radius: var(--radius-md);
     display: grid;
     gap: 12px;
     grid-template-columns: minmax(160px, 1fr) 160px 130px;
@@ -195,9 +195,9 @@
   }
 
   &__totals {
-    background: #fff;
-    border: 1px solid #e6ecea;
-    border-radius: 8px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     display: grid;
     gap: 8px;
     justify-self: end;
@@ -213,9 +213,9 @@
   }
 
   &__cancel {
-    background: #ffffff;
+    background: var(--color-surface);
     border: 1px solid #fecdca;
-    border-radius: 6px;
+    border-radius: var(--radius-control);
     color: var(--color-danger-deep);
     cursor: pointer;
     font-weight: 800;
@@ -232,9 +232,9 @@
     margin-top: 20px;
 
     button {
-      background: #ffffff;
+      background: var(--color-surface);
       border: 1px solid #b7ddd7;
-      border-radius: 6px;
+      border-radius: var(--radius-control);
       color: map.get($theme-colors, "main");
       cursor: pointer;
       min-height: 38px;

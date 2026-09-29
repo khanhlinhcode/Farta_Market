@@ -4,3 +4,8 @@ export const localizedValue = (item, field, language, fallback = "") => {
 };
 
 export const isExternalUrl = (value = "") => /^https:\/\//i.test(value);
+
+export const DEFAULT_CUSTOMER_PHONE = "0393886668";
+
+export const resolveCustomerPhone = (settings = {}) =>
+  settings.support_phone || settings.contact_phone || DEFAULT_CUSTOMER_PHONE;

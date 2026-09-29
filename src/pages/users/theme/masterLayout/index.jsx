@@ -9,7 +9,7 @@ const MasterLayout = ({ children, className = "", ...props }) => {
     <div className={`site-shell ${className}`.trim()} {...props}>
       <AnalyticsTracker />
       <Header />
-      <div className="site-shell__content">{children}</div>
+      <main className="site-shell__content">{children}</main>
       <Footer />
     </div>
   );

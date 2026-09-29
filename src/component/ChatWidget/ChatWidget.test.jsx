@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "../../i18n";
@@ -60,6 +60,19 @@ describe("ChatWidget", () => {
     );
 
     expect(await screen.findByText("Đang trực tuyến")).toBeInTheDocument();
+  });
+
+  it("returns focus to the chat launcher when the panel closes", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      jsonResponse({ status: "online" })
+    );
+    const { container } = render(<Provider store={store}><ChatWidget /></Provider>);
+    const launcher = screen.getByRole("button", { name: "Farta Assistant" });
+
+    await userEvent.click(launcher);
+    await userEvent.click(container.querySelector(".chat-widget__close"));
+
+    await waitFor(() => expect(launcher).toHaveFocus());
   });
 
   it("does not send the local welcome message as chat history", async () => {

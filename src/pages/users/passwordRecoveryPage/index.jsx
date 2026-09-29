@@ -80,7 +80,7 @@ function PasswordRecoveryPage({ mode }) {
   };
 
   return (
-    <main className="user-login">
+    <div className="user-login">
       <section className="user-login__card" aria-labelledby="password-recovery-title">
         <div className="user-login__brand">
           <AuthBrand />
@@ -166,7 +166,7 @@ function PasswordRecoveryPage({ mode }) {
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 

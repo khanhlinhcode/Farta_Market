@@ -32,29 +32,29 @@
 }
 
 .fm-button--primary {
-  background: var(--gradient-primary);
-  box-shadow: 0 12px 24px rgba(0, 136, 116, 0.16);
+  background: var(--color-primary);
+  box-shadow: var(--shadow-sm);
   color: #ffffff;
 
   &:hover:not(:disabled) {
-    background: var(--gradient-primary-hover);
-    box-shadow: 0 16px 30px rgba(0, 136, 116, 0.22);
+    background: var(--color-primary-hover);
+    box-shadow: var(--shadow-md);
   }
 }
 
 .fm-button--secondary,
 .fm-button--ghost {
-  background: var(--gradient-glass);
+  background: var(--glass-1-bg);
   border-color: var(--color-border);
   color: var(--color-primary);
 
   &:hover:not(:disabled) {
-    background: var(--gradient-primary-soft);
+    background: var(--brand-primary-soft);
   }
 }
 
 .fm-button--destructive {
-  background: var(--gradient-danger);
+  background: var(--color-danger);
   color: #ffffff;
 
   &:focus-visible {

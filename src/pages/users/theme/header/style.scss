@@ -6,6 +6,17 @@
   background: var(--color-surface-soft);
   font-size: 16px;
 }
+
+.header__main {
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  backdrop-filter: blur(18px) saturate(135%);
+  background: var(--glass-2-bg);
+  border: 1px solid var(--glass-2-border);
+  border-radius: var(--radius-lg);
+  margin-top: 12px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
 .header__top_left {
   ul {
     display: flex;
@@ -85,6 +96,15 @@
       }
     }
   }
+}
+
+.header-login-button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
 }
 
 .header-account-chip {
@@ -211,7 +231,11 @@
     }
 
     .header__menu__dropdown {
-      background: #222222;
+      -webkit-backdrop-filter: blur(18px) saturate(135%);
+      backdrop-filter: blur(18px) saturate(135%);
+      background: var(--glass-2-bg);
+      border: 1px solid var(--glass-2-border);
+      border-radius: var(--radius-md);
       display: block;
       position: absolute;
       width: 180px;
@@ -220,12 +244,12 @@
       transition: all 0.3s;
       opacity: 0;
       visibility: hidden;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+      box-shadow: var(--glass-2-shadow);
 
       li {
         a {
           text-transform: capitalize;
-          color: #ffffff;
+          color: var(--color-text);
           font-size: 15px;
           font-weight: 500;
           padding: 9px 16px;
@@ -332,6 +356,11 @@
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 0;
+    border: 0;
+    min-height: 50px;
+    text-align: left;
+    width: 100%;
+    border-radius: var(--radius-control);
 
     svg,
     span {
@@ -344,10 +373,14 @@
     }
   }
   ul {
-    border: 1px solid #ebebeb;
+    -webkit-backdrop-filter: blur(18px) saturate(135%);
+    backdrop-filter: blur(18px) saturate(135%);
+    background: var(--glass-2-bg);
+    border: 1px solid var(--glass-2-border);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    box-shadow: var(--glass-2-shadow);
     position: absolute;
     width: 99%;
-    background: #ffffff;
     opacity: 1;
     transition: all 0.3s;
 
@@ -373,6 +406,8 @@
 
     &.hidden {
       opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
     }
   }
 }
@@ -396,6 +431,7 @@
       padding-left: 20px;
       border: 1px solid #ebebeb;
       width: 70%;
+      border-radius: var(--radius-control) 0 0 var(--radius-control);
 
       :focus {
         outline: none;
@@ -413,6 +449,7 @@
       border: none;
       height: 100%;
       cursor: pointer;
+      border-radius: 0 var(--radius-control) var(--radius-control) 0;
     }
   }
   .hero__search__phone {
@@ -422,7 +459,7 @@
     .hero__search__phone__icon {
       font-size: 25px;
       padding: 10px;
-      background: #f5f5f5;
+      background: var(--brand-primary-soft);
       line-height: 50px;
       text-align: center;
       border-radius: 50%;
@@ -459,6 +496,8 @@
     display: flex;
     align-items: center;
     width: 100%;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
     //padding-left: 75px;
 
     &.hero__item--loading {
@@ -514,7 +553,8 @@
       }
 
       a {
-        display: inline-block;
+        align-items: center;
+        display: inline-flex;
         font-size: 14px;
         padding: 10px 28px 10px;
         color: #ffffff;
@@ -524,8 +564,11 @@
         letter-spacing: 0;
         text-decoration: none;
         cursor: pointer;
+        justify-content: center;
+        min-height: 44px;
         transition: background 0.2s ease, box-shadow 0.2s ease,
           transform 0.15s ease;
+        border-radius: var(--radius-control);
 
         &:hover {
           background: #007a68;
@@ -556,6 +599,15 @@
   }
 }
 
+.header__menu__pending {
+  color: var(--color-muted);
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  padding: 8px 0;
+  text-transform: uppercase;
+}
+
 .hunberger__menu__wrapper,
 .humberger__open {
   display: none;
@@ -573,7 +625,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991px) {
   @include header.header-small-device;
 
   .container,
@@ -589,6 +641,7 @@
     align-items: center;
     flex-wrap: nowrap;
     padding: 0 15px;
+    border-radius: var(--radius-md);
   }
 
   .header__main__logo {
@@ -609,6 +662,27 @@
 
   .hero__search {
     display: grid;
+  }
+
+  .hero__categories {
+    margin-bottom: 20px;
+
+    ul {
+      position: static;
+      width: 100%;
+
+      &.hidden {
+        display: none;
+      }
+
+      li a {
+        align-items: center;
+        display: flex;
+        line-height: 1.45;
+        min-height: 44px;
+        padding: 8px 20px;
+      }
+    }
   }
 
   .header__logo {
